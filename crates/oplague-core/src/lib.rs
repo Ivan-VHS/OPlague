@@ -233,7 +233,10 @@ mod tests {
             unresolved_conflicts: 1,
             invalid_signatures: 1,
         };
-        assert_eq!(HealthScore::from_evidence(evidence).map(HealthScore::value), Some(40));
+        assert_eq!(
+            HealthScore::from_evidence(evidence).map(HealthScore::value),
+            Some(40)
+        );
     }
 
     #[test]
