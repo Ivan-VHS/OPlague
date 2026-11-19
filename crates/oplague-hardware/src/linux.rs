@@ -1,10 +1,6 @@
 //! Read-only Linux PCI and USB inventory using sysfs.
 
-use std::{
-    collections::HashSet,
-    fs,
-    path::Path,
-};
+use std::{collections::HashSet, fs, path::Path};
 
 use oplague_core::{
     BusType, DeviceStatus, DriverBinding, HardwareDevice, InventorySnapshot, SignatureState,
@@ -18,7 +14,9 @@ pub(super) fn discover() -> InventorySnapshot {
     scan_pci(Path::new("/sys/bus/pci/devices"), &mut snapshot, &mut seen);
     scan_usb(Path::new("/sys/bus/usb/devices"), &mut snapshot, &mut seen);
 
-    snapshot.devices.sort_by(|left, right| left.friendly_name.cmp(&right.friendly_name));
+    snapshot
+        .devices
+        .sort_by(|left, right| left.friendly_name.cmp(&right.friendly_name));
     snapshot.coverage_complete = false;
     snapshot.warnings.push(
         "Покрытие ограничено PCI и USB sysfs; это не полный аудит всех классов устройств."
@@ -31,7 +29,9 @@ fn scan_pci(root: &Path, snapshot: &mut InventorySnapshot, seen: &mut HashSet<St
     let entries = match fs::read_dir(root) {
         Ok(entries) => entries,
         Err(error) => {
-            snapshot.warnings.push(format!("Не удалось прочитать {}: {error}", root.display()));
+            snapshot
+                .warnings
+                .push(format!("Не удалось прочитать {}: {error}", root.display()));
             return;
         }
     };
@@ -64,7 +64,9 @@ fn scan_usb(root: &Path, snapshot: &mut InventorySnapshot, seen: &mut HashSet<St
     let entries = match fs::read_dir(root) {
         Ok(entries) => entries,
         Err(error) => {
-            snapshot.warnings.push(format!("Не удалось прочитать {}: {error}", root.display()));
+            snapshot
+                .warnings
+                .push(format!("Не удалось прочитать {}: {error}", root.display()));
             return;
         }
     };
