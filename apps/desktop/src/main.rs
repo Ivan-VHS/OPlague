@@ -29,7 +29,11 @@ fn inventory_text(snapshot: &oplague_core::InventorySnapshot) -> (String, String
         .join("\n");
     let overflow = snapshot.devices.len().saturating_sub(5);
     let summary = if overflow > 0 {
-        format!("{} устройств обнаружено (+ ещё {})", snapshot.devices.len(), overflow)
+        format!(
+            "{} устройств обнаружено (+ ещё {})",
+            snapshot.devices.len(),
+            overflow
+        )
     } else {
         format!("{} устройств обнаружено", snapshot.devices.len())
     };
