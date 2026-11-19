@@ -109,14 +109,8 @@ mod tests {
 
     #[test]
     fn classifies_common_windows_pnp_instance_prefixes() {
-        assert_eq!(
-            classify_instance_id("PCI\\VEN_10DE&DEV_2684"),
-            BusKind::Pci
-        );
-        assert_eq!(
-            classify_instance_id("USB\\VID_046D&PID_C547"),
-            BusKind::Usb
-        );
+        assert_eq!(classify_instance_id("PCI\\VEN_10DE&DEV_2684"), BusKind::Pci);
+        assert_eq!(classify_instance_id("USB\\VID_046D&PID_C547"), BusKind::Usb);
         assert_eq!(classify_instance_id("ACPI\\PNP0A08"), BusKind::Other);
     }
 
@@ -124,7 +118,10 @@ mod tests {
     fn field_reader_handles_missing_or_non_string_values() {
         assert_eq!(field(&Value::Null, "FriendlyName"), "");
         assert_eq!(
-            field(&serde_json::json!({"FriendlyName": "Keyboard"}), "FriendlyName"),
+            field(
+                &serde_json::json!({"FriendlyName": "Keyboard"}),
+                "FriendlyName"
+            ),
             "Keyboard"
         );
     }
