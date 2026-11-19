@@ -32,4 +32,4 @@ jobs:
           python -m compileall -q oplague tests
           python -m unittest discover -s tests -v
       - name: Verify registry CLI
-        run: python -m oplague.impact --catalog
+        run: python -m oplague --catalog
