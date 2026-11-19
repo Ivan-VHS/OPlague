@@ -12,6 +12,8 @@ from tkinter import filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
 from typing import Any
 
+from tools.report_composer import compose_inspection_reports
+
 MAX_PACKAGE_BYTES = 512 * 1024 * 1024
 MAX_ARCHIVE_ENTRIES = 10_000
 MAX_EXPANDED_BYTES = 2 * 1024 * 1024 * 1024
@@ -162,6 +164,7 @@ class OPlagueApp(tk.Tk):
         self.devices.configure(yscrollcommand=ybar.set); self.devices.pack(fill="both", expand=True); ybar.pack(side="right", fill="y")
         tools = ttk.Frame(packages); tools.pack(fill="x", pady=(0, 10))
         ttk.Button(tools, text="Inspect INF / ZIP…", command=self.choose_package).pack(side="left")
+        ttk.Button(tools, text="Batch inspect…", command=self.choose_packages).pack(side="left", padx=(8, 0))
         ttk.Label(tools, text="Metadata and hashes only — no extraction or execution", foreground="#526174").pack(side="left", padx=12)
         self.report = ScrolledText(packages, wrap="word", font=("Consolas", 10), state="disabled")
         self.report.pack(fill="both", expand=True)
@@ -195,6 +198,31 @@ class OPlagueApp(tk.Tk):
         self.report.insert("1.0", json.dumps(data, indent=2, ensure_ascii=False))
         self.report.configure(state="disabled"); self.tabs.select(1)
         self.status.set(f"Inspected {data['file_name']} — SHA-256 calculated locally")
+
+
+    def choose_packages(self) -> None:
+        filenames = filedialog.askopenfilenames(
+            parent=self, title="Select driver packages",
+            filetypes=[("Supported packages", "*.inf *.zip"), ("INF files", "*.inf"),
+                       ("ZIP files", "*.zip"), ("All files", "*.*")])
+        if not filenames:
+            return
+        try:
+            reports = [inspect_package(filename) for filename in filenames]
+            data = compose_inspection_reports(reports)
+        except Exception as error:
+            self.status.set("Batch package inspection failed")
+            messagebox.showerror("Batch package inspection failed", str(error), parent=self)
+            return
+        self.report.configure(state="normal")
+        self.report.delete("1.0", "end")
+        self.report.insert("1.0", json.dumps(data, indent=2, ensure_ascii=False))
+        self.report.configure(state="disabled")
+        self.tabs.select(1)
+        totals = data["totals"]
+        self.status.set(
+            f"Composed {totals['packages']} package reports — bundle SHA-256 {data['bundle_sha256'][:16]}…"
+        )
 
 def main() -> int:
     OPlagueApp().mainloop()
