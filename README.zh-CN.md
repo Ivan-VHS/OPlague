@@ -6,7 +6,7 @@
 
 OPlague 是一个原生桌面应用项目，旨在构建 **DuckDriver OmniCore (DDO)**：以更安全的方式发现硬件、检查驱动程序包并创建可移植驱动容器。
 
-> **状态：** 正在积极早期开发。默认分支 `main` 尚不是可发布的完整应用。本文档描述产品目标和计划架构，并不表示所有功能都已实现。
+> **状态：** 已实现早期 Windows x64 桌面预览版。设备清单和 INF/ZIP 驱动包检查仅以只读方式提供；驱动安装、UDRV 创建、恢复和高级诊断尚未实现。
 
 ## 产品愿景
 
@@ -46,7 +46,7 @@ OPlague 是一个原生桌面应用项目，旨在构建 **DuckDriver OmniCore (
 
 ## 路线图
 
-- [ ] 原生桌面应用外壳和设计系统
+- [x] 原生桌面外壳（早期 Windows 预览版）
 - [ ] 硬件发现及可搜索的设备清单
 - [ ] 版本化的 `.udrv` 容器规范
 - [ ] 驱动包导入、检查和验证
@@ -62,6 +62,17 @@ OPlague 是一个原生桌面应用项目，旨在构建 **DuckDriver OmniCore (
 ## 参与贡献
 
 请提交范围明确且可复现的改动，并在适当情况下附上测试或验证记录。请说明操作系统和硬件假设；不要提交专有驱动二进制文件、凭据、私人设备数据或未经许可的供应商资料。特权操作必须保持隔离且可审查。
+
+## 原生桌面应用
+
+已实现早期 **Windows x64 桌面预览版**：只读 Plug and Play 设备清单；INF 元数据和 ZIP 驱动包检查；SHA-256 计算以及路径、大小、条目数和压缩比检查。应用不会安装驱动、加载内核代码、解压或执行包内内容。
+
+- [Windows x64 Releases](https://github.com/Ivan-VHS/OPlague/releases)
+- [桌面构建工作流与 CI 工件](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)
+- [最新构建运行](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml?query=branch%3Amain)
+
+成功运行会上传 `OPlague-windows-x64.zip`；`v*` 标签会发布 GitHub Release。Windows + Python 3.10+ 源码启动命令：`python oplague_app.py`。UDRV 创建、驱动安装、回滚、签名和 DPC/ISR 诊断仍属于后续计划。
+
 
 ## 许可证
 
