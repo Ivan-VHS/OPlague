@@ -62,7 +62,7 @@ class UdrvInspectorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "payload").mkdir()
-            (root / "payload" / "sample.inf").write_bytes(b"changed")
+            (root / "payload" / "sample.inf").write_bytes(b"ORIGINAL")
             (root / "manifest.json").write_bytes(make_manifest(b"original"))
 
             with self.assertRaisesRegex(PackageError, "SHA-256 mismatch"):
