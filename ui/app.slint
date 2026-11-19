@@ -187,8 +187,7 @@ export component MainWindow inherits Window {
                 width: 220px;
                 background: #F4F7FB;
                 border-color: #DCE5F2;
-                border-width: 0px;
-                border-right-width: 1px;
+                border-width: 1px;
 
                 VerticalLayout {
                     padding: 16px;
@@ -297,6 +296,7 @@ export component MainWindow inherits Window {
                     HorizontalLayout {
                         spacing: 10px;
                         StatCard {
+                            horizontal-stretch: 1;
                             heading: "ОБНАРУЖЕНО УСТРОЙСТВ";
                             value: root.device-count;
                             note: "Фактический результат сканирования";
