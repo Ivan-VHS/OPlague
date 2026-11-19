@@ -6,6 +6,7 @@
 
 pub mod inventory;
 pub mod snapshot;
+pub mod udrv;
 
 use serde::{Deserialize, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
