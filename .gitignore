@@ -1,0 +1,9 @@
+/target/
+/.DS_Store
+*.log
+*.tmp
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+.idea/
+.vscode/

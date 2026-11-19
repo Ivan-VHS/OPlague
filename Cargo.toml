@@ -1,0 +1,21 @@
+[workspace]
+members = [
+    "apps/desktop",
+    "crates/oplague-core",
+    "crates/oplague-hardware",
+]
+resolver = "3"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "Apache-2.0"
+repository = "https://github.com/Ivan-VHS/OPlague"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+
+[workspace.lints.clippy]
+all = "warn"
