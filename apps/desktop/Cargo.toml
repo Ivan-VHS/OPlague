@@ -1,0 +1,18 @@
+[package]
+name = "oplague-desktop"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+build = "build.rs"
+
+[dependencies]
+slint = "1.19.0"
+oplague-core = { path = "../../crates/oplague-core" }
+oplague-hardware = { path = "../../crates/oplague-hardware" }
+
+[build-dependencies]
+slint-build = "1.19.0"
+
+[lints]
+workspace = true

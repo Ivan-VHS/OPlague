@@ -1,60 +1,92 @@
 # OPlague — DuckDriver Core
 
-**OPlague** is the repository for **DuckDriver Core (DDC)**: a planned native desktop orchestrator for hardware inventory, driver lifecycle management, device diagnostics and cross-vendor peripheral capabilities.
+**Native Desktop Hardware Orchestrator**  
+Единая нативная среда инвентаризации, диагностики и унифицированного управления оборудованием и драйверами.
 
-> **Project status:** architecture and product specification stage. The current repository does not yet contain the implemented driver-management engine or desktop client. Planned capabilities are not represented as already working features.
+> **Статус: ранний архитектурный preview.** Реализован безопасный read-only вертикальный срез. Linux PCI/USB обнаружение через sysfs работает; Windows SetupAPI, установка/удаление драйверов, UDB-адаптеры, ETW-профилирование и снимки пока специфицированы, но не реализованы. Приложение не выдаёт запланированные функции за работающие.
 
-## Product direction
+## Продукт
 
-DDC is designed to be more than a driver updater. It aims to provide one local workspace for:
+OPlague объединяет функции аппаратного диспетчера, менеджера драйверов, диагностической лаборатории, центра управления периферией и менеджера конфигураций. Функциональное ядро продукта — **DuckDriver Core (DDC)**; имя репозитория остаётся **OPlague**.
 
-- **Hardware Inventory** — enumerate devices, buses, controllers, hardware IDs and active driver packages.
-- **Semantic Hardware Graph** — explore relationships between devices, controllers, buses, drivers and resource dependencies.
-- **Driver Vault** — import, verify, catalogue and preserve original driver packages; stage controlled install/update/rollback workflows.
-- **UDB Hub** — unify supported HID, RGB, cooling and audio capabilities through explicit device adapters.
-- **Latency Lab** — inspect supported DPC/ISR and device-event telemetry, correlate spikes and produce diagnostic reports.
-- **Time Duck** — save driver/configuration snapshots and switch between reviewed profiles with a visible change plan.
-- **Duck-Agent** — guided diagnostics, including user-initiated analysis of local crash dumps.
-- **DuckMesh** — optional, opt-in compatibility insights based on privacy-minimized aggregate telemetry.
+Это не попытка склеить несовместимые бинарные драйверы в один файл. OPlague строит общий слой аппаратных контрактов и адаптеров, через который поддерживаемые устройства и сервисы могут управляться единообразно.
 
-## Architecture
+## Функциональные области
 
-The intended architecture separates four layers:
+| Область | Назначение |
+|---|---|
+| Duck Dashboard | Обзор оборудования, статусов, предупреждений и подтверждённых метрик |
+| Hardware Graph | Топология устройств, шин, контроллеров и зависимостей |
+| Unified Driver Bus (UDB) | Единый API для HID, аудио, RGB, охлаждения, датчиков и питания |
+| Driver Vault | Локальный каталог пакетов, версии, подписи, совместимость и история |
+| Clean-Extract | Безопасная распаковка и статический анализ пакетов без запуска установщиков |
+| Latency Lab | DPC/ISR и ETW-диагностика с трассировкой источников |
+| Time Duck | Снимки конфигурации, профили, транзакции и восстановление |
+| Duck Agent | Объяснение диагностики и сопровождение безопасных сценариев |
+| Platform adapters | Изолированная интеграция с API конкретной ОС |
 
-1. **Platform Access** — OS-specific adapters and documented system APIs.
-2. **Hardware Introspection** — inventory, package analysis, resource observations and telemetry.
-3. **Orchestration / UDB** — capabilities, dependency resolution, conflict analysis, profiles and snapshots.
-4. **Native UI** — Tri-Color Duck UI, connected to the local service through versioned IPC.
+## Реализованный срез
 
-Proposed foundation: Rust (Edition 2024), Slint native UI, wgpu for specialized graph/telemetry rendering, FlatBuffers IPC, and SQLite in WAL mode. Windows 11 x64 is the first implementation target; Linux and macOS support will be capability-driven rather than assumed to be identical.
+- Нативная desktop-оболочка Rust + Slint, без Electron/WebView.
+- Общая модель устройств, шины, драйверной привязки и снимка инвентаризации.
+- Read-only обнаружение PCI и USB устройств Linux через sysfs.
+- Явные предупреждения и состояние неподдерживаемого платформенного адаптера.
+- Health Index рассчитывается только при полном и достоверном покрытии.
+- Контракты риска операций: привилегированные и изменяющие операции требуют отдельной политики, подтверждения и плана восстановления.
+- Unit-тесты доменной модели и парсинга идентификаторов.
+- CI для форматирования, тестов, Clippy и сборки.
 
-## Design identity
+## Технологии
 
-Tri-Color Duck UI uses a white/porcelain canvas, cobalt-blue structure and vermilion-red critical accents. The Duck mascot is an operational status metaphor: calm state, active scan, expert inspection and warning. It is not a substitute for textual status or accessible controls.
+- Rust Edition 2024, toolchain 1.100.0.
+- Slint 1.19.0 для нативного графического интерфейса.
+- SQLite + WAL — целевое локальное хранилище следующего этапа, пока не подключено.
+- IPC — типизированный версионируемый протокол между UI и системной службой; контракт описан в архитектуре, транспорт ещё не подключён.
+- Windows — основная целевая платформа продукта; SetupAPI/Configuration Manager адаптер является следующим платформенным milestone.
+- Linux — отдельный sysfs/udev/PipeWire путь, не эмуляция Windows API.
 
-## Safety principles
+Slint 1.19.0: [официальный релиз](https://github.com/slint-ui/slint/releases/tag/v1.19.0). Rust 1.100.0: [официальное объявление](https://blog.rust-lang.org/releases/1.100.0/).
 
-- Read-only inventory by default.
-- UI does not run with administrator privileges.
-- Privileged operations are executed by a restricted local service and require explicit user approval.
-- Original signed driver packages are preserved and verified; modified package files are never described as retaining their original WHQL signature.
-- No disabling driver-signature enforcement, Secure Boot or OS security controls.
-- Every supported system change has an audit trail and a documented recovery path.
-- Unsupported hardware/platform operations are shown as unsupported, not simulated.
+## Запуск
 
-## Documentation
+Требуется Rust 1.100.0 через rustup и системные зависимости Slint для вашей ОС.
 
-- [DuckDriver Core — functional and architecture specification](docs/architecture/DUCKDRIVER_CORE_SPEC.md)
+~~~bash
+cargo run -p oplague-desktop
+~~~
 
-The specification translates the source design manifesto, DDC product concept and HMGA engineering principles into finite, testable requirements. Language-compiler concepts unrelated to driver management are excluded; their applicable ideas (type safety, explicit effects, composition and isolation) are carried into the software design.
+Проверки:
 
-## Development sequence
+~~~bash
+cargo fmt --all -- --check
+cargo test --workspace
+cargo clippy --workspace --all-targets -- -D warnings
+cargo build -p oplague-desktop
+~~~
 
-1. Native Rust workspace, domain model, local service and IPC.
-2. Read-only Windows inventory, Driver Inspector and Hardware Graph.
-3. Driver Vault, signature/provenance checks and controlled lifecycle operations.
-4. Time Duck snapshots, profiles and diagnostics.
-5. UDB adapters for supported device families.
-6. Additional platform adapters and optional DuckMesh.
+## Безопасность
 
-See the architecture specification for acceptance criteria, security boundaries, platform constraints and the detailed roadmap.
+- Инвентаризация и анализ пакетов по умолчанию read-only.
+- Нет автоматической установки, удаления, блокировки PnP или изменения реестра в текущем срезе.
+- Не отключать Secure Boot и проверку подписей.
+- Оригинальный подписанный пакет сохраняется неизменным.
+- Модификация пакета не сохраняет исходную подпись WHQL.
+- Любая будущая привилегированная операция должна иметь allowlist, проверку совместимости, журнал, snapshot, явное подтверждение и механизм восстановления.
+- Неизвестное значение отображается как неизвестное, а не как «здоровье 100%».
+
+## Документация
+
+- [Полная исходная спецификация DuckDriver Core](docs/architecture/DUCKDRIVER_CORE_SPEC.md)
+- [Архитектура](docs/ARCHITECTURE.md)
+- [Функциональная спецификация](docs/PRODUCT_SPECIFICATION.md)
+- [Матрица функциональности и прослеживаемости](docs/FUNCTIONAL_MATRIX.md)
+- [Дизайн-система Tri-Color Duck UI](docs/DESIGN_SYSTEM.md)
+- [Управление драйверами и Clean-Extract](docs/DRIVER_MANAGEMENT.md)
+- [Unified Driver Bus](docs/UDB_SPECIFICATION.md)
+- [Модель безопасности](docs/SECURITY_MODEL.md)
+- [Дорожная карта и статус](docs/ROADMAP.md)
+- [Стратегия тестирования](docs/TESTING_STRATEGY.md)
+
+## Лицензия
+
+Apache-2.0. См. LICENSE.

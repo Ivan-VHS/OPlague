@@ -1,0 +1,12 @@
+[package]
+name = "oplague-hardware"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+oplague-core = { path = "../oplague-core" }
+
+[lints]
+workspace = true
