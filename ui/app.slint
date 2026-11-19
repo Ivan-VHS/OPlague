@@ -1,0 +1,536 @@
+// DuckDriver Core — Tri-Color Duck UI foundation.
+// The UI is compiled into the native application; it is not a web view.
+
+component ActionButton inherits Rectangle {
+    in property <string> label;
+    in property <color> action-background: #0052CC;
+    in property <color> action-foreground: #FFFFFF;
+    callback activated();
+
+    height: 40px;
+    background: action-background;
+    border-radius: 6px;
+
+    Text {
+        text: root.label;
+        color: root.action-foreground;
+        font-size: 13px;
+        font-weight: 700;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    TouchArea {
+        clicked => { root.activated(); }
+    }
+}
+
+component StatCard inherits Rectangle {
+    in property <string> heading;
+    in property <string> value;
+    in property <string> note;
+    in property <color> accent: #0052CC;
+
+    height: 112px;
+    background: #FFFFFF;
+    border-width: 1px;
+    border-color: #DCE5F2;
+    border-radius: 12px;
+
+    VerticalLayout {
+        padding: 14px;
+        spacing: 7px;
+
+        Text {
+            text: root.heading;
+            color: #4A6085;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        Text {
+            text: root.value;
+            color: root.accent;
+            font-size: 25px;
+            font-weight: 700;
+        }
+
+        Text {
+            text: root.note;
+            color: #4A6085;
+            font-size: 11px;
+        }
+    }
+}
+
+export component MainWindow inherits Window {
+    title: "DuckDriver OmniCore";
+    width: 1320px;
+    height: 980px;
+    background: #FFFFFF;
+
+    in-out property <string> status-text: "Ready · no system changes have been made";
+    in-out property <string> device-count: "—";
+    in-out property <string> pci-count: "—";
+    in-out property <string> usb-count: "—";
+    in-out property <string> scan-summary: "Start a scan to inspect connected hardware.";
+    in-out property <string> device-list: "No inventory loaded. Select Scan hardware to begin.";
+    in-out property <string> warnings-text: "No scan has been run.";
+    in-out property <string> source-summary: "Источники не добавлены.";
+    in-out property <string> bundle-summary: "Пакет .udrv ещё не создан.";
+    callback scan-requested();
+    callback export-requested();
+    callback forge-add-folder();
+    callback forge-add-files();
+    callback forge-clear-sources();
+    callback forge-build-requested();
+    callback forge-verify-requested();
+
+    VerticalLayout {
+        spacing: 0px;
+
+        // Header / Duck Header
+        Rectangle {
+            height: 66px;
+            background: #FFFFFF;
+
+            HorizontalLayout {
+                padding-left: 20px;
+                padding-right: 20px;
+                spacing: 14px;
+
+                Rectangle {
+                    width: 34px;
+                    height: 34px;
+                    border-radius: 17px;
+                    background: #0052CC;
+                    Text {
+                        text: "D";
+                        color: #FFFFFF;
+                        font-size: 18px;
+                        font-weight: 800;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+
+                VerticalLayout {
+                    spacing: 0px;
+                    Text {
+                        text: "DuckDriver OmniCore";
+                        color: #0052CC;
+                        font-size: 18px;
+                        font-weight: 800;
+                    }
+                    Text {
+                        text: "HARDWARE ABSTRACTION ORCHESTRATOR";
+                        color: #4A6085;
+                        font-size: 9px;
+                        font-weight: 700;
+                    }
+                }
+
+                Rectangle { horizontal-stretch: 1; background: transparent; }
+
+                Rectangle {
+                    border-radius: 6px;
+                    background: #E6F0FF;
+                    VerticalLayout {
+                        padding: 8px;
+                        Text {
+                            text: "UDB · READ-ONLY MVP";
+                            color: #0052CC;
+                            font-size: 10px;
+                            font-weight: 700;
+                        }
+                    }
+                }
+
+                Rectangle {
+                    border-radius: 6px;
+                    background: #FFF1F0;
+                    VerticalLayout {
+                        padding: 8px;
+                        Text {
+                            text: "RING-0 BRIDGE OFF";
+                            color: #E62E2D;
+                            font-size: 10px;
+                            font-weight: 700;
+                        }
+                    }
+                }
+
+                ActionButton {
+                    label: "Export snapshot";
+                    action-background: #FFFFFF;
+                    action-foreground: #0052CC;
+                    border-width: 1px;
+                    border-color: #0052CC;
+                    width: 142px;
+                    activated => { root.export-requested(); }
+                }
+            }
+        }
+
+        Rectangle {
+            height: 1px;
+            background: #DCE5F2;
+        }
+
+        HorizontalLayout {
+            spacing: 0px;
+
+            // Wing Sidebar
+            Rectangle {
+                width: 220px;
+                background: #F4F7FB;
+                border-color: #DCE5F2;
+                border-width: 1px;
+
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 8px;
+
+                    Text {
+                        text: "WORKSPACE";
+                        color: #4A6085;
+                        font-size: 10px;
+                        font-weight: 800;
+                    }
+
+                    Rectangle {
+                        height: 38px;
+                        background: #E6F0FF;
+                        border-radius: 6px;
+                        HorizontalLayout {
+                            padding-left: 10px;
+                            spacing: 8px;
+                            Text { text: "●"; color: #E62E2D; font-size: 12px; }
+                            Text { text: "Обзор и Пульс"; color: #0052CC; font-size: 12px; font-weight: 700; }
+                        }
+                    }
+                    Rectangle {
+                        height: 34px;
+                        background: transparent;
+                        Text { text: "◈  Топология шин"; color: #0A1F44; font-size: 12px; }
+                    }
+                    Rectangle {
+                        height: 34px;
+                        background: transparent;
+                        Text { text: "⌘  Унификатор UDB"; color: #0A1F44; font-size: 12px; }
+                    }
+                    Rectangle {
+                        height: 34px;
+                        background: transparent;
+                        Text { text: "▤  Пакеты и обновления"; color: #0A1F44; font-size: 12px; }
+                    }
+                    Rectangle {
+                        height: 34px;
+                        background: transparent;
+                        Text { text: "◷  Лаборатория задержек"; color: #0A1F44; font-size: 12px; }
+                    }
+                    Rectangle {
+                        height: 34px;
+                        background: transparent;
+                        Text { text: "◌  Снэпшоты Time Duck"; color: #0A1F44; font-size: 12px; }
+                    }
+
+                    Rectangle { vertical-stretch: 1; background: transparent; }
+
+                    Rectangle {
+                        background: #FFFFFF;
+                        border-color: #DCE5F2;
+                        border-width: 1px;
+                        border-radius: 8px;
+                        VerticalLayout {
+                            padding: 10px;
+                            spacing: 5px;
+                            Text { text: "DUCK AGENT"; color: #0052CC; font-size: 10px; font-weight: 800; }
+                            Text {
+                                text: "Спокойная поверхность. Никаких скрытых изменений системы.";
+                                color: #4A6085;
+                                font-size: 10px;
+                                wrap: word-wrap;
+                            }
+                            Text { text: "● SAFE MODE"; color: #0052CC; font-size: 10px; font-weight: 700; }
+                        }
+                    }
+                }
+            }
+
+            // Main workspace
+            Rectangle {
+                horizontal-stretch: 1;
+                background: #FFFFFF;
+
+                VerticalLayout {
+                    padding: 22px;
+                    spacing: 14px;
+
+                    HorizontalLayout {
+                        spacing: 12px;
+                        VerticalLayout {
+                            spacing: 3px;
+                            Text {
+                                text: "Обзор и Пульс";
+                                color: #0A1F44;
+                                font-size: 25px;
+                                font-weight: 800;
+                            }
+                            Text {
+                                text: "Единая карта оборудования и проверяемое состояние драйверного стека";
+                                color: #4A6085;
+                                font-size: 12px;
+                            }
+                        }
+                        Rectangle { horizontal-stretch: 1; background: transparent; }
+                        ActionButton {
+                            label: "Сканировать оборудование";
+                            width: 210px;
+                            activated => { root.scan-requested(); }
+                        }
+                    }
+
+                    HorizontalLayout {
+                        spacing: 10px;
+                        StatCard {
+                            horizontal-stretch: 1;
+                            heading: "ОБНАРУЖЕНО УСТРОЙСТВ";
+                            value: root.device-count;
+                            note: "Фактический результат сканирования";
+                        }
+                        StatCard {
+                            heading: "ШИНА PCI / PCIE";
+                            value: root.pci-count;
+                            note: "Узлы из системной инвентаризации";
+                        }
+                        StatCard {
+                            heading: "ШИНА USB";
+                            value: root.usb-count;
+                            note: "Подключённые USB-устройства";
+                        }
+                        StatCard {
+                            heading: "DPC / ISR LATENCY";
+                            value: "N/A";
+                            note: "ETW-провайдер ещё не подключён";
+                            accent: #E62E2D;
+                        }
+                    }
+
+                    Rectangle {
+                        background: #FFFFFF;
+                        border-color: #DCE5F2;
+                        border-width: 1px;
+                        border-radius: 12px;
+
+                        VerticalLayout {
+                            padding: 16px;
+                            spacing: 9px;
+                            HorizontalLayout {
+                                spacing: 8px;
+                                Text {
+                                    text: "Инвентаризация оборудования";
+                                    color: #0A1F44;
+                                    font-size: 16px;
+                                    font-weight: 700;
+                                }
+                                Rectangle { horizontal-stretch: 1; background: transparent; }
+                                Text {
+                                    text: "READ-ONLY";
+                                    color: #0052CC;
+                                    font-size: 10px;
+                                    font-weight: 800;
+                                }
+                            }
+                            Text {
+                                text: root.scan-summary;
+                                color: #4A6085;
+                                font-size: 11px;
+                            }
+                            Rectangle {
+                                background: #F4F7FB;
+                                border-radius: 8px;
+                                height: 235px;
+                                VerticalLayout {
+                                    padding: 12px;
+                                    Text {
+                                        text: root.device-list;
+                                        color: #0A1F44;
+                                        font-size: 11px;
+                                        font-family: "monospace";
+                                        wrap: word-wrap;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Omni-Forge: safe, data-only UDRV v1 packaging.
+                    Rectangle {
+                        background: #FFFFFF;
+                        border-color: #DCE5F2;
+                        border-width: 1px;
+                        border-radius: 12px;
+                        VerticalLayout {
+                            padding: 14px;
+                            spacing: 9px;
+                            HorizontalLayout {
+                                spacing: 8px;
+                                Text {
+                                    text: "Omni-Forge · Универсальный контейнер .UDRV";
+                                    color: #0A1F44;
+                                    font-size: 15px;
+                                    font-weight: 800;
+                                }
+                                Rectangle { horizontal-stretch: 1; background: transparent; }
+                                Text { text: "ZSTD · BLAKE3 · READ-ONLY"; color: #0052CC; font-size: 10px; font-weight: 800; }
+                            }
+                            HorizontalLayout {
+                                spacing: 8px;
+                                VerticalLayout {
+                                    horizontal-stretch: 1;
+                                    spacing: 4px;
+                                    Text { text: root.source-summary; color: #4A6085; font-size: 11px; }
+                                    Text { text: root.bundle-summary; color: #0A1F44; font-size: 11px; wrap: word-wrap; }
+                                }
+                                ActionButton {
+                                    label: "Добавить папку";
+                                    width: 124px;
+                                    action-background: #FFFFFF;
+                                    action-foreground: #0052CC;
+                                    border-width: 1px;
+                                    border-color: #0052CC;
+                                    activated => { root.forge-add-folder(); }
+                                }
+                                ActionButton {
+                                    label: "Добавить файлы";
+                                    width: 124px;
+                                    action-background: #FFFFFF;
+                                    action-foreground: #0052CC;
+                                    border-width: 1px;
+                                    border-color: #0052CC;
+                                    activated => { root.forge-add-files(); }
+                                }
+                                ActionButton {
+                                    label: "Собрать .UDRV";
+                                    width: 132px;
+                                    action-background: #E62E2D;
+                                    activated => { root.forge-build-requested(); }
+                                }
+                                ActionButton {
+                                    label: "Проверить";
+                                    width: 104px;
+                                    action-background: #FFFFFF;
+                                    action-foreground: #E62E2D;
+                                    border-width: 1px;
+                                    border-color: #E62E2D;
+                                    activated => { root.forge-verify-requested(); }
+                                }
+                                ActionButton {
+                                    label: "Очистить";
+                                    width: 88px;
+                                    action-background: #F4F7FB;
+                                    action-foreground: #0A1F44;
+                                    activated => { root.forge-clear-sources(); }
+                                }
+                            }
+                        }
+                    }
+
+                    HorizontalLayout {
+                        spacing: 10px;
+
+                        Rectangle {
+                            horizontal-stretch: 1;
+                            background: #FFFFFF;
+                            border-color: #DCE5F2;
+                            border-width: 1px;
+                            border-radius: 12px;
+                            VerticalLayout {
+                                padding: 14px;
+                                spacing: 7px;
+                                Text { text: "UDB · Единая шина"; color: #0052CC; font-size: 13px; font-weight: 800; }
+                                Text {
+                                    text: "Контракт адаптеров и нормализованная модель устройств готовы к расширению. Управляющие операции пока отключены.";
+                                    color: #4A6085;
+                                    font-size: 11px;
+                                    wrap: word-wrap;
+                                }
+                            }
+                        }
+                        Rectangle {
+                            horizontal-stretch: 1;
+                            background: #FFFFFF;
+                            border-color: #DCE5F2;
+                            border-width: 1px;
+                            border-radius: 12px;
+                            VerticalLayout {
+                                padding: 14px;
+                                spacing: 7px;
+                                Text { text: "Time Duck · Снимки"; color: #0052CC; font-size: 13px; font-weight: 800; }
+                                Text {
+                                    text: "Доступен экспорт JSON-инвентаризации. Это не точка восстановления ОС и не копия Driver Store.";
+                                    color: #4A6085;
+                                    font-size: 11px;
+                                    wrap: word-wrap;
+                                }
+                            }
+                        }
+                        Rectangle {
+                            horizontal-stretch: 1;
+                            background: #FFFFFF;
+                            border-color: #DCE5F2;
+                            border-width: 1px;
+                            border-radius: 12px;
+                            VerticalLayout {
+                                padding: 14px;
+                                spacing: 7px;
+                                Text { text: "Clean-Extract · Карантин"; color: #0052CC; font-size: 13px; font-weight: 800; }
+                                Text {
+                                    text: "Архивы и подписи не меняются. Проверка пакетов будет добавлена отдельным недеструктивным этапом.";
+                                    color: #4A6085;
+                                    font-size: 11px;
+                                    wrap: word-wrap;
+                                }
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        background: #FFF1F0;
+                        border-color: #FFD6D2;
+                        border-width: 1px;
+                        border-radius: 8px;
+                        VerticalLayout {
+                            padding: 12px;
+                            spacing: 5px;
+                            Text { text: "ДИАГНОСТИКА И ОГРАНИЧЕНИЯ"; color: #E62E2D; font-size: 11px; font-weight: 800; }
+                            Text {
+                                text: root.warnings-text;
+                                color: #0A1F44;
+                                font-size: 10px;
+                                wrap: word-wrap;
+                            }
+                        }
+                    }
+
+                    Rectangle { vertical-stretch: 1; background: transparent; }
+
+                    Rectangle {
+                        background: #F4F7FB;
+                        border-radius: 6px;
+                        VerticalLayout {
+                            padding: 9px;
+                            Text {
+                                text: root.status-text;
+                                color: #4A6085;
+                                font-size: 10px;
+                                wrap: word-wrap;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

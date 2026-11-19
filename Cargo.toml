@@ -1,0 +1,37 @@
+[package]
+name = "duckdriver-core"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95"
+description = "Native, read-only hardware inventory and driver orchestration shell"
+license = "Apache-2.0"
+build = "build.rs"
+
+[lib]
+name = "duckdriver_core"
+path = "src/lib.rs"
+
+[[bin]]
+name = "duckdriver-core"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+blake3 = "1.0"
+rfd = "0.15"
+walkdir = "2.5"
+zstd = "0.13"
+slint = "1.19.0"
+
+[build-dependencies]
+slint-build = "1.19.0"
+
+[dev-dependencies]
+tempfile = "3.15"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
+panic = "abort"
