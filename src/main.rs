@@ -163,7 +163,9 @@ fn run_desktop() -> Result<(), Box<dyn Error>> {
 
         if let Some(window) = folder_window.upgrade() {
             window.set_source_summary(format!("{count} source item(s) selected").into());
-            window.set_status_text("Folder added. The .UDRV builder stores files as data only.".into());
+            window.set_status_text(
+                "Folder added. The .UDRV builder stores files as data only.".into(),
+            );
         }
     });
 
@@ -187,7 +189,9 @@ fn run_desktop() -> Result<(), Box<dyn Error>> {
 
         if let Some(window) = files_window.upgrade() {
             window.set_source_summary(format!("{count} source item(s) selected").into());
-            window.set_status_text("Files added. No installer or driver binary will be executed.".into());
+            window.set_status_text(
+                "Files added. No installer or driver binary will be executed.".into(),
+            );
         }
     });
 
@@ -225,7 +229,9 @@ fn run_desktop() -> Result<(), Box<dyn Error>> {
 
         if sources.is_empty() {
             if let Some(window) = build_window.upgrade() {
-                window.set_status_text("Add at least one file or folder before building a .UDRV bundle.".into());
+                window.set_status_text(
+                    "Add at least one file or folder before building a .UDRV bundle.".into(),
+                );
             }
             return;
         }
@@ -281,7 +287,9 @@ fn run_desktop() -> Result<(), Box<dyn Error>> {
         };
 
         if let Some(window) = verify_window.upgrade() {
-            window.set_status_text("Verifying UDRV header, manifest, payload and content hashes…".into());
+            window.set_status_text(
+                "Verifying UDRV header, manifest, payload and content hashes…".into(),
+            );
         }
 
         let window_weak = verify_window.clone();
@@ -296,7 +304,8 @@ fn run_desktop() -> Result<(), Box<dyn Error>> {
                     Ok(summary) => {
                         window.set_bundle_summary(summary.describe().into());
                         window.set_status_text(
-                            format!("UDRV integrity verification passed: {}", path.display()).into(),
+                            format!("UDRV integrity verification passed: {}", path.display())
+                                .into(),
                         );
                     }
                     Err(error) => {
