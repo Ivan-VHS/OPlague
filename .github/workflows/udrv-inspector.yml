@@ -28,6 +28,6 @@ jobs:
       - name: Compile inspector and tests
         run: python -m compileall -q tools tests
       - name: Run UDRV inspector tests
-        run: python -m unittest tests.test_udrv_inspector -v
+        run: python -m unittest discover -s tests -p 'test_udrv_inspector.py' -v
       - name: Check CLI help
         run: python tools/udrv_inspector.py --help

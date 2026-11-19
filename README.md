@@ -66,3 +66,22 @@ Keep changes focused and reproducible. Include tests or validation notes where p
 ## License
 
 See [LICENSE](LICENSE) for the terms that apply to this repository.
+
+
+## Read-only UDRV integrity inspector
+
+The first executable UDRV tooling is available as a read-only package inspector.
+It accepts a directory package or ZIP archive and checks the versioned manifest,
+payload inventory, declared sizes, and SHA-256 hashes. It rejects undeclared
+files, missing files, path traversal, symbolic links, duplicate paths, malformed
+manifests, and packages exceeding documented resource limits.
+
+Run it with:
+
+    python tools/udrv_inspector.py path/to/package.udrv
+    python tools/udrv_inspector.py path/to/package.udrv --json
+    python -m unittest discover -s tests -p 'test_udrv_inspector.py' -v
+
+The inspector does not extract, install, load, or execute driver payloads and
+does not contact external services. It verifies package integrity only; it does
+not establish vendor authenticity or driver compatibility.
