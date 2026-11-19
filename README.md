@@ -49,7 +49,7 @@ These are intended architectural boundaries, not a claim that every module is al
 - [x] Native desktop shell (early Windows preview)
 - [x] Read-only Windows Plug and Play inventory
 - [ ] Versioned `.udrv` container specification
-- [x] INF and ZIP package inspection with hash and archive checks
+- [x] INF and ZIP package inspection with hash and archive checks, plus deterministic batch report composition
 - [ ] Driver catalogue and compatibility evidence
 - [ ] Profile snapshots and guarded recovery
 - [ ] Diagnostics, including DPC/ISR analysis where supported
@@ -75,6 +75,10 @@ A successful run uploads `OPlague-windows-x64.zip`; a `v*` tag publishes the sam
 
 
 `oplague_app.py` is the correctly spelled Windows source launcher used by the desktop build.
+
+## Concatenation and report composition
+
+The desktop package inspector supports ordered batch inspection of multiple INF/ZIP inputs and produces a bounded, canonical JSON summary with aggregate counts and a bundle SHA-256 fingerprint. This fingerprint is not a vendor signature or compatibility verdict. See [the composition architecture](docs/CONCATENATION_ARCHITECTURE.md).
 
 ## License
 
