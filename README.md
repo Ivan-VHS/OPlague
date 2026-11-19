@@ -6,7 +6,7 @@
 
 OPlague is the home of **DuckDriver OmniCore (DDO)**, a desktop-first project for safer hardware discovery, driver-package inspection, and portable driver bundles.
 
-> **Status:** early active development. The default branch is not yet a release-ready application. This README describes product goals and planned architecture; it does not claim that every workflow is implemented.
+> **Status:** an early Windows x64 desktop preview is implemented. Device discovery and INF/ZIP package inspection are read-only; driver installation, UDRV authoring, recovery and advanced diagnostics are not yet implemented.
 
 ## Product vision
 
@@ -46,10 +46,10 @@ These are intended architectural boundaries, not a claim that every module is al
 
 ## Roadmap
 
-- [ ] Native desktop shell and design system
-- [ ] Hardware discovery and searchable device inventory
+- [x] Native desktop shell (early Windows preview)
+- [x] Read-only Windows Plug and Play inventory
 - [ ] Versioned `.udrv` container specification
-- [ ] Package import, inspection, and validation
+- [x] INF and ZIP package inspection with hash and archive checks
 - [ ] Driver catalogue and compatibility evidence
 - [ ] Profile snapshots and guarded recovery
 - [ ] Diagnostics, including DPC/ISR analysis where supported
@@ -62,6 +62,17 @@ Real application screenshots will be added when a runnable interface is availabl
 ## Contributing
 
 Keep changes focused and reproducible. Include tests or validation notes where practical, document OS/hardware assumptions, and do not commit proprietary driver binaries, credentials, private device data, or unlicensed vendor materials. Privileged operations must remain isolated and reviewable.
+
+## Native desktop application
+
+An early **Windows x64 desktop preview** is now included: read-only Windows Plug and Play inventory; INF metadata and ZIP package inspection; SHA-256 calculation and archive path/size/entry-count/compression checks. The preview does not install drivers, load kernel code, extract archives, or execute package content.
+
+- [Windows x64 Releases](https://github.com/Ivan-VHS/OPlague/releases)
+- [Desktop build workflow and downloadable CI artifacts](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)
+- [Latest workflow runs](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml?query=branch%3Amain)
+
+A successful run uploads `OPlague-windows-x64.zip`; a `v*` tag publishes the same archive as a GitHub Release. Run from source on Windows with Python 3.10+ using `python oplague_app.py`. UDRV authoring, driver installation, rollback, signing and DPC/ISR diagnostics remain roadmap items.
+
 
 ## License
 
