@@ -74,6 +74,8 @@ OPlague — проект настольного приложения, разви
 Успешная сборка публикует `OPlague-windows-x64.zip`; тег `v*` создаёт GitHub Release. Запуск из исходников (Windows, Python 3.10+): `python oplague_app.py`. Создание UDRV, установка драйверов, откат, подпись и DPC/ISR остаются задачами дорожной карты.
 
 
+Правильное имя исходного launcher для Windows — `oplague_app.py`; его использует workflow сборки.
+
 ## Лицензия
 
 Условия использования указаны в [LICENSE](LICENSE).
