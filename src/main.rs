@@ -1,4 +1,4 @@
-use duckdriver_core::{inventory, snapshot, HardwareReport};
+use duckdriver_core::{HardwareReport, inventory, snapshot};
 use std::error::Error;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
@@ -116,10 +116,7 @@ fn run_desktop() -> Result<(), Box<dyn Error>> {
     let export_window = window.as_weak();
     let export_state = Arc::clone(&latest_report);
     window.on_export_requested(move || {
-        let report = export_state
-            .lock()
-            .ok()
-            .and_then(|stored| stored.clone());
+        let report = export_state.lock().ok().and_then(|stored| stored.clone());
 
         let Some(report) = report else {
             if let Some(window) = export_window.upgrade() {
