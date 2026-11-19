@@ -44,6 +44,10 @@ The `.udrv` format is a packaging concept, not a guarantee that arbitrary driver
 
 These are intended architectural boundaries, not a claim that every module is already present on `main`.
 
+## Package composition contract
+
+The [concatenation and package composition contract](docs/CONCATENATION_ENGINE.md) defines bounded byte/text joining, provenance-preserving manifest composition, payload conflict rules, deterministic assembly and validation gates. It is an architecture contract; the application workflow is not yet implemented.
+
 ## Roadmap
 
 - [ ] Native desktop shell and design system
