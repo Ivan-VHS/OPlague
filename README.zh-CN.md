@@ -74,6 +74,8 @@ OPlague 是一个原生桌面应用项目，旨在构建 **DuckDriver OmniCore (
 成功运行会上传 `OPlague-windows-x64.zip`；`v*` 标签会发布 GitHub Release。Windows + Python 3.10+ 源码启动命令：`python oplague_app.py`。UDRV 创建、驱动安装、回滚、签名和 DPC/ISR 诊断仍属于后续计划。
 
 
+Windows 源码启动文件的正确名称为 `oplague_app.py`，桌面构建工作流使用该入口。
+
 ## 许可证
 
 许可条款请参阅 [LICENSE](LICENSE)。

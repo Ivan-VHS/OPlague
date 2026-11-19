@@ -74,6 +74,8 @@ An early **Windows x64 desktop preview** is now included: read-only Windows Plug
 A successful run uploads `OPlague-windows-x64.zip`; a `v*` tag publishes the same archive as a GitHub Release. Run from source on Windows with Python 3.10+ using `python oplague_app.py`. UDRV authoring, driver installation, rollback, signing and DPC/ISR diagnostics remain roadmap items.
 
 
+`oplague_app.py` is the correctly spelled Windows source launcher used by the desktop build.
+
 ## License
 
 See [LICENSE](LICENSE) for the terms that apply to this repository.
