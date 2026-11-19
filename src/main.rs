@@ -1,4 +1,4 @@
-use duckdriver_core::{HardwareReport, inventory, snapshot};
+use duckdriver_core::{HardwareReport, inventory, snapshot, udrv};
 use std::error::Error;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
@@ -139,6 +139,176 @@ fn run_desktop() -> Result<(), Box<dyn Error>> {
                 }
             }
         }
+    });
+
+    let forge_sources = Arc::new(Mutex::new(Vec::<std::path::PathBuf>::new()));
+
+    let folder_window = window.as_weak();
+    let folder_sources = Arc::clone(&forge_sources);
+    window.on_forge_add_folder(move || {
+        let Some(path) = rfd::FileDialog::new()
+            .set_title("Select a folder to add to the UDRV data bundle")
+            .pick_folder()
+        else {
+            return;
+        };
+
+        let count = match folder_sources.lock() {
+            Ok(mut sources) => {
+                sources.push(path);
+                sources.len()
+            }
+            Err(_) => 0,
+        };
+
+        if let Some(window) = folder_window.upgrade() {
+            window.set_source_summary(format!("{count} source item(s) selected").into());
+            window.set_status_text("Folder added. The .UDRV builder stores files as data only.".into());
+        }
+    });
+
+    let files_window = window.as_weak();
+    let files_sources = Arc::clone(&forge_sources);
+    window.on_forge_add_files(move || {
+        let Some(paths) = rfd::FileDialog::new()
+            .set_title("Select files to add to the UDRV data bundle")
+            .pick_files()
+        else {
+            return;
+        };
+
+        let count = match files_sources.lock() {
+            Ok(mut sources) => {
+                sources.extend(paths);
+                sources.len()
+            }
+            Err(_) => 0,
+        };
+
+        if let Some(window) = files_window.upgrade() {
+            window.set_source_summary(format!("{count} source item(s) selected").into());
+            window.set_status_text("Files added. No installer or driver binary will be executed.".into());
+        }
+    });
+
+    let clear_window = window.as_weak();
+    let clear_sources = Arc::clone(&forge_sources);
+    window.on_forge_clear_sources(move || {
+        let cleared = clear_sources
+            .lock()
+            .map(|mut sources| {
+                let count = sources.len();
+                sources.clear();
+                count
+            })
+            .unwrap_or(0);
+
+        if let Some(window) = clear_window.upgrade() {
+            window.set_source_summary("No source items selected".into());
+            window.set_bundle_summary("No bundle has been created or verified.".into());
+            window.set_status_text(format!("Cleared {cleared} source item(s).").into());
+        }
+    });
+
+    let build_window = window.as_weak();
+    let build_sources = Arc::clone(&forge_sources);
+    window.on_forge_build_requested(move || {
+        let sources = match build_sources.lock() {
+            Ok(sources) => sources.clone(),
+            Err(_) => {
+                if let Some(window) = build_window.upgrade() {
+                    window.set_status_text("Could not access the source selection.".into());
+                }
+                return;
+            }
+        };
+
+        if sources.is_empty() {
+            if let Some(window) = build_window.upgrade() {
+                window.set_status_text("Add at least one file or folder before building a .UDRV bundle.".into());
+            }
+            return;
+        }
+
+        let Some(output) = rfd::FileDialog::new()
+            .set_title("Save DuckDriver data bundle")
+            .set_file_name("duckdriver-core.udrv")
+            .add_filter("DuckDriver bundle", &["udrv"])
+            .save_file()
+        else {
+            return;
+        };
+
+        if let Some(window) = build_window.upgrade() {
+            window.set_status_text("Building a data-only UDRV container in the background…".into());
+        }
+
+        let window_weak = build_window.clone();
+        let _worker = std::thread::spawn(move || {
+            let result = udrv::build_archive(&sources, &output, "DuckDriver Core bundle");
+            let update = move || {
+                let Some(window) = window_weak.upgrade() else {
+                    return;
+                };
+
+                match result {
+                    Ok(summary) => {
+                        window.set_bundle_summary(summary.describe().into());
+                        window.set_status_text(
+                            format!("UDRV data container created: {}", output.display()).into(),
+                        );
+                    }
+                    Err(error) => {
+                        window.set_status_text(format!("UDRV build failed: {error}").into());
+                    }
+                }
+            };
+
+            if let Err(error) = slint::invoke_from_event_loop(update) {
+                eprintln!("Could not report UDRV build result: {error}");
+            }
+        });
+    });
+
+    let verify_window = window.as_weak();
+    window.on_forge_verify_requested(move || {
+        let Some(path) = rfd::FileDialog::new()
+            .set_title("Select a DuckDriver data bundle to verify")
+            .add_filter("DuckDriver bundle", &["udrv"])
+            .pick_file()
+        else {
+            return;
+        };
+
+        if let Some(window) = verify_window.upgrade() {
+            window.set_status_text("Verifying UDRV header, manifest, payload and content hashes…".into());
+        }
+
+        let window_weak = verify_window.clone();
+        let _worker = std::thread::spawn(move || {
+            let result = udrv::verify_archive(&path);
+            let update = move || {
+                let Some(window) = window_weak.upgrade() else {
+                    return;
+                };
+
+                match result {
+                    Ok(summary) => {
+                        window.set_bundle_summary(summary.describe().into());
+                        window.set_status_text(
+                            format!("UDRV integrity verification passed: {}", path.display()).into(),
+                        );
+                    }
+                    Err(error) => {
+                        window.set_status_text(format!("UDRV verification failed: {error}").into());
+                    }
+                }
+            };
+
+            if let Err(error) = slint::invoke_from_event_loop(update) {
+                eprintln!("Could not report UDRV verification result: {error}");
+            }
+        });
     });
 
     window.run()?;
