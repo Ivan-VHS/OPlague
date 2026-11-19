@@ -32,7 +32,9 @@ pub fn default_snapshot_dir() -> PathBuf {
     #[cfg(target_os = "linux")]
     {
         if let Some(root) = std::env::var_os("XDG_STATE_HOME") {
-            return PathBuf::from(root).join("duckdriver-core").join("snapshots");
+            return PathBuf::from(root)
+                .join("duckdriver-core")
+                .join("snapshots");
         }
         if let Some(home) = std::env::var_os("HOME") {
             return PathBuf::from(home)
@@ -49,16 +51,12 @@ pub fn default_snapshot_dir() -> PathBuf {
 }
 
 /// Write a JSON report through a temporary file and an atomic rename.
-pub fn export_report(
-    report: &HardwareReport,
-) -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
+pub fn export_report(report: &HardwareReport) -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
     let directory = default_snapshot_dir();
     fs::create_dir_all(&directory)?;
 
     let payload = serde_json::to_vec_pretty(report)?;
-    let timestamp = SystemTime::now()
-        .duration_since(UNIX_EPOCH)?
-        .as_secs();
+    let timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
 
     for sequence in 0_u32..100 {
         let file_name = format!(
@@ -99,8 +97,10 @@ mod tests {
     #[test]
     fn snapshot_directory_is_not_the_current_working_directory() {
         let path = default_snapshot_dir();
-        assert!(path.to_string_lossy().contains("duckdriver")
-            || path.to_string_lossy().contains("DuckDriver"));
+        assert!(
+            path.to_string_lossy().contains("duckdriver")
+                || path.to_string_lossy().contains("DuckDriver")
+        );
     }
 
     #[test]
