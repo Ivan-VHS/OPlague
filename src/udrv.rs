@@ -64,10 +64,7 @@ impl BundleSummary {
     pub fn describe(&self) -> String {
         format!(
             "{} files · {} unique blobs · {} → {} bytes",
-            self.entry_count,
-            self.unique_blobs,
-            self.original_bytes,
-            self.stored_bytes
+            self.entry_count, self.unique_blobs, self.original_bytes, self.stored_bytes
         )
     }
 }
@@ -112,7 +109,10 @@ pub fn build_archive(
         } else if canonical.is_dir() {
             for item in WalkDir::new(&canonical).follow_links(false) {
                 let item = item.map_err(|error| {
-                    format!("Cannot walk source directory {}: {error}", canonical.display())
+                    format!(
+                        "Cannot walk source directory {}: {error}",
+                        canonical.display()
+                    )
                 })?;
                 if item.depth() == 0 || !item.file_type().is_file() {
                     // Symlinks are deliberately not followed or packaged.
@@ -146,8 +146,8 @@ pub fn build_archive(
         return Err("The selected sources contain no regular files.".to_owned());
     }
 
-    let entry_count = u32::try_from(entries.len())
-        .map_err(|_| "Too many entries for UDRV v1.".to_owned())?;
+    let entry_count =
+        u32::try_from(entries.len()).map_err(|_| "Too many entries for UDRV v1.".to_owned())?;
     let manifest = Manifest {
         format: "DUCK-OMNI".to_owned(),
         format_version: FORMAT_VERSION,
@@ -201,8 +201,8 @@ fn add_file(
     total_original_bytes: &mut u64,
 ) -> Result<(), String> {
     validate_archive_path(&archive_path)?;
-    let data = fs::read(source)
-        .map_err(|error| format!("Cannot read {}: {error}", source.display()))?;
+    let data =
+        fs::read(source).map_err(|error| format!("Cannot read {}: {error}", source.display()))?;
     let original_size = data.len() as u64;
 
     if original_size > MAX_ENTRY_BYTES {
@@ -263,7 +263,10 @@ fn validate_archive_path(path: &str) -> Result<(), String> {
     if path.is_empty() || path.starts_with('/') || path.contains('\\') {
         return Err(format!("Unsafe archive path: {path}"));
     }
-    if path.split('/').any(|part| part.is_empty() || part == "." || part == "..") {
+    if path
+        .split('/')
+        .any(|part| part.is_empty() || part == "." || part == "..")
+    {
         return Err(format!("Unsafe archive path: {path}"));
     }
     Ok(())
@@ -292,10 +295,7 @@ fn write_atomically(
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap_or_default()
         .as_nanos();
-    let temporary = parent.join(format!(
-        ".{file_name}.{}.{nonce}.tmp",
-        std::process::id()
-    ));
+    let temporary = parent.join(format!(".{file_name}.{}.{nonce}.tmp", std::process::id()));
 
     let write_result = (|| -> Result<(), String> {
         let mut file = OpenOptions::new()
@@ -337,8 +337,8 @@ pub fn verify_archive(path: &Path) -> Result<BundleSummary, String> {
         return Err("Archive exceeds the UDRV v1 size limit.".to_owned());
     }
 
-    let bytes = fs::read(path)
-        .map_err(|error| format!("Cannot read {}: {error}", path.display()))?;
+    let bytes =
+        fs::read(path).map_err(|error| format!("Cannot read {}: {error}", path.display()))?;
     if bytes.len() < HEADER_LEN {
         return Err("File is too small to be a UDRV container.".to_owned());
     }
@@ -353,8 +353,7 @@ pub fn verify_archive(path: &Path) -> Result<BundleSummary, String> {
 
     let manifest_len =
         u32::from_le_bytes(bytes[12..16].try_into().expect("fixed header slice")) as usize;
-    let payload_len_u64 =
-        u64::from_le_bytes(bytes[16..24].try_into().expect("fixed header slice"));
+    let payload_len_u64 = u64::from_le_bytes(bytes[16..24].try_into().expect("fixed header slice"));
     let payload_len = usize::try_from(payload_len_u64)
         .map_err(|_| "Archive payload does not fit this platform.".to_owned())?;
 
@@ -463,12 +462,8 @@ mod tests {
         fs::write(&first, contents).expect("write first source");
         fs::write(&second, contents).expect("write second source");
 
-        let summary = build_archive(
-            &[first, second],
-            &archive,
-            "OPlague test bundle",
-        )
-        .expect("build archive");
+        let summary = build_archive(&[first, second], &archive, "OPlague test bundle")
+            .expect("build archive");
 
         assert_eq!(summary.entry_count, 2);
         assert_eq!(summary.unique_blobs, 1);
