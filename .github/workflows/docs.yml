@@ -10,7 +10,7 @@ on:
       - "LICENSE"
       - ".github/workflows/docs.yml"
   push:
-    branches: [main]
+    branches: ['**']
     paths:
       - "README.md"
       - "README.ru.md"
