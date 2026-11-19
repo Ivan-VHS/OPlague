@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-REGISTRY_PATH = Path(__file__).with_name("impact_profiles.json")
+REGISTRY_PATH = Path(__file__).resolve().parents[1] / "impact_profiles.json"
 DIMENSIONS = ("acoustic", "scale", "kinetic", "reach", "impulse")
 
 
