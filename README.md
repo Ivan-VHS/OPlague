@@ -6,7 +6,7 @@
 
 OPlague is the home of **DuckDriver OmniCore (DDO)**, a desktop-first project for safer hardware discovery, driver-package inspection, and portable driver bundles.
 
-> **Status:** an early Windows x64 desktop preview is implemented. Device discovery and INF/ZIP package inspection are read-only; driver installation, UDRV authoring, recovery and advanced diagnostics are not yet implemented.
+> **Status:** an early Windows x64 desktop preview is implemented. Device discovery, INF/ZIP inspection and normalized metric-profile comparison are read-only; driver installation, UDRV authoring, recovery and live performance telemetry remain roadmap work.
 
 ## Product vision
 
@@ -15,7 +15,7 @@ OPlague is the home of **DuckDriver OmniCore (DDO)**, a desktop-first project fo
 - **Universal Driver Container (.udrv):** a proposed portable format for driver payloads, manifests, metadata, compatibility information, and integrity data.
 - **DuckDriver OmniCore:** coordinate discovery, analysis, package validation, packaging, and deployment preparation.
 - **Profiles and recovery:** preserve known-good configurations and make rollback workflows explicit.
-- **Diagnostics:** expose device state and supported system signals, with DPC/ISR latency analysis planned where platform APIs permit.
+- **Metric Lab:** compare normalized hardware or benchmark profiles using n-dimensional Euclidean distance, weighted quadratic forms, cosine similarity, orthogonality and repeated-run variance summaries.\n- **Diagnostics:** expose device state and supported system signals, with DPC/ISR latency analysis planned where platform APIs permit.
 - **Native UX:** a focused desktop application with a consistent white, blue, and red visual identity.
 
 ## Safety principles
@@ -52,7 +52,7 @@ These are intended architectural boundaries, not a claim that every module is al
 - [x] INF and ZIP package inspection with hash and archive checks, plus deterministic batch report composition
 - [ ] Driver catalogue and compatibility evidence
 - [ ] Profile snapshots and guarded recovery
-- [ ] Diagnostics, including DPC/ISR analysis where supported
+- [x] Read-only Device Metric Lab for normalized profile comparison and weighted distance analysis\n- [ ] Live diagnostics, including DPC/ISR analysis where supported
 - [ ] Automated tests, signed releases, and platform packaging
 
 ## Screenshots
@@ -102,3 +102,10 @@ Run it with:
 The inspector does not extract, install, load, or execute driver payloads and
 does not contact external services. It verifies package integrity only; it does
 not establish vendor authenticity or driver compatibility.
+
+
+## Orthogonal metric diagnostics
+
+The desktop application includes a **Metric Lab** tab. Paste two JSON metric profiles with matching keys and values normalized to [0, 1], where higher values mean better results. Optional per-metric weights control the diagonal quadratic form. The analysis reports Euclidean and weighted distance, cosine similarity, angle, orthogonality, energy and per-dimension contributions. The numerical module also summarizes repeated measurements, calculates sample variance and exposes Parseval coefficient energy.
+
+The analyzer does not infer missing values or claim driver compatibility. See [Orthogonal Metric Diagnostics](docs/ORTHOGONAL_METRIC_DIAGNOSTICS.md) for assumptions and examples.
