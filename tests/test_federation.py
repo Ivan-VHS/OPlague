@@ -8,7 +8,8 @@ from unittest.mock import patch
 
 from tools.federation import (
     SNAPSHOT_SCHEMA, InventoryError, build_device_snapshot,
-    capture_pnp_devices, compare_device_snapshots, main,
+    capture_pnp_devices, compare_device_snapshots, export_device_snapshot,
+    load_identity_key, main,
 )
 
 
@@ -30,6 +31,41 @@ class FederationSnapshotTests(unittest.TestCase):
         self.assertAlmostEqual(snapshot["metrics"]["device_problem_free_ratio"], 0.5)
         self.assertNotIn("SERIAL-A", json.dumps(snapshot))
         self.assertEqual(len(snapshot["devices"][0]["identity_sha256"]), 64)
+
+    def test_identity_ids_use_keyed_pseudonyms_with_export_scoped_defaults(self) -> None:
+        first = build_device_snapshot(self.devices, identity_key=b"a" * 32)
+        repeated = build_device_snapshot(self.devices, identity_key=b"a" * 32)
+        other = build_device_snapshot(self.devices, identity_key=b"b" * 32)
+        ephemeral_one = build_device_snapshot(self.devices)
+        ephemeral_two = build_device_snapshot(self.devices)
+        self.assertEqual(first["devices"][0]["identity_sha256"], repeated["devices"][0]["identity_sha256"])
+        self.assertNotEqual(first["devices"][0]["identity_sha256"], other["devices"][0]["identity_sha256"])
+        self.assertNotEqual(ephemeral_one["devices"][0]["identity_sha256"], ephemeral_two["devices"][0]["identity_sha256"])
+        self.assertEqual(ephemeral_one["identity_protection"]["key_scope"], "snapshot_ephemeral")
+        self.assertEqual(first["identity_protection"]["key_scope"], "caller_managed")
+        self.assertNotIn("SERIAL-A", json.dumps(first))
+
+    def test_identity_key_file_is_bounded_and_requires_32_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            key_path = Path(directory) / "identity.key"
+            key_path.write_bytes(b"x" * 32)
+            self.assertEqual(load_identity_key(key_path), b"x" * 32)
+            key_path.write_bytes(b"short")
+            with self.assertRaisesRegex(ValueError, "at least 32 bytes"):
+                load_identity_key(key_path)
+
+    def test_snapshot_export_requires_explicit_confirmation(self) -> None:
+        with self.assertRaisesRegex(PermissionError, "explicit user confirmation"):
+            export_device_snapshot(self.devices, user_confirmed=False)
+        self.assertEqual(
+            export_device_snapshot(self.devices, user_confirmed=True)["schema"],
+            SNAPSHOT_SCHEMA,
+        )
+
+    def test_cli_snapshot_requires_confirmation_before_device_scan(self) -> None:
+        with patch("tools.federation.capture_pnp_devices") as capture:
+            self.assertEqual(main(["snapshot"]), 1)
+        capture.assert_not_called()
 
     def test_empty_inventory_does_not_claim_perfect_health(self) -> None:
         snapshot = build_device_snapshot([])

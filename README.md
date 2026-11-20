@@ -24,7 +24,7 @@
 - **UDRV inspector:** validate a versioned manifest, payload inventory, declared sizes, hashes and path/resource bounds. It does not install, load or execute payloads.
 - **Compatibility dry-run:** connect devices and INF Models entries only through exact normalized hardware-ID matches. Candidate edges are not driver rankings or compatibility verdicts.
 - **Metric Lab:** compare normalized profiles using weighted distances, cosine similarity, orthogonality and repeated-run variance.
-- **Device federation:** export bounded versioned JSON snapshots and compare saved snapshots offline. Raw PnP IDs are replaced with pseudonymous hashes; these remain linkable and are not anonymized.
+- **Device federation:** export bounded versioned JSON snapshots and compare saved snapshots offline. Export requires explicit operator confirmation; raw PnP IDs are HMAC-pseudonymized with ephemeral keys by default or an optional protected key for deliberate cross-snapshot matching.
 - **Native cross-check:** optional Pytyliki C ABI v1 metric verification when the caller supplies an explicit trusted library path.
 - **QCS validator:** one compact grammar with 66 named hardware-domain profiles; validates contour metadata and handoff markers. It is not a compiler or hardware verifier.
 - **Systems catalogue:** 66 language/toolchain capability entries with PATH-only discovery.
@@ -61,7 +61,7 @@ Mainline includes PnP inventory, bounded INF/ZIP inspection, architecture analys
 
 ## Documentation and downloads
 
-[Anatidae desktop design system](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [UI/UX system](docs/UI_UX_SYSTEM.md) · [UDRV format](docs/UDRV_FORMAT_V1.md) · [Device compatibility graph](docs/DEVICE_COMPATIBILITY_GRAPH.md) · [Federation contract](docs/FEDERATED_INTEGRATION.md) · [QCS syntax](docs/QUANTUM_CONTOUR_SYNTAX.md) · [Unified engineering standard](docs/UNIFIED_ENGINEERING_STANDARD.md)
+[Human-first governance](docs/HUMAN_FIRST_GOVERNANCE.md) · [Anatidae desktop design system](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [UI/UX system](docs/UI_UX_SYSTEM.md) · [UDRV format](docs/UDRV_FORMAT_V1.md) · [Device compatibility graph](docs/DEVICE_COMPATIBILITY_GRAPH.md) · [Federation contract](docs/FEDERATED_INTEGRATION.md) · [QCS syntax](docs/QUANTUM_CONTOUR_SYNTAX.md) · [Unified engineering standard](docs/UNIFIED_ENGINEERING_STANDARD.md)
 
 [Windows releases](https://github.com/Ivan-VHS/OPlague/releases) · [Desktop build](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)
 
