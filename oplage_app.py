@@ -12,6 +12,7 @@ from pathlib import Path, PurePosixPath
 from tkinter import filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
 from typing import Any
+from tools.ui_theme import apply_theme, set_dpi_awareness, toggle_theme
 
 from tools.report_composer import compose_inspection_reports
 from tools.metric_analysis import analyze_device_profiles
@@ -184,14 +185,17 @@ def _driver_records_from_report(report: dict[str, Any]) -> list[dict[str, Any]]:
 
 class OPlagueApp(tk.Tk):
     def __init__(self) -> None:
+        set_dpi_awareness()
         super().__init__()
         self.title("OPlague — Driver Workbench")
         self.geometry("1120x720")
         self.minsize(820, 540)
-        self.option_add("*Font", ("Segoe UI", 10))
+        self._theme_name = apply_theme(self, "oplague")
         header = ttk.Frame(self, padding=(16, 12)); header.pack(fill="x")
-        ttk.Label(header, text="OPLAGUE", font=("Segoe UI Semibold", 20)).pack(side="left")
-        ttk.Label(header, text="Hardware inventory  /  Driver package inspection", foreground="#526174").pack(side="left", padx=16)
+        ttk.Label(header, text="OPLAGUE", style="Title.TLabel").pack(side="left")
+        ttk.Label(header, text="Hardware inventory  /  Driver package inspection", style="Muted.TLabel").pack(side="left", padx=16)
+        self.theme_button = ttk.Button(header, text="Dark theme", command=self.toggle_ui_theme)
+        self.theme_button.pack(side="right")
         self.tabs = ttk.Notebook(self); self.tabs.pack(fill="both", expand=True, padx=14, pady=(0, 10))
         inventory = ttk.Frame(self.tabs, padding=12); packages = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(inventory, text="Device inventory"); self.tabs.add(packages, text="Package inspector")
@@ -204,11 +208,11 @@ class OPlagueApp(tk.Tk):
         ttk.Label(
             compatibility,
             text="Exact INF hardware-ID matching only. A candidate is not a compatibility or safety verdict; no driver operation is performed.",
-            foreground="#526174", wraplength=1000,
+            style="Muted.TLabel", wraplength=1000,
         ).pack(anchor="w", pady=(0, 8))
         ttk.Button(
             compatibility, text="Build dry-run plan from current inventory",
-            command=self.build_compatibility_plan,
+            command=self.build_compatibility_plan, style="Primary.TButton",
         ).pack(anchor="w", pady=(0, 8))
         self.compatibility_result = ScrolledText(
             compatibility, wrap="word", font=("Consolas", 10), height=20, state="disabled"
@@ -217,7 +221,7 @@ class OPlagueApp(tk.Tk):
         ttk.Label(
             metrics,
             text="Compare normalized hardware / benchmark profiles using n-D metrics and weighted quadratic distance.",
-            foreground="#526174",
+            style="Muted.TLabel",
         ).pack(anchor="w", pady=(0, 8))
         metric_inputs = ttk.Frame(metrics)
         metric_inputs.pack(fill="x", expand=False)
@@ -226,27 +230,30 @@ class OPlagueApp(tk.Tk):
             ("candidate", "Candidate profile", '{"cpu_score": 0.88, "memory_score": 0.66, "thermal_headroom": 0.74}'),
             ("weights", "Metric weights (optional)", '{"cpu_score": 1.0, "memory_score": 1.5, "thermal_headroom": 1.0}'),
         )
+        self.metric_input_panels: list[ttk.LabelFrame] = []
         for column, (key, label, default_value) in enumerate(profile_defaults):
             panel = ttk.LabelFrame(metric_inputs, text=label, padding=6)
             panel.grid(row=0, column=column, sticky="nsew", padx=(0 if column == 0 else 6, 0))
+            self.metric_input_panels.append(panel)
             editor = ScrolledText(panel, height=6, width=34, wrap="word", font=("Consolas", 9))
             editor.insert("1.0", default_value)
             editor.pack(fill="both", expand=True)
             setattr(self, f"metric_{key}", editor)
             metric_inputs.columnconfigure(column, weight=1)
+        metric_inputs.bind("<Configure>", self._layout_metric_inputs, add="+")
         metric_actions = ttk.Frame(metrics)
         metric_actions.pack(fill="x", pady=8)
-        ttk.Button(metric_actions, text="Compare profiles", command=self.compare_profiles).pack(side="left")
+        ttk.Button(metric_actions, text="Compare profiles", command=self.compare_profiles, style="Primary.TButton").pack(side="left")
         ttk.Label(
             metric_actions,
             text="JSON only · values must be normalized to [0, 1] · higher means better",
-            foreground="#526174",
+            style="Muted.TLabel",
         ).pack(side="left", padx=12)
         self.metric_result = ScrolledText(metrics, wrap="word", font=("Consolas", 10), height=14, state="disabled")
         self.metric_result.pack(fill="both", expand=True)
         bar = ttk.Frame(inventory); bar.pack(fill="x", pady=(0, 10))
-        ttk.Button(bar, text="Refresh hardware", command=self.refresh_devices).pack(side="left")
-        ttk.Label(bar, text="Read-only Windows Plug and Play inventory", foreground="#526174").pack(side="left", padx=12)
+        ttk.Button(bar, text="Refresh hardware", command=self.refresh_devices, style="Primary.TButton").pack(side="left")
+        ttk.Label(bar, text="Read-only Windows Plug and Play inventory", style="Muted.TLabel").pack(side="left", padx=12)
         columns = ("name", "status", "manufacturer", "pnp_id")
         self.devices = ttk.Treeview(inventory, columns=columns, show="headings")
         for col, label, width in (("name","Device",280),("status","Status",90),("manufacturer","Manufacturer",170),("pnp_id","Hardware ID",410)):
@@ -254,14 +261,29 @@ class OPlagueApp(tk.Tk):
         ybar = ttk.Scrollbar(inventory, orient="vertical", command=self.devices.yview)
         self.devices.configure(yscrollcommand=ybar.set); self.devices.pack(fill="both", expand=True); ybar.pack(side="right", fill="y")
         tools = ttk.Frame(packages); tools.pack(fill="x", pady=(0, 10))
-        ttk.Button(tools, text="Inspect INF / ZIP…", command=self.choose_package).pack(side="left")
+        ttk.Button(tools, text="Inspect INF / ZIP…", command=self.choose_package, style="Primary.TButton").pack(side="left")
         ttk.Button(tools, text="Batch inspect…", command=self.choose_packages).pack(side="left", padx=(8, 0))
-        ttk.Label(tools, text="Metadata and hashes only — no extraction or execution", foreground="#526174").pack(side="left", padx=12)
+        ttk.Label(tools, text="Metadata and hashes only — no extraction or execution", style="Muted.TLabel").pack(side="left", padx=12)
         self.report = ScrolledText(packages, wrap="word", font=("Consolas", 10), state="disabled")
         self.report.pack(fill="both", expand=True)
         footer = ttk.Frame(self, padding=(14, 4, 14, 10)); footer.pack(fill="x")
         self.status = tk.StringVar(value="Local inspection only — no driver installation or deployment")
-        ttk.Label(footer, textvariable=self.status, foreground="#526174").pack(side="left")
+        ttk.Label(footer, textvariable=self.status, style="Muted.TLabel").pack(side="left")
+
+    def toggle_ui_theme(self) -> None:
+        self._theme_name = toggle_theme(self, "oplague")
+        self.theme_button.configure(text="Light theme" if self._theme_name == "dark" else "Dark theme")
+
+    def _layout_metric_inputs(self, event: tk.Event | None = None) -> None:
+        width = int(getattr(event, "width", 0) or self.winfo_width())
+        columns = 3 if width >= 1080 else 2 if width >= 700 else 1
+        for index, panel in enumerate(self.metric_input_panels):
+            panel.grid_configure(
+                row=index // columns, column=index % columns,
+                padx=(0 if index % columns == 0 else 6, 0), pady=4, sticky="nsew",
+            )
+        for column in range(3):
+            self.metric_input_panels[0].master.columnconfigure(column, weight=1 if column < columns else 0)
 
     def refresh_devices(self) -> None:
         self.status.set("Querying local Windows device inventory…"); self.update_idletasks()
