@@ -125,3 +125,12 @@ python -m tools.federation compare --reference baseline.json --candidate current
 - **Metric Lab：** 比较键和维度一致的归一化 JSON 配置档案，计算欧几里得距离、加权距离、余弦相似度、角度、正交性、能量和重复测量的样本方差。
 
 以上工具均在本地以只读方式运行。它们不会安装、解压、加载或执行驱动；完整性检查也不代表供应商真实性或驱动兼容性。
+
+
+## 项目生态
+
+本仓库属于由三个独立项目组成的协作体系。Reaper 负责编程语言、运行时与工作流编排；OPlague 负责只读 Windows 设备清单和驱动程序包检查；Pytyliki 负责基于 C11 的处理器、内存与数值计算核心。 See the [3 × 3 项目协作矩阵](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md) for the 3 × 3 cross-product, implemented interfaces, data directions and safety boundaries.
+
+- [Reaper — 编程语言、运行时与工作流编排](https://github.com/Ivan-VHS/Reaper/blob/main/README.zh-CN.md) · [integration contract](https://github.com/Ivan-VHS/Reaper/blob/main/docs/FEDERATED_INTEGRATION.md)
+- [OPlague — 只读 Windows 设备清单与驱动程序包检查](https://github.com/Ivan-VHS/OPlague/blob/main/README.zh-CN.md) · [integration contract](https://github.com/Ivan-VHS/OPlague/blob/main/docs/FEDERATED_INTEGRATION.md)
+- [Pytyliki — C11 处理器、内存与数值计算核心](https://github.com/Ivan-VHS/Pytyliki/blob/main/README.zh-CN.md) · [integration contract](https://github.com/Ivan-VHS/Pytyliki/blob/main/docs/FEDERATED_INTEGRATION.md)

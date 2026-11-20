@@ -186,3 +186,12 @@ verdict. The generated plan is explicitly read-only:
 `install_attempted=false`, `system_modified=false`,
 `proposed_operation=none`. Manual review and further evidence are mandatory.
 See [the compatibility graph contract](docs/DEVICE_COMPATIBILITY_GRAPH.md).
+
+
+## Project ecosystem
+
+This repository is part of a federation of three independent projects. Reaper owns the language, runtime and orchestration; OPlague owns read-only Windows device inventory and driver-package inspection; Pytyliki owns the C11 processor, memory and numerical core. See the [3 × 3 federation matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md) for the 3 × 3 cross-product, implemented interfaces, data directions and safety boundaries.
+
+- [Reaper — language, runtime and orchestration](https://github.com/Ivan-VHS/Reaper/blob/main/README.md) · [integration contract](https://github.com/Ivan-VHS/Reaper/blob/main/docs/FEDERATED_INTEGRATION.md)
+- [OPlague — read-only Windows device inventory and driver-package inspection](https://github.com/Ivan-VHS/OPlague/blob/main/README.md) · [integration contract](https://github.com/Ivan-VHS/OPlague/blob/main/docs/FEDERATED_INTEGRATION.md)
+- [Pytyliki — C11 processor, memory and numerical core](https://github.com/Ivan-VHS/Pytyliki/blob/main/README.md) · [integration contract](https://github.com/Ivan-VHS/Pytyliki/blob/main/docs/FEDERATED_INTEGRATION.md)

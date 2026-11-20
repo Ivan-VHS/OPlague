@@ -127,3 +127,12 @@ Desktop-вкладка **Compatibility & dry-run** зіставляє локал
 - **Metric Lab:** порівнює однакові нормалізовані JSON-профілі за евклідовою та зваженою відстанями, cosine similarity, кутом, ортогональністю, енергією та вибірковою дисперсією повторних вимірювань.
 
 Усі перелічені інструменти працюють локально й лише для читання. Вони не встановлюють, не розпаковують, не завантажують і не виконують драйвери; перевірка цілісності не підтверджує автентичність постачальника або сумісність драйвера.
+
+
+## Екосистема проєктів
+
+Цей репозиторій входить до федерації трьох самостійних проєктів. Reaper відповідає за мову, середовище виконання й оркестрацію; OPlague — за інвентаризацію пристроїв Windows та аналіз пакетів драйверів без змін; Pytyliki — за ядро процесорних, memory- та математичних операцій на C11. See the [Матриця взаємозв’язків 3 × 3](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md) for the 3 × 3 cross-product, implemented interfaces, data directions and safety boundaries.
+
+- [Reaper — мова, середовище виконання й оркестрація](https://github.com/Ivan-VHS/Reaper/blob/main/README.uk.md) · [integration contract](https://github.com/Ivan-VHS/Reaper/blob/main/docs/FEDERATED_INTEGRATION.md)
+- [OPlague — інвентаризація пристроїв Windows та аналіз пакетів драйверів без змін](https://github.com/Ivan-VHS/OPlague/blob/main/README.uk.md) · [integration contract](https://github.com/Ivan-VHS/OPlague/blob/main/docs/FEDERATED_INTEGRATION.md)
+- [Pytyliki — ядро процесорних, memory- та математичних операцій на C11](https://github.com/Ivan-VHS/Pytyliki/blob/main/README.uk.md) · [integration contract](https://github.com/Ivan-VHS/Pytyliki/blob/main/docs/FEDERATED_INTEGRATION.md)
