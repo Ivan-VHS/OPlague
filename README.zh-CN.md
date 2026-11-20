@@ -76,6 +76,29 @@ OPlague 是一个原生桌面应用项目，旨在构建 **DuckDriver OmniCore (
 
 Windows 源码启动文件的正确名称为 `oplague_app.py`，桌面构建工作流使用该入口。
 
+## 已实现功能与联邦集成
+
+当前桌面应用和工具包含：
+
+- **只读设备清单：**枚举 Windows Plug and Play 设备，不更改设备状态。
+- **INF / ZIP 检查：**读取本地元数据、SHA-256、INF Hardware ID 和目标架构证据，并执行有界的路径、归档条目数、展开大小及压缩率检查。
+- **批量报告合成：**按输入顺序生成 oplage.inspection-bundle.v1 汇总，包含聚合计数和确定性 bundle 指纹。
+- **UDRV 完整性检查：**验证版本化 manifest、payload 清单、声明大小与哈希、路径和资源限制。检查过程不会解压、安装、加载或执行 payload。
+- **Metric Lab 与兼容性 dry-run：**分析归一化指标、加权距离，并仅根据完全匹配的规范化 Hardware ID 建立候选边。候选项不是兼容性或安装结论。
+- **联邦设备快照：**tools/federation.py 按版本化的 oplage.device-snapshot.v1 schema 导出快照，并可在支持的 Python 平台上比较已保存的快照。实时 PnP 采集需要 Windows 和 PowerShell；上限为 10,000 台设备和 16 MiB JSON。导出省略原始 PnP InstanceId，改用 SHA-256 假名指纹；这些指纹仍可关联，并非匿名化。
+- **跨项目桥接：**Reaper 可读取快照和指标配置。只有调用方显式提供可信 ABI v1 库的绝对路径时，才会启用可选的 Pytyliki 原生交叉核验；加载 DLL/SO 会执行原生代码。
+
+快照与离线比较示例：
+
+~~~powershell
+python -m tools.federation snapshot --output device-snapshot.json
+python -m tools.federation compare --reference baseline.json --candidate current.json --output comparison.json
+~~~
+
+联邦流程不会修改设备或驱动，只写入明确指定的报告文件。该桥接尚未实现驱动安装/卸载、设备启用/禁用、签名、恢复或实时 DPC/ISR 诊断。
+
+参见 [联邦集成契约](docs/FEDERATED_INTEGRATION.md)、[快照 schema](schemas/oplage.device-snapshot.v1.schema.json)、[报告合成架构](docs/CONCATENATION_ARCHITECTURE.md) 和 [精确 ID 兼容性图](docs/DEVICE_COMPATIBILITY_GRAPH.md)。
+
 ## 许可证
 
 许可条款请参阅 [LICENSE](LICENSE)。

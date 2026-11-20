@@ -99,6 +99,29 @@ OPlague detects explicit Windows INF architecture decorations (`NTx86`, `NTamd64
 
 The desktop package inspector supports ordered batch inspection of multiple INF/ZIP inputs and produces a bounded, canonical JSON summary with aggregate counts and a bundle SHA-256 fingerprint. This fingerprint is not a vendor signature or compatibility verdict. See [the composition architecture](docs/CONCATENATION_ARCHITECTURE.md).
 
+## Implemented capabilities and federated integration
+
+The current desktop and tooling surface includes:
+
+- **Read-only device inventory:** Windows Plug and Play enumeration; no device state is changed.
+- **INF / ZIP inspection:** local metadata, SHA-256, INF model IDs and target-architecture evidence, plus bounded archive-entry, path, expansion and compression checks.
+- **Batch report composition:** ordered oplage.inspection-bundle.v1 summaries with aggregate counts and a deterministic bundle fingerprint.
+- **UDRV integrity inspection:** versioned manifest, payload inventory, declared sizes and hashes, path and resource limits. Inspection does not extract, install, load or execute payloads.
+- **Metric Lab and compatibility dry-run:** normalized profile metrics, weighted distances and exact normalized hardware-ID candidate edges. A candidate is not a compatibility or installation verdict.
+- **Federated device snapshots:** tools/federation.py exports the versioned oplage.device-snapshot.v1 schema and compares saved snapshots on any supported Python platform. Live PnP capture requires Windows and PowerShell; snapshots are bounded to 10,000 devices and 16 MiB of JSON. Raw PnP instance IDs are omitted in favor of SHA-256 pseudonymous fingerprints; these remain linkable and are not anonymized.
+- **Cross-project bridge:** Reaper can consume the snapshot and metric profile. An optional Pytyliki native cross-check is available only when the caller supplies an explicit absolute path to a trusted ABI v1 library; loading a DLL/SO executes native code.
+
+Example snapshot and offline comparison:
+
+~~~powershell
+python -m tools.federation snapshot --output device-snapshot.json
+python -m tools.federation compare --reference baseline.json --candidate current.json --output comparison.json
+~~~
+
+The federation workflow is read-only with respect to devices and drivers. It writes only the requested report files. Driver installation, removal, enable/disable, signing, recovery and live DPC/ISR diagnostics are not implemented by this bridge.
+
+See [federated integration contract](docs/FEDERATED_INTEGRATION.md), [snapshot schema](schemas/oplage.device-snapshot.v1.schema.json), [report composition](docs/CONCATENATION_ARCHITECTURE.md), and [exact-ID compatibility graph](docs/DEVICE_COMPATIBILITY_GRAPH.md).
+
 ## License
 
 See [LICENSE](LICENSE) for the terms that apply to this repository.
