@@ -1,197 +1,72 @@
-# OPlague
+# OPlague — Driver Workbench
 
-**Native desktop driver management, package engineering, and hardware diagnostics.**
+<p align="center">
+  <a href="https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml"><img alt="Windows desktop build" src="https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml/badge.svg"></a>
+  <img alt="Python 3.10+" src="https://img.shields.io/badge/runtime-Python%203.10%2B-2563EB?style=flat-square">
+  <img alt="Windows" src="https://img.shields.io/badge/desktop-Windows-DC2626?style=flat-square">
+  <img alt="Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-334155?style=flat-square">
+</p>
 
-[English](README.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [简体中文](README.zh-CN.md)
+**OPlague is a Windows-first, read-only workbench for hardware inventory and driver-package diagnostics.** It does not install or modify drivers.
 
-OPlague is the home of **DuckDriver OmniCore (DDO)**, a desktop-first project for safer hardware discovery, driver-package inspection, and portable driver bundles.
+[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
 
-> **Status:** an early Windows x64 desktop preview is implemented. Device discovery, INF/ZIP inspection and normalized metric-profile comparison are read-only; driver installation, UDRV authoring, recovery and live performance telemetry remain roadmap work.
+## Desktop interface preview
 
-**Engineering standard:** [Unified Engineering Standard](docs/UNIFIED_ENGINEERING_STANDARD.md) — common rules for modularity, portable audit tooling, bounded inputs, evidence and safe integration.
+<p align="center"><img src="assets/oplague-workbench-preview.svg" alt="Illustrative OPlague desktop interface preview" width="100%"></p>
+<sub>Illustrative reconstruction based on the checked-in Tkinter layout, not a screenshot captured from a running Windows application. A live capture is not yet committed.</sub>
 
-## Product vision
+## Workbenches and tools
 
-- **Hardware inventory:** discover devices and present hardware identifiers, relationships, and driver state.
-- **Driver workspace:** import, inspect, validate, catalogue, and compare packages before installation.
-- **Universal Driver Container (.udrv):** a proposed portable format for driver payloads, manifests, metadata, compatibility information, and integrity data.
-- **DuckDriver OmniCore:** coordinate discovery, analysis, package validation, packaging, and deployment preparation.
-- **Profiles and recovery:** preserve known-good configurations and make rollback workflows explicit.
-- **Metric Lab:** compare normalized hardware or benchmark profiles using n-dimensional Euclidean distance, weighted quadratic forms, cosine similarity, orthogonality and repeated-run variance summaries.
-- **Diagnostics:** expose device state and supported system signals, with DPC/ISR latency analysis planned where platform APIs permit.
-- **Native UX:** a focused desktop application with a consistent white, blue, and red visual identity.
+- **Device inventory:** read-only Windows Plug and Play discovery with device name, status, manufacturer and hardware ID.
+- **INF / ZIP inspector:** extract selected INF metadata, calculate SHA-256, inspect archive paths and resource limits, and report exact hardware-ID and target-architecture evidence. Package content is not extracted or executed.
+- **Batch reports:** compose ordered inspection results with aggregate counts and a deterministic bundle fingerprint.
+- **UDRV inspector:** validate a versioned manifest, payload inventory, declared sizes, hashes and path/resource bounds. It does not install, load or execute payloads.
+- **Compatibility dry-run:** connect devices and INF Models entries only through exact normalized hardware-ID matches. Candidate edges are not driver rankings or compatibility verdicts.
+- **Metric Lab:** compare normalized profiles using weighted distances, cosine similarity, orthogonality and repeated-run variance.
+- **Device federation:** export bounded versioned JSON snapshots and compare saved snapshots offline. Raw PnP IDs are replaced with pseudonymous hashes; these remain linkable and are not anonymized.
+- **Native cross-check:** optional Pytyliki C ABI v1 metric verification when the caller supplies an explicit trusted library path.
+- **QCS validator:** one compact grammar with 66 named hardware-domain profiles; validates contour metadata and handoff markers. It is not a compiler or hardware verifier.
+- **Systems catalogue:** 66 language/toolchain capability entries with PATH-only discovery.
 
-## Systems-language and native-backend matrix
+## Run the desktop app
 
-OPlague includes a read-only 66-slot capability catalogue for evaluating optional native tracks: memory-safe and linear-resource models, formal verification, embedded/bare-metal targets, C ABI boundaries, concurrency and deterministic builds.
-
-```bash
-python tools/systems_languages.py --verify
-python tools/systems_languages.py --profile oplague
-python tools/systems_languages.py --profile oplague --available-only
-python tools/systems_languages.py --tag formal-verification,embedded --json
-```
-
-The probe only checks executable names on `PATH`. OPlague does not load or execute discovered compilers, driver payloads or third-party native modules; a detected compiler is not represented as an implemented backend or a driver-compatibility guarantee.
-
-## Quantum Contour Syntax (QCS)
-
-OPlague includes a lightweight QCS contract parser alongside its 66-entry systems-language catalogue. QCS provides 66 named hardware-domain profiles over one compact grammar; it is not 66 separate compilers. The validator checks contour boundaries, `domain`, `invariant`, optional architecture / budget metadata, and records explicit `->>` / `<-~` handoffs. Swift-like bodies remain inert text.
+Requirements: Windows x64 and Python 3.10+.
 
 ```bash
-python -m tools.qcs validate path/to/example.qcs
-python -m tools.qcs validate path/to/example.qcs --json
-python -m tools.qcs dialects
-python -m unittest discover -s tests -p 'test_qcs.py' -v
+git clone https://github.com/Ivan-VHS/OPlague.git
+cd OPlague
+python oplague_app.py
+python -m unittest discover -s tests -v
 ```
 
-This is metadata validation only: no compilation, code execution, JIT, device I/O, register access, driver installation, or safety proof. See [QCS syntax and domain profiles](docs/QUANTUM_CONTOUR_SYNTAX.md).
+The Windows workflow builds `OPlague.exe` and uploads `OPlague-windows-x64.zip`. A `v*` tag publishes the archive as a GitHub Release.
 
-## Safety principles
+## Useful read-only tools
 
-1. Inspect packages before trusting them; validate manifests, structure, metadata, and hashes where available.
-2. Treat imported packages, scripts, and binaries as untrusted input.
-3. Never execute foreign kernel code merely to identify or inspect hardware.
-4. Separate read-only discovery and package analysis from privileged installation.
-5. Make elevated actions explicit, reviewable, and reversible where the platform allows.
-6. Report missing evidence and validation failures rather than guessing compatibility.
-
-The `.udrv` format is a packaging concept, not a guarantee that arbitrary drivers are universally compatible or safe. Installation depends on the operating system, hardware, signing policy, and vendor requirements.
-
-## Architecture map
-
-| Layer | Responsibility |
-| --- | --- |
-| Native desktop shell | Lifecycle, navigation, settings, and user workflows |
-| Hardware discovery | Device enumeration and stable hardware identifiers |
-| Driver catalog | Package, version, provider, and compatibility indexing |
-| Package validator | Manifest, content, hash, and consistency checks |
-| UDRV container | Portable package structure and metadata contract |
-| OmniCore orchestrator | Coordinate discovery, analysis, packaging, and deployment stages |
-| Diagnostics | Device state and supported performance signals |
-| Recovery manager | Profiles, snapshots, and rollback plans |
-
-These are intended architectural boundaries, not a claim that every module is already present on `main`.
-
-## Roadmap
-
-- [x] Native desktop shell (early Windows preview)
-- [x] Read-only Windows Plug and Play inventory
-- [ ] Versioned `.udrv` container specification
-- [x] INF and ZIP package inspection with hash and archive checks, plus deterministic batch report composition
-- [ ] Driver catalogue and compatibility evidence
-- [ ] Profile snapshots and guarded recovery
-- [x] Read-only Device Metric Lab for normalized profile comparison and weighted distance analysis
-- [ ] Live diagnostics, including DPC/ISR analysis where supported
-- [ ] Automated tests, signed releases, and platform packaging
-
-## Screenshots
-
-Real application screenshots will be added when a runnable interface is available. Mockups and concept art will not be presented as screenshots of implemented software.
-
-## Contributing
-
-Keep changes focused and reproducible. Include tests or validation notes where practical, document OS/hardware assumptions, and do not commit proprietary driver binaries, credentials, private device data, or unlicensed vendor materials. Privileged operations must remain isolated and reviewable.
-
-## Native desktop application
-
-An early **Windows x64 desktop preview** is now included: read-only Windows Plug and Play inventory; INF metadata and ZIP package inspection; SHA-256 calculation and archive path/size/entry-count/compression checks. The preview does not install drivers, load kernel code, extract archives, or execute package content.
-
-- [Windows x64 Releases](https://github.com/Ivan-VHS/OPlague/releases)
-- [Desktop build workflow and downloadable CI artifacts](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)
-- [Latest workflow runs](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml?query=branch%3Amain)
-
-A successful run uploads `OPlague-windows-x64.zip`; a `v*` tag publishes the same archive as a GitHub Release. Run from source on Windows with Python 3.10+ using `python oplague_app.py`. UDRV authoring, driver installation, rollback, signing and DPC/ISR diagnostics remain roadmap items.
-
-
-`oplague_app.py` is the correctly spelled Windows source launcher used by the desktop build.
-
-## Driver target architecture analysis
-
-OPlague detects explicit Windows INF architecture decorations (`NTx86`, `NTamd64`, `NTarm`, `NTarm64`, `NTia64`) and compares them with the normalized host architecture. Results are evidence-based (`explicit_match`, `explicit_nonmatch`, or `unknown`), and are included in standalone INF and ZIP package reports. This does not certify signing, OS-version support, device-ID match, or successful installation. See [Driver Target Architecture Analysis](docs/DRIVER_TARGET_ARCHITECTURE.md).
-
-## Concatenation and report composition
-
-The desktop package inspector supports ordered batch inspection of multiple INF/ZIP inputs and produces a bounded, canonical JSON summary with aggregate counts and a bundle SHA-256 fingerprint. This fingerprint is not a vendor signature or compatibility verdict. See [the composition architecture](docs/CONCATENATION_ARCHITECTURE.md).
-
-## Implemented capabilities and federated integration
-
-The current desktop and tooling surface includes:
-
-- **Read-only device inventory:** Windows Plug and Play enumeration; no device state is changed.
-- **INF / ZIP inspection:** local metadata, SHA-256, INF model IDs and target-architecture evidence, plus bounded archive-entry, path, expansion and compression checks.
-- **Batch report composition:** ordered oplage.inspection-bundle.v1 summaries with aggregate counts and a deterministic bundle fingerprint.
-- **UDRV integrity inspection:** versioned manifest, payload inventory, declared sizes and hashes, path and resource limits. Inspection does not extract, install, load or execute payloads.
-- **Metric Lab and compatibility dry-run:** normalized profile metrics, weighted distances and exact normalized hardware-ID candidate edges. A candidate is not a compatibility or installation verdict.
-- **Federated device snapshots:** tools/federation.py exports the versioned oplage.device-snapshot.v1 schema and compares saved snapshots on any supported Python platform. Live PnP capture requires Windows and PowerShell; snapshots are bounded to 10,000 devices and 16 MiB of JSON. Raw PnP instance IDs are omitted in favor of SHA-256 pseudonymous fingerprints; these remain linkable and are not anonymized.
-- **Cross-project bridge:** Reaper can consume the snapshot and metric profile. An optional Pytyliki native cross-check is available only when the caller supplies an explicit absolute path to a trusted ABI v1 library; loading a DLL/SO executes native code.
-
-Example snapshot and offline comparison:
-
-~~~powershell
+```bash
+python tools/udrv_inspector.py path/to/package.udrv --json
 python -m tools.federation snapshot --output device-snapshot.json
-python -m tools.federation compare --reference baseline.json --candidate current.json --output comparison.json
-~~~
+python -m tools/federation compare --reference baseline.json --candidate current.json
+python -m tools.qcs dialects
+python -m tools.qcs validate path/to/example.qcs
+python tools/systems_languages.py --profile oplague
+```
 
-The federation workflow is read-only with respect to devices and drivers. It writes only the requested report files. Driver installation, removal, enable/disable, signing, recovery and live DPC/ISR diagnostics are not implemented by this bridge.
+## Project evolution and safety boundary
 
-See [federated integration contract](docs/FEDERATED_INTEGRATION.md), [snapshot schema](schemas/oplage.device-snapshot.v1.schema.json), [report composition](docs/CONCATENATION_ARCHITECTURE.md), and [exact-ID compatibility graph](docs/DEVICE_COMPATIBILITY_GRAPH.md).
+OPlague began on 19 Nov 2026 as a Windows driver-workbench project. Mainline changes added PnP inventory, bounded INF/ZIP inspection, architecture analysis, exact-ID dry-run planning, UDRV integrity checks, batch reports, normalized metrics, versioned device snapshots, the Pytyliki bridge and the QCS validator.
+
+**Not implemented:** driver installation/removal, enable/disable, signing, rollback, firmware changes or live DPC/ISR diagnostics. Package integrity does not establish vendor authenticity, driver safety or compatibility. Imported files are untrusted input; inspect reports before making manual decisions. The QCS body is retained as text and is never compiled or executed.
+
+## Documentation and downloads
+
+[UDRV format](docs/UDRV_FORMAT_V1.md) · [Device compatibility graph](docs/DEVICE_COMPATIBILITY_GRAPH.md) · [Federation contract](docs/FEDERATED_INTEGRATION.md) · [QCS syntax](docs/QUANTUM_CONTOUR_SYNTAX.md) · [Unified engineering standard](docs/UNIFIED_ENGINEERING_STANDARD.md)
+
+[Windows releases](https://github.com/Ivan-VHS/OPlague/releases) · [Desktop build](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)
+
+**Federation:** [Reaper](https://github.com/Ivan-VHS/Reaper) · [Pytyliki](https://github.com/Ivan-VHS/Pytyliki) · [3×3 matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md).
 
 ## License
 
-See [LICENSE](LICENSE) for the terms that apply to this repository.
-
-
-## Read-only UDRV integrity inspector
-
-The first executable UDRV tooling is available as a read-only package inspector.
-It accepts a directory package or ZIP archive and checks the versioned manifest,
-payload inventory, declared sizes, and SHA-256 hashes. It rejects undeclared
-files, missing files, path traversal, symbolic links, duplicate paths, malformed
-manifests, and packages exceeding documented resource limits.
-
-Run it with:
-
-    python tools/udrv_inspector.py path/to/package.udrv
-    python tools/udrv_inspector.py path/to/package.udrv --json
-    python -m unittest discover -s tests -p 'test_udrv_inspector.py' -v
-
-The inspector does not extract, install, load, or execute driver payloads and
-does not contact external services. It verifies package integrity only; it does
-not establish vendor authenticity or driver compatibility.
-
-Directory-package manifests are read with a strict 4 MiB limit before JSON
-parsing. Package validation also enforces limits of 10,000 archive entries,
-512 MiB per payload file and 2 GiB total payload data. These bounds apply to
-the read-only inspector; they are not a driver compatibility or vendor
-authenticity certification.
-
-
-## Orthogonal metric diagnostics
-
-The desktop application includes a **Metric Lab** tab. Paste two JSON metric profiles with matching keys and values normalized to [0, 1], where higher values mean better results. Optional per-metric weights control the diagonal quadratic form. The analysis reports Euclidean and weighted distance, cosine similarity, angle, orthogonality, energy and per-dimension contributions. The numerical module also summarizes repeated measurements, calculates sample variance and exposes Parseval coefficient energy.
-
-The analyzer does not infer missing values or claim driver compatibility. See [Orthogonal Metric Diagnostics](docs/ORTHOGONAL_METRIC_DIAGNOSTICS.md) for assumptions and examples.
-
-## Exact-ID compatibility graph and dry-run
-
-The desktop **Compatibility & dry-run** tab connects the refreshed local PnP
-inventory with hardware identifiers declared in inspected INF `Models`
-sections. It creates candidate edges only for exact normalized identifier
-matches and reports architecture mismatches separately. Prefix/name similarity
-is never treated as compatibility.
-
-A candidate is **not** a driver-rank, signature, trust, Windows-build or safety
-verdict. The generated plan is explicitly read-only:
-`install_attempted=false`, `system_modified=false`,
-`proposed_operation=none`. Manual review and further evidence are mandatory.
-See [the compatibility graph contract](docs/DEVICE_COMPATIBILITY_GRAPH.md).
-
-
-## Project ecosystem
-
-This repository is part of a federation of three independent projects. Reaper owns the language, runtime and orchestration; OPlague owns read-only Windows device inventory and driver-package inspection; Pytyliki owns the C11 processor, memory and numerical core. See the [3 × 3 federation matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md) for the 3 × 3 cross-product, implemented interfaces, data directions and safety boundaries.
-
-- [Reaper — language, runtime and orchestration](https://github.com/Ivan-VHS/Reaper/blob/main/README.md) · [integration contract](https://github.com/Ivan-VHS/Reaper/blob/main/docs/FEDERATED_INTEGRATION.md)
-- [OPlague — read-only Windows device inventory and driver-package inspection](https://github.com/Ivan-VHS/OPlague/blob/main/README.md) · [integration contract](https://github.com/Ivan-VHS/OPlague/blob/main/docs/FEDERATED_INTEGRATION.md)
-- [Pytyliki — C11 processor, memory and numerical core](https://github.com/Ivan-VHS/Pytyliki/blob/main/README.md) · [integration contract](https://github.com/Ivan-VHS/Pytyliki/blob/main/docs/FEDERATED_INTEGRATION.md)
+[Apache License 2.0](LICENSE)
