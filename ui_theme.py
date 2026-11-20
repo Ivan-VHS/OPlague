@@ -86,9 +86,11 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
     style.configure("Panel.TFrame", background=colors["surface"])
     style.configure("TLabel", background=colors["page"], foreground=colors["text"])
     style.configure("Muted.TLabel", background=colors["page"], foreground=colors["muted"])
-    style.configure("TButton", padding=(12, 7), focuscolor=colors["accent"])
+    style.configure("TButton", padding=(12, 7), focuscolor=colors["accent"],
+                    foreground=colors["text"], background=colors["surface_alt"],
+                    bordercolor=colors["border"])
     style.map("TButton", foreground=[("disabled", colors["muted"]), ("active", colors["text"])],
-              background=[("active", colors["surface_alt"])])
+              background=[("active", colors["surface"])])
     style.configure("TNotebook", background=colors["page"], borderwidth=0)
     style.configure("TNotebook.Tab", padding=(14, 8), background=colors["surface_alt"],
                     foreground=colors["muted"])
@@ -105,7 +107,9 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
     style.configure("Treeview.Heading", padding=(8, 7), background=colors["surface_alt"],
                     foreground=colors["muted"], relief="flat")
     for widget in _walk(root):
-        if isinstance(widget, tk.Text):
+        if isinstance(widget, ttk.Label):
+            widget.configure(foreground=colors["text"])
+        elif isinstance(widget, tk.Text):
             widget.configure(background=colors["editor"], foreground=colors["editor_text"],
                 insertbackground=colors["editor_text"], selectbackground=colors["selection"],
                 selectforeground=colors["editor_text"], highlightbackground=colors["border"],
