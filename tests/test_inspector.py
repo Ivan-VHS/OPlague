@@ -67,7 +67,7 @@ class InspectorTests(unittest.TestCase):
             direct = inspect_package(inf_path)
             self.assertEqual(
                 direct["compatibility"]["hardware_ids"],
-                ["PCI\\\\VEN_1234&DEV_ABCD"],
+                ["PCI\\VEN_1234&DEV_ABCD"],
             )
             self.assertEqual(direct["compatibility"]["architectures"], ["x64"])
 
@@ -77,7 +77,7 @@ class InspectorTests(unittest.TestCase):
             zipped = inspect_package(zip_path)
             self.assertEqual(
                 zipped["inf_files"][0]["compatibility"]["hardware_ids"],
-                ["PCI\\\\VEN_1234&DEV_ABCD"],
+                ["PCI\\VEN_1234&DEV_ABCD"],
             )
 
 if __name__ == "__main__":
