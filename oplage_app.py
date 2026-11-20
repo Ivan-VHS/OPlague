@@ -15,6 +15,7 @@ from typing import Any
 
 from tools.report_composer import compose_inspection_reports
 from tools.metric_analysis import analyze_device_profiles
+from tools.architecture_profiles import current_host_architecture, detect_inf_target_architectures, evaluate_driver_targets
 from tools.device_graph import extract_inf_compatibility, build_dry_run_plan
 
 MAX_PACKAGE_BYTES = 512 * 1024 * 1024
@@ -84,6 +85,9 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
         raw_inf = path.read_bytes()
         report["inf_metadata"] = _inf(raw_inf, path.name)
         report["compatibility"] = extract_inf_compatibility(_decode_inf(raw_inf))
+        targets = detect_inf_target_architectures(_decode_inf(raw_inf))
+        report["architecture_targets"] = targets
+        report["target_analysis"] = evaluate_driver_targets(current_host_architecture() or "unknown", targets)
         return report
     if suffix != ".zip":
         raise ValueError("Supported package formats are .inf and .zip")
