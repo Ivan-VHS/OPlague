@@ -105,6 +105,13 @@ class FederationSnapshotTests(unittest.TestCase):
             compare_device_snapshots(reference, mismatched)
 
 
+    def test_snapshot_rejects_null_identity_protection_metadata(self) -> None:
+        snapshot = build_device_snapshot(self.devices)
+        snapshot["identity_protection"] = None
+        reseal_snapshot(snapshot)
+        with self.assertRaisesRegex(ValueError, "identity_protection"):
+            compare_device_snapshots(snapshot, snapshot)
+
     def test_snapshot_fingerprint_rejects_metric_tampering(self) -> None:
         snapshot = build_device_snapshot(self.devices)
         snapshot["metrics"]["device_ok_ratio"] = 0.25
