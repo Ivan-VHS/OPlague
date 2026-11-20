@@ -4,6 +4,8 @@ import unittest
 
 from tools.metric_analysis import (
     analyze_device_profiles,
+    aggregate_device_profiles,
+    compare_profile_matrix,
     combine_uncorrelated_variances,
     parseval_energy,
     summarize_repeated_measurements,
@@ -41,6 +43,29 @@ class DeviceMetricAnalysisTests(unittest.TestCase):
 
     def test_parseval_energy(self) -> None:
         self.assertEqual(parseval_energy([1.0, 2.0, 2.0]), 9.0)
+
+
+    def test_batch_profile_aggregation(self) -> None:
+        result = aggregate_device_profiles([
+            {"cpu": 0.8, "memory": 0.6},
+            {"cpu": 0.6, "memory": 0.8},
+        ])
+        self.assertEqual(result["schema"], "oplage.device-metric-aggregate.v1")
+        self.assertEqual(result["record_count"], 2)
+        self.assertAlmostEqual(result["metrics"]["cpu"]["mean"], 0.7)
+        self.assertAlmostEqual(result["metrics"]["cpu"]["product"], 0.48)
+        self.assertAlmostEqual(result["metrics"]["memory"]["sample_variance"], 0.02)
+
+    def test_cartesian_profile_comparison_matrix(self) -> None:
+        result = compare_profile_matrix(
+            [{"cpu": 0.8}, {"cpu": 0.5}],
+            [{"cpu": 0.7}, {"cpu": 0.9}],
+        )
+        self.assertEqual(result["pair_count"], 4)
+        self.assertEqual(
+            [(item["reference_index"], item["candidate_index"]) for item in result["comparisons"]],
+            [(0, 0), (0, 1), (1, 0), (1, 1)],
+        )
 
     def test_rejects_mismatched_dimensions_and_bad_values(self) -> None:
         with self.assertRaisesRegex(ValueError, "dimensions differ"):
