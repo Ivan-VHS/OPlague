@@ -14,6 +14,7 @@ from typing import Any
 
 from tools.report_composer import compose_inspection_reports
 from tools.metric_analysis import analyze_device_profiles
+from tools.architecture_profiles import current_host_architecture, detect_inf_target_architectures, evaluate_driver_targets
 
 MAX_PACKAGE_BYTES = 512 * 1024 * 1024
 MAX_ARCHIVE_ENTRIES = 10_000
@@ -79,7 +80,11 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
         "sha256": _hash_file(path), "format": suffix.lstrip(".").upper(),
     }
     if suffix == ".inf":
-        report["inf_metadata"] = _inf(path.read_bytes(), path.name)
+        raw_inf = path.read_bytes()
+        report["inf_metadata"] = _inf(raw_inf, path.name)
+        targets = detect_inf_target_architectures(_decode_inf(raw_inf))
+        report["architecture_targets"] = targets
+        report["target_analysis"] = evaluate_driver_targets(current_host_architecture() or "unknown", targets)
         return report
     if suffix != ".zip":
         raise ValueError("Supported package formats are .inf and .zip")
@@ -101,7 +106,15 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
                 if entry.compress_size and entry.file_size / entry.compress_size > MAX_COMPRESSION_RATIO:
                     raise ValueError(f"Suspicious compression ratio: {entry.filename}")
                 if entry.filename.casefold().endswith(".inf"):
-                    inf_files.append({"file": entry.filename, "metadata": _inf(archive.read(entry), entry.filename)})
+                    raw_inf = archive.read(entry)
+                    metadata = _inf(raw_inf, entry.filename)
+                    targets = detect_inf_target_architectures(_decode_inf(raw_inf))
+                    inf_files.append({
+                        "file": entry.filename,
+                        "metadata": metadata,
+                        "architecture_targets": targets,
+                        "target_analysis": evaluate_driver_targets(current_host_architecture() or "unknown", targets),
+                    })
             report.update({
                 "entry_count": len(entries), "expanded_size_bytes": expanded,
                 "inf_files": inf_files,
