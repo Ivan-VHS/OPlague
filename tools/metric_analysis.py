@@ -18,6 +18,16 @@ def _finite_number(value: Any, label: str) -> float:
     return result
 
 
+def _finite_sum(values: Any, label: str) -> float:
+    try:
+        result = math.fsum(values)
+    except (OverflowError, ValueError) as error:
+        raise ValueError(f"{label} overflowed") from error
+    if not math.isfinite(result):
+        raise ValueError(f"{label} overflowed")
+    return result
+
+
 def _profile(values: Any, label: str) -> dict[str, float]:
     if not isinstance(values, Mapping):
         raise TypeError(f"{label} must be a JSON object of metric names and values")
@@ -70,13 +80,19 @@ def analyze_device_profiles(
     a = [left[name] for name in names]
     b = [right[name] for name in names]
     delta = [y - x for x, y in zip(a, b)]
-    dot = math.fsum(x * y for x, y in zip(a, b))
+    dot = _finite_sum((x * y for x, y in zip(a, b)), "profile dot product")
     norm_a, norm_b = math.hypot(*a), math.hypot(*b)
-    cosine = None if norm_a == 0.0 or norm_b == 0.0 else dot / (norm_a * norm_b)
+    cosine = (
+        None if norm_a == 0.0 or norm_b == 0.0
+        else _finite_sum(((x / norm_a) * (y / norm_b) for x, y in zip(a, b)), "profile cosine")
+    )
     distance = math.hypot(*delta)
-    quadratic = math.fsum(weight_map[name] * delta[index] ** 2 for index, name in enumerate(names))
-    if quadratic < 0.0 or not math.isfinite(quadratic):
-        raise ValueError("weighted quadratic form is outside the finite numeric range")
+    quadratic = _finite_sum(
+        (weight_map[name] * delta[index] ** 2 for index, name in enumerate(names)),
+        "weighted quadratic form",
+    )
+    if quadratic < 0.0:
+        raise ValueError("weighted quadratic form cannot be negative")
     components = {
         name: {
             "reference": left[name],
@@ -97,9 +113,9 @@ def analyze_device_profiles(
         "cosine_similarity": cosine,
         "angle_radians": None if cosine is None else math.acos(max(-1.0, min(1.0, cosine))),
         "orthogonal": None if cosine is None else abs(cosine) <= tolerance,
-        "reference_energy": math.fsum(value * value for value in a),
-        "candidate_energy": math.fsum(value * value for value in b),
-        "difference_energy": math.fsum(value * value for value in delta),
+        "reference_energy": _finite_sum((value * value for value in a), "reference energy"),
+        "candidate_energy": _finite_sum((value * value for value in b), "candidate energy"),
+        "difference_energy": _finite_sum((value * value for value in delta), "difference energy"),
         "components": components,
         "normalization": "all dimensions are expected to use [0, 1], higher-is-better values",
     }
@@ -110,9 +126,9 @@ def summarize_repeated_measurements(samples: Sequence[Any]) -> dict[str, float |
     if not isinstance(samples, (list, tuple)) or not 1 <= len(samples) <= MAX_SAMPLES:
         raise ValueError(f"samples must contain 1..{MAX_SAMPLES} measurements")
     values = [_finite_number(value, f"samples[{index}]") for index, value in enumerate(samples)]
-    mean = math.fsum(values) / len(values)
+    mean = _finite_sum(values, "measurement mean") / len(values)
     variance = (
-        math.fsum((value - mean) ** 2 for value in values) / (len(values) - 1)
+        _finite_sum(((value - mean) ** 2 for value in values), "sample variance sum") / (len(values) - 1)
         if len(values) > 1 else 0.0
     )
     return {
@@ -130,10 +146,7 @@ def parseval_energy(coefficients: Sequence[Any]) -> float:
     if not isinstance(coefficients, (list, tuple)) or not 1 <= len(coefficients) <= MAX_SAMPLES:
         raise ValueError(f"coefficients must contain 1..{MAX_SAMPLES} values")
     values = [_finite_number(value, f"coefficients[{index}]") for index, value in enumerate(coefficients)]
-    result = math.fsum(value * value for value in values)
-    if not math.isfinite(result):
-        raise ValueError("coefficient energy overflowed")
-    return result
+    return _finite_sum((value * value for value in values), "coefficient energy")
 
 
 def combine_uncorrelated_variances(components: Sequence[Any]) -> float:
@@ -143,4 +156,4 @@ def combine_uncorrelated_variances(components: Sequence[Any]) -> float:
     values = [_finite_number(value, f"components[{index}]") for index, value in enumerate(components)]
     if any(value < 0.0 for value in values):
         raise ValueError("variance components cannot be negative")
-    return math.fsum(values)
+    return _finite_sum(values, "combined variance")
