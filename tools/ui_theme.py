@@ -129,7 +129,7 @@ def apply_theme(root: tk.Misc, app_key: str, theme: str | None = None) -> str:
 
     try:
         root.configure(background=palette["bg"])
-        root.option_add("*Font", ("Segoe UI", 10))
+        root.option_add("*Font", ("Segoe UI", 11))
         for key, value in {
             "*Text.background": palette["surface"],
             "*Text.foreground": palette["fg"],
@@ -154,7 +154,7 @@ def apply_theme(root: tk.Misc, app_key: str, theme: str | None = None) -> str:
     except tk.TclError:
         pass
 
-    style.configure(".", font=("Segoe UI", 10), background=palette["bg"], foreground=palette["fg"])
+    style.configure(".", font=("Segoe UI", 11), background=palette["bg"], foreground=palette["fg"])
     style.configure("TFrame", background=palette["bg"])
     style.configure("Pane.TFrame", background=palette["surface"])
     style.configure("Card.TFrame", background=palette["elevated"])
@@ -172,7 +172,7 @@ def apply_theme(root: tk.Misc, app_key: str, theme: str | None = None) -> str:
         "TButton", background=palette["surface"], foreground=palette["blue"],
         bordercolor=palette["border"], lightcolor=palette["surface"],
         darkcolor=palette["border"], borderwidth=1, relief="flat",
-        focusthickness=2, focuscolor=palette["focus"], padding=(14, 11),
+        focusthickness=2, focuscolor=palette["focus"], padding=(14, 13),
     )
     style.map(
         "TButton",
@@ -182,7 +182,7 @@ def apply_theme(root: tk.Misc, app_key: str, theme: str | None = None) -> str:
     style.configure(
         "Primary.TButton", background=palette["blue"], foreground=palette["on_blue"],
         bordercolor=palette["blue"], lightcolor=palette["blue"],
-        darkcolor=palette["blue"], padding=(15, 11),
+        darkcolor=palette["blue"], padding=(15, 13),
     )
     style.map(
         "Primary.TButton",
@@ -192,7 +192,7 @@ def apply_theme(root: tk.Misc, app_key: str, theme: str | None = None) -> str:
     style.configure(
         "Danger.TButton", background=palette["red"], foreground=palette["on_red"],
         bordercolor=palette["red"], lightcolor=palette["red"],
-        darkcolor=palette["red"], padding=(14, 11),
+        darkcolor=palette["red"], padding=(14, 13),
     )
     style.map(
         "Danger.TButton",
@@ -208,7 +208,7 @@ def apply_theme(root: tk.Misc, app_key: str, theme: str | None = None) -> str:
     style.configure("TNotebook", background=palette["bg"], borderwidth=0, tabmargins=(0, 3, 0, 0))
     style.configure(
         "TNotebook.Tab", background=palette["elevated"], foreground=palette["secondary"],
-        padding=(16, 10), borderwidth=0,
+        padding=(16, 13), borderwidth=0,
     )
     style.map(
         "TNotebook.Tab",
@@ -217,7 +217,7 @@ def apply_theme(root: tk.Misc, app_key: str, theme: str | None = None) -> str:
     )
     style.configure(
         "Treeview", background=palette["surface"], fieldbackground=palette["surface"],
-        foreground=palette["fg"], rowheight=38, bordercolor=palette["border"], relief="flat",
+        foreground=palette["fg"], rowheight=42, bordercolor=palette["border"], relief="flat",
     )
     style.configure(
         "Treeview.Heading", background=palette["elevated"], foreground=palette["fg"],
