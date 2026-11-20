@@ -85,3 +85,8 @@ Acceptance: read-only invariant unchanged; no candidate presented as a verdict; 
 - [Federated integration](FEDERATED_INTEGRATION.md) · [Device compatibility graph](DEVICE_COMPATIBILITY_GRAPH.md)
 - [QCS syntax and validator](QUANTUM_CONTOUR_SYNTAX.md) · [UDRV format](UDRV_FORMAT_V1.md)
 - [Reaper MOST matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/MOST_400_COMBINATORIAL_MATRIX.md)
+
+
+## White-blue-red Anatidae design authority
+
+The product palette and platform implementation rules are standardized in [ANATIDAE_DESKTOP_DESIGN_SYSTEM.md](ANATIDAE_DESKTOP_DESIGN_SYSTEM.md). That document supersedes earlier exploratory color-preset examples in this architecture. The production UI uses semantic white, blue and red tokens with separate light/dark surfaces; unrelated accent palettes are not part of the product identity.
