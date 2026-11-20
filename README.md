@@ -63,9 +63,22 @@ Mainline includes PnP inventory, bounded INF/ZIP inspection, architecture analys
 
 [Human-first governance](docs/HUMAN_FIRST_GOVERNANCE.md) · [Anatidae desktop design system](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [UI/UX system](docs/UI_UX_SYSTEM.md) · [UDRV format](docs/UDRV_FORMAT_V1.md) · [Device compatibility graph](docs/DEVICE_COMPATIBILITY_GRAPH.md) · [Federation contract](docs/FEDERATED_INTEGRATION.md) · [QCS syntax](docs/QUANTUM_CONTOUR_SYNTAX.md) · [Unified engineering standard](docs/UNIFIED_ENGINEERING_STANDARD.md)
 
+
+[Governance and consent](docs/HUMAN_FIRST_GOVERNANCE.md) · [Anatidae desktop design system](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [UI/UX architecture](docs/UI_UX_ARCHITECTURE.md) · [12 animation principles](docs/DISNEY_MOTION_SYSTEM.md) · [Project contract](docs/UNIFIED_PROJECT_CONTRACT.md)
 [Windows releases](https://github.com/Ivan-VHS/OPlague/releases) · [Desktop build](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)
 
 **Federation:** [Reaper](https://github.com/Ivan-VHS/Reaper) · [Pytyliki](https://github.com/Ivan-VHS/Pytyliki) · [3×3 matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md).
+
+## Anatidae doctrine and safety contract
+
+- **Operator intent first:** inventory and inspection are read-only; snapshot export requires explicit operator confirmation. Native interop is opt-in and requires an explicitly supplied trusted library path.
+- **Treat packages as hostile input:** enforce path and resource bounds; inspect metadata without extracting or executing payloads.
+- **Evidence, not guesswork:** compatibility dry-run links only exact normalized hardware IDs. A candidate edge is evidence for review, not a driver recommendation or compatibility verdict.
+- **Privacy by minimization:** PnP identifiers are HMAC-pseudonymized with ephemeral keys by default; an optional protected key supports deliberate cross-snapshot matching. Pseudonyms remain potentially linkable and are not anonymization.
+- **Safe non-goals:** no driver install/remove/enable/disable/sign/rollback, firmware changes or claimed live DPC/ISR diagnosis.
+- **Accessible desktop behavior:** clear status and error language, keyboard/focus visibility, localization and reduced-motion support. Motion must never hide warnings or consequences.
+
+Package hashes establish byte-level integrity only; they do not establish publisher identity, driver safety or compatibility.
 
 ## License
 
