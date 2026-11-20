@@ -70,3 +70,5 @@ OPlague започатковано 19 листопада 2026 року як Wind
 ## Ліцензія
 
 [Apache License 2.0](LICENSE)
+
+UI motion: [12 animation principles](docs/DISNEY_MOTION_SYSTEM.md).

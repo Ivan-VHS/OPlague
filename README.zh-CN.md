@@ -70,3 +70,5 @@ OPlague 于 2026 年 11 月 19 日以 Windows 驱动工作台项目启动。之�
 ## 许可证
 
 [Apache License 2.0](LICENSE)
+
+UI motion: [12 animation principles](docs/DISNEY_MOTION_SYSTEM.md).
