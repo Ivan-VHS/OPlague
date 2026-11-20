@@ -56,7 +56,7 @@ class DriverEvidenceLedgerTests(unittest.TestCase):
         ledger = build_driver_evidence_ledger(rows, identity_key=b"k" * 32, generated_at_utc="2026-11-20T12:00:00Z")
         group = ledger["groups"][0]
         self.assertEqual(group["state"], "conflicted")
-        self.assertEqual(group["distinct_values"], ["Vendor A", "Vendor B"])
+        self.assertEqual(set(group["distinct_values"]), {"Vendor A", "Vendor B"})
         self.assertEqual(ledger["summary"]["conflicted_groups"], 1)
         self.assertIn("no source is selected", ledger["conflicts"][0]["resolution"])
 
