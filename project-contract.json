@@ -99,6 +99,16 @@
         "tests/test_pytyliki_ffi.py",
         "docs/FEDERATED_INTEGRATION.md"
       ]
+    },
+    {
+      "id": "compatibility.vertical-graph-self-product",
+      "status": "implemented",
+      "summary": "Computes bounded boolean powers of the exact-ID device-driver candidate graph while preserving read-only, evidence-only semantics.",
+      "evidence": [
+        "tools/self_product.py",
+        "tests/test_self_product.py",
+        "docs/SELF_PRODUCT_COMPOSITION.md"
+      ]
     }
   ],
   "interfaces": [
@@ -162,6 +172,7 @@
     "Versioned JSON device and inspection-bundle interfaces.",
     "Read-only package inspector adapters with bounded input and archive policies.",
     "Explicit exact-ID matching rules and metric dimensions.",
-    "Opt-in native C ABI adapter for trusted Pytyliki builds."
+    "Opt-in native C ABI adapter for trusted Pytyliki builds.",
+    "Bounded boolean graph self-product for multi-hop exact-candidate relationship analysis."
   ]
 }
