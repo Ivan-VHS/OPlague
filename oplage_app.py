@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import platform
 import re
 import subprocess
 import tkinter as tk
@@ -14,6 +15,7 @@ from typing import Any
 
 from tools.report_composer import compose_inspection_reports
 from tools.metric_analysis import analyze_device_profiles
+from tools.device_graph import extract_inf_compatibility, build_dry_run_plan
 
 MAX_PACKAGE_BYTES = 512 * 1024 * 1024
 MAX_ARCHIVE_ENTRIES = 10_000
@@ -79,7 +81,9 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
         "sha256": _hash_file(path), "format": suffix.lstrip(".").upper(),
     }
     if suffix == ".inf":
-        report["inf_metadata"] = _inf(path.read_bytes(), path.name)
+        raw_inf = path.read_bytes()
+        report["inf_metadata"] = _inf(raw_inf, path.name)
+        report["compatibility"] = extract_inf_compatibility(_decode_inf(raw_inf))
         return report
     if suffix != ".zip":
         raise ValueError("Supported package formats are .inf and .zip")
@@ -101,7 +105,14 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
                 if entry.compress_size and entry.file_size / entry.compress_size > MAX_COMPRESSION_RATIO:
                     raise ValueError(f"Suspicious compression ratio: {entry.filename}")
                 if entry.filename.casefold().endswith(".inf"):
-                    inf_files.append({"file": entry.filename, "metadata": _inf(archive.read(entry), entry.filename)})
+                    if entry.file_size > MAX_INF_BYTES:
+                        raise ValueError(f"INF file is too large to inspect: {entry.filename}")
+                    raw_inf = archive.read(entry)
+                    inf_files.append({
+                        "file": entry.filename,
+                        "metadata": _inf(raw_inf, entry.filename),
+                        "compatibility": extract_inf_compatibility(_decode_inf(raw_inf)),
+                    })
             report.update({
                 "entry_count": len(entries), "expanded_size_bytes": expanded,
                 "inf_files": inf_files,
@@ -141,6 +152,32 @@ def list_pnp_devices(timeout_seconds: int = 30) -> list[dict[str, str]]:
       "pnp_id": str(row.get("PNPDeviceID") or ""),
     } for row in payload if isinstance(row, dict)]
 
+def _driver_records_from_report(report: dict[str, Any]) -> list[dict[str, Any]]:
+    """Turn inspected INF model declarations into candidate-only driver records."""
+    items = []
+    if report.get("format") == "INF":
+        items.append((report.get("file_name", "driver.inf"), report.get("compatibility", {})))
+    else:
+        for inf in report.get("inf_files", []):
+            if isinstance(inf, dict):
+                items.append((inf.get("file", "driver.inf"), inf.get("compatibility", {})))
+    records = []
+    for filename, compatibility in items:
+        if not isinstance(compatibility, dict):
+            continue
+        ids = compatibility.get("hardware_ids", [])
+        if not ids:
+            continue
+        digest = str(report.get("sha256", "unknown"))
+        records.append({
+            "driver_id": f"{digest[:16]}:{filename}",
+            "package_name": str(report.get("file_name", filename)),
+            "package_sha256": digest,
+            "hardware_ids": ids,
+            "architectures": compatibility.get("architectures", ["unspecified"]),
+        })
+    return records
+
 class OPlagueApp(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
@@ -154,8 +191,25 @@ class OPlagueApp(tk.Tk):
         self.tabs = ttk.Notebook(self); self.tabs.pack(fill="both", expand=True, padx=14, pady=(0, 10))
         inventory = ttk.Frame(self.tabs, padding=12); packages = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(inventory, text="Device inventory"); self.tabs.add(packages, text="Package inspector")
+        self.device_rows: list[dict[str, str]] = []
+        self.inspected_drivers: list[dict[str, Any]] = []
         metrics = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(metrics, text="Metric Lab")
+        compatibility = ttk.Frame(self.tabs, padding=12)
+        self.tabs.add(compatibility, text="Compatibility & dry-run")
+        ttk.Label(
+            compatibility,
+            text="Exact INF hardware-ID matching only. A candidate is not a compatibility or safety verdict; no driver operation is performed.",
+            foreground="#526174", wraplength=1000,
+        ).pack(anchor="w", pady=(0, 8))
+        ttk.Button(
+            compatibility, text="Build dry-run plan from current inventory",
+            command=self.build_compatibility_plan,
+        ).pack(anchor="w", pady=(0, 8))
+        self.compatibility_result = ScrolledText(
+            compatibility, wrap="word", font=("Consolas", 10), height=20, state="disabled"
+        )
+        self.compatibility_result.pack(fill="both", expand=True)
         ttk.Label(
             metrics,
             text="Compare normalized hardware / benchmark profiles using n-D metrics and weighted quadratic distance.",
@@ -213,6 +267,7 @@ class OPlagueApp(tk.Tk):
         except Exception as error:
             self.status.set("Device inventory query failed")
             messagebox.showerror("Device inventory", str(error), parent=self); return
+        self.device_rows = devices
         for row in devices:
             self.devices.insert("", "end", values=(row["name"], row["status"], row["manufacturer"], row["pnp_id"]))
         self.status.set(f"Found {len(devices)} Plug and Play devices")
@@ -248,11 +303,46 @@ class OPlagueApp(tk.Tk):
         except Exception as error:
             self.status.set("Package inspection failed")
             messagebox.showerror("Package inspection failed", str(error), parent=self); return
+        self._remember_driver_records(data)
         self.report.configure(state="normal"); self.report.delete("1.0", "end")
         self.report.insert("1.0", json.dumps(data, indent=2, ensure_ascii=False))
         self.report.configure(state="disabled"); self.tabs.select(1)
         self.status.set(f"Inspected {data['file_name']} — SHA-256 calculated locally")
 
+
+
+    def _remember_driver_records(self, report: dict[str, Any]) -> None:
+        existing = {item["driver_id"] for item in self.inspected_drivers}
+        for item in _driver_records_from_report(report):
+            if item["driver_id"] not in existing:
+                self.inspected_drivers.append(item)
+                existing.add(item["driver_id"])
+
+    def build_compatibility_plan(self) -> None:
+        if not self.device_rows:
+            messagebox.showinfo("Compatibility planner", "Refresh the read-only device inventory first.", parent=self)
+            return
+        if not self.inspected_drivers:
+            messagebox.showinfo("Compatibility planner", "Inspect at least one INF or ZIP package containing a Models section first.", parent=self)
+            return
+        try:
+            plan = build_dry_run_plan(
+                self.device_rows, self.inspected_drivers,
+                host_architecture=platform.machine(),
+            )
+        except (TypeError, ValueError, OverflowError) as error:
+            self.status.set("Compatibility planning failed")
+            messagebox.showerror("Compatibility planner", str(error), parent=self)
+            return
+        self.compatibility_result.configure(state="normal")
+        self.compatibility_result.delete("1.0", "end")
+        self.compatibility_result.insert("1.0", json.dumps(plan, indent=2, ensure_ascii=False))
+        self.compatibility_result.configure(state="disabled")
+        summary = plan["summary"]
+        self.tabs.select(3)
+        self.status.set(
+            f"Dry-run only: {summary['candidate_edges']} exact-ID candidate edge(s); system unchanged"
+        )
 
     def choose_packages(self) -> None:
         filenames = filedialog.askopenfilenames(
@@ -268,6 +358,8 @@ class OPlagueApp(tk.Tk):
             self.status.set("Batch package inspection failed")
             messagebox.showerror("Batch package inspection failed", str(error), parent=self)
             return
+        for report in reports:
+            self._remember_driver_records(report)
         self.report.configure(state="normal")
         self.report.delete("1.0", "end")
         self.report.insert("1.0", json.dumps(data, indent=2, ensure_ascii=False))
