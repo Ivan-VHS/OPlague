@@ -8,9 +8,9 @@ OPlague is a hardware inventory and driver-package diagnostic workbench. Its pri
 
 ## Visual language
 
-- **Brand:** deep navy and white work surfaces, blue primary actions, restrained red warning accents.
+- **Brand:** strict white/blue/red semantic palette; warm red is reserved for meaningful actions and destructive emphasis.
 - **Dashboard structure:** grouped workbenches, compact action bars, stable tables, explicit status text and scrollable JSON/report areas.
-- **Theme modes:** the header control cycles System, Light and Dark. OPLAGUE_UI_THEME=light or dark may explicitly override system appearance.
+- **Theme modes:** the header control cycles System, Light and Dark. The last choice persists in a versioned per-user settings file; OPLAGUE_UI_THEME=light or dark may explicitly override system appearance.
 - **Native foundations:** preserve native ttk controls when practical; use a consistent dark-mode fallback where native themes cannot provide a readable dark palette.
 - **Opaque data surfaces:** inventory, JSON, hashes and diagnostic reports remain solid and high contrast. No simulated glass is placed beneath dense data.
 
@@ -36,13 +36,14 @@ OPlague is a hardware inventory and driver-package diagnostic workbench. Its pri
 
 | Token | Light | Dark |
 |---|---|---|
-| Page | #F3F6FA | #101827 |
-| Surface | #FFFFFF | #172337 |
-| Text | #172337 | #EEF3FA |
-| Muted | #5C6B80 | #A7B4C7 |
-| Accent | #2563EB | #6EA8FE |
-| Alert | #DC2626 | #F87171 |
-| Report | #FFFFFF | #111C2E |
+| Page | #F4F8FD | #071A2D |
+| Surface | #FFFFFF | #0F2A45 |
+| Elevated | #EAF1FA | #173A5E |
+| Text | #122C45 | #E8EDF2 |
+| Muted | #4D6177 | #B3C4D6 |
+| Primary blue | #004E98 | #70A5FF |
+| Action red | #B5122D | #FF7B86 |
+| Border | #CAD8E8 | #31516F |
 
 ## Related repositories
 
@@ -55,3 +56,6 @@ OPlague is a hardware inventory and driver-package diagnostic workbench. Its pri
 - Inventory columns, inspector output, metric editors and compatibility reports remain readable.
 - Device inventory, package parsing, hashing, dry-run planning and report composition preserve current behavior.
 - No UI affordance suggests driver installation, removal or execution is available.
+
+
+The detailed implementation contract, platform-aware acceptance criteria and screenshot plan are defined in [ANATIDAE_DESKTOP_DESIGN_SYSTEM.md](ANATIDAE_DESKTOP_DESIGN_SYSTEM.md).
