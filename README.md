@@ -18,6 +18,19 @@ OPlague is the home of **DuckDriver OmniCore (DDO)**, a desktop-first project fo
 - **Metric Lab:** compare normalized hardware or benchmark profiles using n-dimensional Euclidean distance, weighted quadratic forms, cosine similarity, orthogonality and repeated-run variance summaries.\n- **Diagnostics:** expose device state and supported system signals, with DPC/ISR latency analysis planned where platform APIs permit.
 - **Native UX:** a focused desktop application with a consistent white, blue, and red visual identity.
 
+## Systems-language and native-backend matrix
+
+OPlague includes a read-only 66-slot capability catalogue for evaluating optional native tracks: memory-safe and linear-resource models, formal verification, embedded/bare-metal targets, C ABI boundaries, concurrency and deterministic builds.
+
+```bash
+python tools/systems_languages.py --verify
+python tools/systems_languages.py --profile oplague
+python tools/systems_languages.py --profile oplague --available-only
+python tools/systems_languages.py --tag formal-verification,embedded --json
+```
+
+The probe only checks executable names on `PATH`. OPlague does not load or execute discovered compilers, driver payloads or third-party native modules; a detected compiler is not represented as an implemented backend or a driver-compatibility guarantee.
+
 ## Safety principles
 
 1. Inspect packages before trusting them; validate manifests, structure, metadata, and hashes where available.
