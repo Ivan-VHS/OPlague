@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 import tkinter as tk
 from tkinter import ttk
 from typing import Iterator
@@ -84,16 +85,46 @@ def load_preferred_theme() -> str:
 
 
 def _save_preferred_theme(mode: str) -> None:
+    """Persist a supported theme choice with same-directory atomic replacement."""
+    if mode not in {"system", "light", "dark"}:
+        raise ValueError("Theme must be 'system', 'light' or 'dark'")
+
+    temporary: Path | None = None
     try:
         path = _settings_path()
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(
-            json.dumps({"version": 1, "mode": mode}, ensure_ascii=False, indent=2) + "\n",
+        # Keep the temporary file beside the destination so os.replace stays
+        # on one filesystem and readers see either the old or complete new JSON.
+        with tempfile.NamedTemporaryFile(
+            mode="w",
             encoding="utf-8",
-        )
+            newline="\n",
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            dir=path.parent,
+            delete=False,
+        ) as stream:
+            temporary = Path(stream.name)
+            json.dump(
+                {"version": 1, "mode": mode},
+                stream,
+                ensure_ascii=False,
+                indent=2,
+            )
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+        temporary = None
     except OSError:
         # Settings persistence must not prevent the read-only workbench from starting.
         return
+    finally:
+        if temporary is not None:
+            try:
+                temporary.unlink(missing_ok=True)
+            except OSError:
+                pass
 
 
 def _system_dark() -> bool:
