@@ -1,0 +1,86 @@
+from __future__ import annotations
+
+import json
+import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+from tools.federation import (
+    SNAPSHOT_SCHEMA, InventoryError, build_device_snapshot,
+    capture_pnp_devices, compare_device_snapshots, main,
+)
+
+
+class FederationSnapshotTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.devices = [
+            {"InstanceId": "PCI\\VEN_1234&DEV_5678\\SERIAL-A", "FriendlyName": "Example GPU", "Class": "Display", "Status": "OK", "Problem": 0},
+            {"InstanceId": "USB\\VID_1234&PID_5678\\SERIAL-B", "FriendlyName": "Example Device", "Class": "USB", "Status": "Error", "Problem": 28},
+        ]
+
+    def test_snapshot_is_versioned_normalized_and_read_only(self) -> None:
+        snapshot = build_device_snapshot(self.devices, captured_utc="2026-11-20T00:00:00Z")
+        self.assertEqual(snapshot["schema"], SNAPSHOT_SCHEMA)
+        self.assertEqual(snapshot["source"]["mode"], "read_only")
+        self.assertEqual(snapshot["summary"]["total_devices"], 2)
+        self.assertEqual(snapshot["summary"]["ok_devices"], 1)
+        self.assertEqual(snapshot["summary"]["problem_devices"], 1)
+        self.assertAlmostEqual(snapshot["metrics"]["device_ok_ratio"], 0.5)
+        self.assertAlmostEqual(snapshot["metrics"]["device_problem_free_ratio"], 0.5)
+        self.assertNotIn("SERIAL-A", json.dumps(snapshot))
+        self.assertEqual(len(snapshot["devices"][0]["identity_sha256"]), 64)
+
+    def test_empty_inventory_does_not_claim_perfect_health(self) -> None:
+        snapshot = build_device_snapshot([])
+        self.assertEqual(snapshot["metrics"]["device_ok_ratio"], 0.0)
+        self.assertEqual(snapshot["metrics"]["package_audit_coverage_ratio"], 0.0)
+
+    def test_package_coverage_distinguishes_missing_evidence(self) -> None:
+        snapshot = build_device_snapshot([], packages=[{"file_name": "bad.udrv", "valid": False}])
+        self.assertEqual(snapshot["metrics"]["package_integrity_ratio"], 0.0)
+        self.assertEqual(snapshot["metrics"]["package_audit_coverage_ratio"], 1.0)
+
+    def test_duplicate_device_identity_is_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "duplicate PnP identity"):
+            build_device_snapshot([self.devices[0], self.devices[0]])
+
+    def test_comparison_requires_same_snapshot_dimensions(self) -> None:
+        reference = build_device_snapshot(self.devices)
+        candidate = build_device_snapshot([self.devices[0]])
+        result = compare_device_snapshots(reference, candidate)
+        self.assertEqual(result["schema"], "oplage.device-audit.v1")
+        self.assertIn("euclidean_distance", result["comparison"])
+        with self.assertRaisesRegex(ValueError, "dimensions differ"):
+            compare_device_snapshots(reference, {"schema": SNAPSHOT_SCHEMA, "metrics": {"different": 0.5}})
+
+    def test_native_cross_check_is_opt_in(self) -> None:
+        reference = build_device_snapshot(self.devices)
+        candidate = build_device_snapshot([self.devices[0]])
+        with patch("tools.pytyliki_ffi.euclidean_distance", return_value=0.25) as native:
+            result = compare_device_snapshots(reference, candidate, "/trusted/libpytyliki.so")
+        self.assertEqual(result["native_cross_check"]["backend"], "pytyliki-c-abi-v1")
+        self.assertEqual(result["native_cross_check"]["euclidean_distance"], 0.25)
+        native.assert_called_once()
+
+    def test_pnp_provider_is_windows_only(self) -> None:
+        with patch("tools.federation.os.name", "posix"):
+            with self.assertRaises(InventoryError):
+                capture_pnp_devices()
+
+    def test_cli_compare_reads_and_writes_json(self) -> None:
+        reference = build_device_snapshot(self.devices)
+        candidate = build_device_snapshot([self.devices[0]])
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            left, right, output = root / "left.json", root / "right.json", root / "report.json"
+            left.write_text(json.dumps(reference), encoding="utf-8")
+            right.write_text(json.dumps(candidate), encoding="utf-8")
+            self.assertEqual(main(["compare", "--reference", str(left), "--candidate", str(right), "--output", str(output)]), 0)
+            saved = json.loads(output.read_text(encoding="utf-8"))
+        self.assertEqual(saved["mode"], "read_only")
+        self.assertIn("comparison", saved)
+
+
+if __name__ == "__main__":
+    unittest.main()
