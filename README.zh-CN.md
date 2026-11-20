@@ -92,3 +92,13 @@ Windows 源码启动文件的正确名称为 `oplague_app.py`，桌面构建工�
 `system_modified=false`、`proposed_operation=none`。任何后续特权操作
 都必须经过人工审核并补充证据。详见
 [兼容性图规范](docs/DEVICE_COMPATIBILITY_GRAPH.md)。
+
+## 已实现的检查工具（2026 年 11 月 20 日）
+
+- **UDRV v1 Integrity Inspector：** 以只读方式检查目录包或 ZIP，不解压或执行内容。验证清单版本、完整文件清单、文件大小和 SHA-256；拒绝未声明或缺失文件、路径穿越、符号链接、重复项及超出资源限制的包。目录清单读取严格限制为 4 MiB；包限制为最多 10,000 个条目、单文件 512 MiB、总计 2 GiB。
+- **批量报告组合：** 将最多 256 份 INF/ZIP 检查结果按输入顺序组合为规范 JSON，汇总大小、压缩包条目、INF 和 .cat 文件数量；拒绝重复 SHA-256，并计算整个报告的 SHA-256 指纹。该指纹不是供应商签名。
+- **兼容性图与 dry-run：** 只有规范化 Hardware ID 完全匹配时才会将设备连接到 INF 候选项。架构不匹配单独报告；名称或前缀相似不代表兼容。计划明确输出 install_attempted=false、system_modified=false、proposed_operation=none。
+- **INF 目标架构分析：** 支持显式 x86、amd64、ARM、ARM64 和 legacy IA64 目标，并返回 explicit_match、explicit_nonmatch 或 unknown。
+- **Metric Lab：** 比较键和维度一致的归一化 JSON 配置档案，计算欧几里得距离、加权距离、余弦相似度、角度、正交性、能量和重复测量的样本方差。
+
+以上工具均在本地以只读方式运行。它们不会安装、解压、加载或执行驱动；完整性检查也不代表供应商真实性或驱动兼容性。
