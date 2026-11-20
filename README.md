@@ -8,6 +8,8 @@ OPlague is the home of **DuckDriver OmniCore (DDO)**, a desktop-first project fo
 
 > **Status:** an early Windows x64 desktop preview is implemented. Device discovery, INF/ZIP inspection and normalized metric-profile comparison are read-only; driver installation, UDRV authoring, recovery and live performance telemetry remain roadmap work.
 
+**Engineering standard:** [Unified Engineering Standard](docs/UNIFIED_ENGINEERING_STANDARD.md) — common rules for modularity, portable audit tooling, bounded inputs, evidence and safe integration.
+
 ## Product vision
 
 - **Hardware inventory:** discover devices and present hardware identifiers, relationships, and driver state.
