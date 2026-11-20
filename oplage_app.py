@@ -224,7 +224,7 @@ class OPlagueApp(tk.Tk):
             raw_weights = self.metric_weights.get("1.0", "end").strip()
             weights = json.loads(raw_weights) if raw_weights else None
             result = analyze_device_profiles(reference, candidate, weights)
-        except (ValueError, TypeError, json.JSONDecodeError) as error:
+        except (ValueError, TypeError, OverflowError, json.JSONDecodeError) as error:
             self.status.set("Metric profile comparison failed")
             messagebox.showerror("Metric analysis", str(error), parent=self)
             return
