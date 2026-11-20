@@ -122,6 +122,12 @@ The inspector does not extract, install, load, or execute driver payloads and
 does not contact external services. It verifies package integrity only; it does
 not establish vendor authenticity or driver compatibility.
 
+Directory-package manifests are read with a strict 4 MiB limit before JSON
+parsing. Package validation also enforces limits of 10,000 archive entries,
+512 MiB per payload file and 2 GiB total payload data. These bounds apply to
+the read-only inspector; they are not a driver compatibility or vendor
+authenticity certification.
+
 
 ## Orthogonal metric diagnostics
 
