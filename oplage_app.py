@@ -17,6 +17,7 @@ from tools.report_composer import compose_inspection_reports
 from tools.metric_analysis import analyze_device_profiles
 from tools.architecture_profiles import current_host_architecture, detect_inf_target_architectures, evaluate_driver_targets
 from tools.device_graph import extract_inf_compatibility, build_dry_run_plan
+from ui_motion import MotionController
 
 MAX_PACKAGE_BYTES = 512 * 1024 * 1024
 MAX_ARCHIVE_ENTRIES = 10_000
@@ -262,6 +263,8 @@ class OPlagueApp(tk.Tk):
         footer = ttk.Frame(self, padding=(14, 4, 14, 10)); footer.pack(fill="x")
         self.status = tk.StringVar(value="Local inspection only — no driver installation or deployment")
         ttk.Label(footer, textvariable=self.status, foreground="#526174").pack(side="left")
+        self._motion = MotionController(self)
+        self._motion.fade_in()
 
     def refresh_devices(self) -> None:
         self.status.set("Querying local Windows device inventory…"); self.update_idletasks()
