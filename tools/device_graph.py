@@ -26,8 +26,12 @@ _ARCH_ALIASES = {
 def normalize_hardware_id(value: Any) -> str:
     if not isinstance(value, str):
         return ""
-    normalized = value.strip().replace("/", "\\").upper()
-    if not normalized or len(normalized) > 512 or "\x00" in normalized:
+    normalized = value.strip().replace("/", "\\\\").upper()
+    if not normalized or len(normalized) > 512 or "\\x00" in normalized:
+        return ""
+    if not normalized.startswith(_ID_PREFIXES):
+        return ""
+    if any(part == ".." for part in normalized.split("\\\\")):
         return ""
     return normalized
 
@@ -35,8 +39,13 @@ def normalize_hardware_id(value: Any) -> str:
 def _as_ids(value: Any) -> list[str]:
     if value is None:
         return []
-    values = [value] if isinstance(value, str) else value
-    if not isinstance(values, (list, tuple)) or len(values) > MAX_IDS_PER_RECORD:
+    if isinstance(value, str):
+        values = [value]
+    elif isinstance(value, (list, tuple)):
+        values = value
+    else:
+        return []
+    if len(values) > MAX_IDS_PER_RECORD:
         return []
     result = []
     for item in values:
@@ -113,11 +122,14 @@ def build_compatibility_graph(
         if not isinstance(device, Mapping):
             raise TypeError("device records must be mappings")
         device_id = str(device.get("device_id") or device.get("pnp_id") or f"device-{index}")
-        device_ids = _as_ids([
-            *([device.get("pnp_id")] if device.get("pnp_id") else []),
-            *([device.get("hardware_ids")] if isinstance(device.get("hardware_ids"), str) else (device.get("hardware_ids") or [])),
-            *([device.get("compatible_ids")] if isinstance(device.get("compatible_ids"), str) else (device.get("compatible_ids") or [])),
-        ])
+        raw_device_ids: list[Any] = []
+        for field in ("pnp_id", "hardware_ids", "compatible_ids"):
+            value = device.get(field)
+            if isinstance(value, str):
+                raw_device_ids.append(value)
+            elif isinstance(value, (list, tuple)):
+                raw_device_ids.extend(value[:MAX_IDS_PER_RECORD])
+        device_ids = _as_ids(raw_device_ids)
         nodes.append({"id": device_id, "kind": "device", "name": str(device.get("name") or device_id)})
         for driver_index, driver in enumerate(drivers):
             if not isinstance(driver, Mapping):
@@ -130,6 +142,8 @@ def build_compatibility_graph(
             raw_arches = driver.get("architectures", compatibility.get("architectures", ["unspecified"]))
             if isinstance(raw_arches, str):
                 raw_arches = [raw_arches]
+            elif not isinstance(raw_arches, (list, tuple, set)):
+                raw_arches = []
             arches = {normalize_architecture(item) for item in raw_arches if isinstance(item, str)}
             arch_ok = (
                 not host_arch
