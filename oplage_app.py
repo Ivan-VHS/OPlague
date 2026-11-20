@@ -13,6 +13,7 @@ from tkinter.scrolledtext import ScrolledText
 from typing import Any
 
 from tools.report_composer import compose_inspection_reports
+from tools.metric_analysis import analyze_device_profiles
 
 MAX_PACKAGE_BYTES = 512 * 1024 * 1024
 MAX_ARCHIVE_ENTRIES = 10_000
@@ -153,6 +154,38 @@ class OPlagueApp(tk.Tk):
         self.tabs = ttk.Notebook(self); self.tabs.pack(fill="both", expand=True, padx=14, pady=(0, 10))
         inventory = ttk.Frame(self.tabs, padding=12); packages = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(inventory, text="Device inventory"); self.tabs.add(packages, text="Package inspector")
+        metrics = ttk.Frame(self.tabs, padding=12)
+        self.tabs.add(metrics, text="Metric Lab")
+        ttk.Label(
+            metrics,
+            text="Compare normalized hardware / benchmark profiles using n-D metrics and weighted quadratic distance.",
+            foreground="#526174",
+        ).pack(anchor="w", pady=(0, 8))
+        metric_inputs = ttk.Frame(metrics)
+        metric_inputs.pack(fill="x", expand=False)
+        profile_defaults = (
+            ("reference", "Reference profile", '{"cpu_score": 0.82, "memory_score": 0.71, "thermal_headroom": 0.68}'),
+            ("candidate", "Candidate profile", '{"cpu_score": 0.88, "memory_score": 0.66, "thermal_headroom": 0.74}'),
+            ("weights", "Metric weights (optional)", '{"cpu_score": 1.0, "memory_score": 1.5, "thermal_headroom": 1.0}'),
+        )
+        for column, (key, label, default_value) in enumerate(profile_defaults):
+            panel = ttk.LabelFrame(metric_inputs, text=label, padding=6)
+            panel.grid(row=0, column=column, sticky="nsew", padx=(0 if column == 0 else 6, 0))
+            editor = ScrolledText(panel, height=6, width=34, wrap="word", font=("Consolas", 9))
+            editor.insert("1.0", default_value)
+            editor.pack(fill="both", expand=True)
+            setattr(self, f"metric_{key}", editor)
+            metric_inputs.columnconfigure(column, weight=1)
+        metric_actions = ttk.Frame(metrics)
+        metric_actions.pack(fill="x", pady=8)
+        ttk.Button(metric_actions, text="Compare profiles", command=self.compare_profiles).pack(side="left")
+        ttk.Label(
+            metric_actions,
+            text="JSON only · values must be normalized to [0, 1] · higher means better",
+            foreground="#526174",
+        ).pack(side="left", padx=12)
+        self.metric_result = ScrolledText(metrics, wrap="word", font=("Consolas", 10), height=14, state="disabled")
+        self.metric_result.pack(fill="both", expand=True)
         bar = ttk.Frame(inventory); bar.pack(fill="x", pady=(0, 10))
         ttk.Button(bar, text="Refresh hardware", command=self.refresh_devices).pack(side="left")
         ttk.Label(bar, text="Read-only Windows Plug and Play inventory", foreground="#526174").pack(side="left", padx=12)
@@ -183,6 +216,27 @@ class OPlagueApp(tk.Tk):
         for row in devices:
             self.devices.insert("", "end", values=(row["name"], row["status"], row["manufacturer"], row["pnp_id"]))
         self.status.set(f"Found {len(devices)} Plug and Play devices")
+
+    def compare_profiles(self) -> None:
+        try:
+            reference = json.loads(self.metric_reference.get("1.0", "end").strip())
+            candidate = json.loads(self.metric_candidate.get("1.0", "end").strip())
+            raw_weights = self.metric_weights.get("1.0", "end").strip()
+            weights = json.loads(raw_weights) if raw_weights else None
+            result = analyze_device_profiles(reference, candidate, weights)
+        except (ValueError, TypeError, json.JSONDecodeError) as error:
+            self.status.set("Metric profile comparison failed")
+            messagebox.showerror("Metric analysis", str(error), parent=self)
+            return
+        self.metric_result.configure(state="normal")
+        self.metric_result.delete("1.0", "end")
+        self.metric_result.insert("1.0", json.dumps(result, indent=2, ensure_ascii=False))
+        self.metric_result.configure(state="disabled")
+        self.tabs.select(2)
+        self.status.set(
+            f"Compared {result['dimension_count']} normalized metrics — "
+            f"distance {result['euclidean_distance']:.6f}"
+        )
 
     def choose_package(self) -> None:
         filename = filedialog.askopenfilename(parent=self, title="Select a driver package",
