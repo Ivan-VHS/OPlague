@@ -38,6 +38,7 @@ CopyFiles=Payload
         }]
         graph = build_compatibility_graph(devices, drivers, host_architecture="AMD64")
         self.assertEqual(len(graph["edges"]), 1)
+        self.assertEqual({node["kind"] for node in graph["nodes"]}, {"device", "driver"})
         self.assertEqual(graph["edges"][0]["status"], "exact_identifier_candidate")
         self.assertEqual(graph["edges"][0]["architecture_check"], "passed")
 
