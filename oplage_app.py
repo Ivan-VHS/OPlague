@@ -4,8 +4,10 @@ import hashlib
 import json
 import os
 import platform
+import queue
 import re
 import subprocess
+import threading
 import tkinter as tk
 import zipfile
 from pathlib import Path, PurePosixPath
@@ -16,7 +18,11 @@ from typing import Any
 from tools.report_composer import compose_inspection_reports
 from tools.metric_analysis import analyze_device_profiles
 from tools.architecture_profiles import current_host_architecture, detect_inf_target_architectures, evaluate_driver_targets
-from tools.device_graph import extract_inf_compatibility, build_dry_run_plan
+from tools.device_graph import extract_inf_compatibility, build_dry_run_plan as build_candidate_dry_run_plan
+from tools.pnp_inventory import query_windows_pnp_devices
+from tools.device_registry import (new_registry, load_registry, save_registry, create_snapshot, append_snapshot, snapshot_diff)
+from tools.dry_run import build_dry_run_plan as build_policy_dry_run_plan
+from tools.inf_catalog import parse_inf_document
 
 MAX_PACKAGE_BYTES = 512 * 1024 * 1024
 MAX_ARCHIVE_ENTRIES = 10_000
@@ -85,6 +91,7 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
         raw_inf = path.read_bytes()
         report["inf_metadata"] = _inf(raw_inf, path.name)
         report["compatibility"] = extract_inf_compatibility(_decode_inf(raw_inf))
+        report["inf_evidence"] = parse_inf_document(_decode_inf(raw_inf))
         targets = detect_inf_target_architectures(_decode_inf(raw_inf))
         report["architecture_targets"] = targets
         report["target_analysis"] = evaluate_driver_targets(current_host_architecture() or "unknown", targets)
@@ -116,6 +123,7 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
                         "file": entry.filename,
                         "metadata": _inf(raw_inf, entry.filename),
                         "compatibility": extract_inf_compatibility(_decode_inf(raw_inf)),
+                        "inf_evidence": parse_inf_document(_decode_inf(raw_inf)),
                     })
             report.update({
                 "entry_count": len(entries), "expanded_size_bytes": expanded,
@@ -127,34 +135,9 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
     except zipfile.BadZipFile as error:
         raise ValueError(f"Invalid ZIP archive: {error}") from error
 
-def list_pnp_devices(timeout_seconds: int = 30) -> list[dict[str, str]]:
-    """Read local Plug and Play data through a fixed Windows CIM query."""
-    if os.name != "nt":
-        raise RuntimeError("Hardware inventory is currently available only on Windows")
-    command = ("$ErrorActionPreference = 'Stop'; "
-      "$devices = @(Get-CimInstance -ClassName Win32_PnPEntity | "
-      "Select-Object Name, Status, Manufacturer, PNPDeviceID); "
-      "ConvertTo-Json -InputObject $devices -Depth 3 -Compress")
-    result = subprocess.run(
-      ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", command],
-      capture_output=True, text=True, encoding="utf-8", errors="replace",
-      timeout=timeout_seconds, check=False)
-    if result.returncode:
-        raise RuntimeError(result.stderr.strip() or "Windows device query failed")
-    output = result.stdout.strip().lstrip("\ufeff")
-    if not output:
-        return []
-    payload = json.loads(output)
-    if isinstance(payload, dict):
-        payload = [payload]
-    if not isinstance(payload, list):
-        raise RuntimeError("Unexpected device inventory response")
-    return [{
-      "name": str(row.get("Name") or "Unknown device"),
-      "status": str(row.get("Status") or "Unknown"),
-      "manufacturer": str(row.get("Manufacturer") or ""),
-      "pnp_id": str(row.get("PNPDeviceID") or ""),
-    } for row in payload if isinstance(row, dict)]
+def list_pnp_devices(timeout_seconds: int = 45) -> list[dict[str, Any]]:
+    """Read expanded local Plug and Play properties through the shared adapter."""
+    return query_windows_pnp_devices(timeout_seconds)
 
 def _driver_records_from_report(report: dict[str, Any]) -> list[dict[str, Any]]:
     """Turn inspected INF model declarations into candidate-only driver records."""
@@ -185,6 +168,7 @@ def _driver_records_from_report(report: dict[str, Any]) -> list[dict[str, Any]]:
 class OPlagueApp(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
+        self._device_queue: queue.Queue[tuple[list[dict[str, Any]] | None, str | None]] = queue.Queue()
         self.title("OPlague — Driver Workbench")
         self.geometry("1120x720")
         self.minsize(820, 540)
@@ -201,6 +185,21 @@ class OPlagueApp(tk.Tk):
         self.tabs.add(metrics, text="Metric Lab")
         compatibility = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(compatibility, text="Compatibility & dry-run")
+
+        registry_tab = ttk.Frame(self.tabs, padding=12)
+        self.tabs.add(registry_tab, text="Registry & snapshots")
+        ttk.Label(
+            registry_tab,
+            text="Versioned JSON registry, immutable snapshot fingerprints and before/after comparison.",
+            foreground="#526174",
+        ).pack(anchor="w", pady=(0, 8))
+        registry_actions = ttk.Frame(registry_tab)
+        registry_actions.pack(fill="x", pady=(0, 8))
+        ttk.Button(registry_actions, text="Capture current snapshot…", command=self.capture_registry_snapshot).pack(side="left")
+        ttk.Button(registry_actions, text="Validate registry…", command=self.validate_registry_file).pack(side="left", padx=(8, 0))
+        ttk.Button(registry_actions, text="Compare two registries…", command=self.compare_registry_files).pack(side="left", padx=(8, 0))
+        self.registry_result = ScrolledText(registry_tab, wrap="word", font=("Consolas", 9), state="disabled")
+        self.registry_result.pack(fill="both", expand=True)
         ttk.Label(
             compatibility,
             text="Exact INF hardware-ID matching only. A candidate is not a compatibility or safety verdict; no driver operation is performed.",
@@ -209,6 +208,10 @@ class OPlagueApp(tk.Tk):
         ttk.Button(
             compatibility, text="Build dry-run plan from current inventory",
             command=self.build_compatibility_plan,
+        ).pack(anchor="w", pady=(0, 8))
+        ttk.Button(
+            compatibility, text="Build security-gated plan from JSON…",
+            command=self.build_policy_plan_from_file,
         ).pack(anchor="w", pady=(0, 8))
         self.compatibility_result = ScrolledText(
             compatibility, wrap="word", font=("Consolas", 10), height=20, state="disabled"
@@ -245,14 +248,26 @@ class OPlagueApp(tk.Tk):
         self.metric_result = ScrolledText(metrics, wrap="word", font=("Consolas", 10), height=14, state="disabled")
         self.metric_result.pack(fill="both", expand=True)
         bar = ttk.Frame(inventory); bar.pack(fill="x", pady=(0, 10))
-        ttk.Button(bar, text="Refresh hardware", command=self.refresh_devices).pack(side="left")
+        self.refresh_button = ttk.Button(bar, text="Refresh hardware", command=self.refresh_devices)
+        self.refresh_button.pack(side="left")
         ttk.Label(bar, text="Read-only Windows Plug and Play inventory", foreground="#526174").pack(side="left", padx=12)
-        columns = ("name", "status", "manufacturer", "pnp_id")
-        self.devices = ttk.Treeview(inventory, columns=columns, show="headings")
-        for col, label, width in (("name","Device",280),("status","Status",90),("manufacturer","Manufacturer",170),("pnp_id","Hardware ID",410)):
-            self.devices.heading(col, text=label); self.devices.column(col, width=width, minwidth=90, stretch=True)
+        columns = ("name", "class", "status", "problem_code", "manufacturer", "pnp_id")
+        self.devices = ttk.Treeview(inventory, columns=columns, show="headings", height=11)
+        for col, label, width in (
+            ("name", "Device", 250), ("class", "Class", 100), ("status", "Status", 80),
+            ("problem_code", "Problem", 75), ("manufacturer", "Manufacturer", 150),
+            ("pnp_id", "Instance ID", 360),
+        ):
+            self.devices.heading(col, text=label)
+            self.devices.column(col, width=width, minwidth=70, stretch=True)
         ybar = ttk.Scrollbar(inventory, orient="vertical", command=self.devices.yview)
-        self.devices.configure(yscrollcommand=ybar.set); self.devices.pack(fill="both", expand=True); ybar.pack(side="right", fill="y")
+        self.devices.configure(yscrollcommand=ybar.set)
+        self.devices.pack(fill="both", expand=True)
+        ybar.pack(side="right", fill="y")
+        self.device_records: dict[str, dict[str, Any]] = {}
+        self.devices.bind("<<TreeviewSelect>>", self.show_device_details)
+        self.device_details = ScrolledText(inventory, wrap="word", font=("Consolas", 9), height=7, state="disabled")
+        self.device_details.pack(fill="x", expand=False, pady=(8, 0))
         tools = ttk.Frame(packages); tools.pack(fill="x", pady=(0, 10))
         ttk.Button(tools, text="Inspect INF / ZIP…", command=self.choose_package).pack(side="left")
         ttk.Button(tools, text="Batch inspect…", command=self.choose_packages).pack(side="left", padx=(8, 0))
@@ -262,19 +277,60 @@ class OPlagueApp(tk.Tk):
         footer = ttk.Frame(self, padding=(14, 4, 14, 10)); footer.pack(fill="x")
         self.status = tk.StringVar(value="Local inspection only — no driver installation or deployment")
         ttk.Label(footer, textvariable=self.status, foreground="#526174").pack(side="left")
+        self.after(120, self._poll_device_queue)
 
     def refresh_devices(self) -> None:
-        self.status.set("Querying local Windows device inventory…"); self.update_idletasks()
-        self.devices.delete(*self.devices.get_children())
+        self.status.set("Querying local Windows Plug and Play inventory…")
+        self.refresh_button.configure(state="disabled")
+        threading.Thread(target=self._device_refresh_worker, daemon=True).start()
+
+    def _device_refresh_worker(self) -> None:
         try:
-            devices = list_pnp_devices()
+            self._device_queue.put((list_pnp_devices(), None))
         except Exception as error:
-            self.status.set("Device inventory query failed")
-            messagebox.showerror("Device inventory", str(error), parent=self); return
-        self.device_rows = devices
-        for row in devices:
-            self.devices.insert("", "end", values=(row["name"], row["status"], row["manufacturer"], row["pnp_id"]))
-        self.status.set(f"Found {len(devices)} Plug and Play devices")
+            self._device_queue.put((None, str(error)))
+
+    def _poll_device_queue(self) -> None:
+        try:
+            devices, error = self._device_queue.get_nowait()
+        except queue.Empty:
+            devices, error = None, None
+        if devices is not None or error is not None:
+            self.refresh_button.configure(state="normal")
+            if error is not None:
+                self.status.set("Device inventory query failed")
+                messagebox.showerror("Device inventory", error, parent=self)
+            else:
+                self.device_rows = devices
+                self.device_records.clear()
+                self.devices.delete(*self.devices.get_children())
+                for row in devices:
+                    item_id = self.devices.insert("", "end", values=(
+                        row["name"], row["class"], row["status"],
+                        "" if row["problem_code"] is None else row["problem_code"],
+                        row["manufacturer"], row["instance_id"],
+                    ))
+                    self.device_records[item_id] = row
+                self.status.set(f"Found {len(devices)} Plug and Play devices")
+        self.after(120, self._poll_device_queue)
+
+    def show_device_details(self, _event: Any = None) -> None:
+        selection = self.devices.selection()
+        if not selection:
+            return
+        row = self.device_records.get(selection[0])
+        if row is None:
+            return
+        fields = (
+            "instance_id", "hardware_ids", "compatible_ids", "class_guid",
+            "problem_code", "present", "parent_instance_id", "service",
+            "driver_provider", "driver_version", "driver_date",
+        )
+        details = {key: row.get(key) for key in fields}
+        self.device_details.configure(state="normal")
+        self.device_details.delete("1.0", "end")
+        self.device_details.insert("1.0", json.dumps(details, indent=2, ensure_ascii=False))
+        self.device_details.configure(state="disabled")
 
     def compare_profiles(self) -> None:
         try:
@@ -330,7 +386,7 @@ class OPlagueApp(tk.Tk):
             messagebox.showinfo("Compatibility planner", "Inspect at least one INF or ZIP package containing a Models section first.", parent=self)
             return
         try:
-            plan = build_dry_run_plan(
+            plan = build_candidate_dry_run_plan(
                 self.device_rows, self.inspected_drivers,
                 host_architecture=platform.machine(),
             )
@@ -347,6 +403,119 @@ class OPlagueApp(tk.Tk):
         self.status.set(
             f"Dry-run only: {summary['candidate_edges']} exact-ID candidate edge(s); system unchanged"
         )
+
+    def _show_registry_output(self, value: dict[str, Any]) -> None:
+        self.registry_result.configure(state="normal")
+        self.registry_result.delete("1.0", "end")
+        self.registry_result.insert("1.0", json.dumps(value, indent=2, ensure_ascii=False))
+        self.registry_result.configure(state="disabled")
+        self.tabs.select(4)
+
+    def capture_registry_snapshot(self) -> None:
+        if not self.device_rows:
+            messagebox.showinfo("Registry", "Refresh the read-only PnP inventory before capturing a snapshot.", parent=self)
+            return
+        filename = filedialog.asksaveasfilename(
+            parent=self, title="Save OPlague registry snapshot",
+            defaultextension=".json", filetypes=[("JSON registry", "*.json")],
+        )
+        if not filename:
+            return
+        try:
+            path = Path(filename)
+            registry = load_registry(path) if path.exists() else new_registry()
+            packages_by_digest: dict[str, dict[str, Any]] = {}
+            for item in self.inspected_drivers:
+                digest = item.get("package_sha256")
+                if not isinstance(digest, str) or len(digest) != 64:
+                    continue
+                packages_by_digest.setdefault(digest, {
+                    "sha256": digest,
+                    "package_id": item.get("package_name", item.get("driver_id", digest[:16])),
+                    "drivers": [],
+                })["drivers"].append({
+                    "driver_id": item.get("driver_id"),
+                    "hardware_ids": item.get("hardware_ids", []),
+                    "architectures": item.get("architectures", []),
+                })
+            snapshot = create_snapshot(
+                list(self.device_rows), list(packages_by_digest.values()),
+                metrics={}, label="OPlague desktop snapshot",
+            )
+            updated = append_snapshot(registry, snapshot)
+            save_registry(path, updated)
+        except Exception as error:
+            self.status.set("Snapshot save failed")
+            messagebox.showerror("Registry snapshot", str(error), parent=self)
+            return
+        self._show_registry_output({
+            "status": "saved", "registry": str(path),
+            "revision": updated["revision"], "snapshot": snapshot,
+        })
+        self.status.set(f"Saved snapshot {snapshot['snapshot_id'][:16]}…")
+
+    def validate_registry_file(self) -> None:
+        filename = filedialog.askopenfilename(
+            parent=self, title="Select OPlague JSON registry",
+            filetypes=[("JSON registry", "*.json"), ("All files", "*.*")],
+        )
+        if not filename:
+            return
+        try:
+            registry = load_registry(filename)
+        except Exception as error:
+            messagebox.showerror("Registry validation", str(error), parent=self)
+            return
+        self._show_registry_output({
+            "status": "valid", "registry": str(filename),
+            "schema": registry["schema"], "schema_version": registry["schema_version"],
+            "revision": registry["revision"], "devices": len(registry["devices"]),
+            "packages": len(registry["packages"]), "snapshots": len(registry["snapshots"]),
+        })
+        self.status.set("JSON registry validated")
+
+    def compare_registry_files(self) -> None:
+        filenames = filedialog.askopenfilenames(
+            parent=self, title="Select before/after registry JSON files",
+            filetypes=[("JSON registry", "*.json"), ("All files", "*.*")],
+        )
+        if len(filenames) != 2:
+            if filenames:
+                messagebox.showinfo("Snapshot diff", "Select exactly two registry files.", parent=self)
+            return
+        try:
+            before_registry, after_registry = (load_registry(name) for name in filenames)
+            if not before_registry["snapshots"] or not after_registry["snapshots"]:
+                raise ValueError("Both registries must contain at least one snapshot")
+            diff = snapshot_diff(before_registry["snapshots"][-1], after_registry["snapshots"][-1])
+        except Exception as error:
+            messagebox.showerror("Snapshot diff", str(error), parent=self)
+            return
+        self._show_registry_output(diff)
+        self.status.set("Compared the latest snapshots from both registries")
+
+    def build_policy_plan_from_file(self) -> None:
+        filename = filedialog.askopenfilename(
+            parent=self, title="Open policy-gated dry-run JSON",
+            filetypes=[("JSON plan input", "*.json"), ("All files", "*.*")],
+        )
+        if not filename:
+            return
+        try:
+            payload = json.loads(Path(filename).read_text(encoding="utf-8"))
+            if not isinstance(payload, dict):
+                raise ValueError("Policy plan input must be a JSON object")
+            plan = build_policy_dry_run_plan(**payload)
+        except (OSError, UnicodeError, ValueError, TypeError, json.JSONDecodeError) as error:
+            messagebox.showerror("Policy-gated dry-run", str(error), parent=self)
+            self.status.set("Policy-gated dry-run failed")
+            return
+        self.compatibility_result.configure(state="normal")
+        self.compatibility_result.delete("1.0", "end")
+        self.compatibility_result.insert("1.0", json.dumps(plan, indent=2, ensure_ascii=False))
+        self.compatibility_result.configure(state="disabled")
+        self.tabs.select(3)
+        self.status.set(f"Policy-gated dry-run: {plan['status']} — no system changes were made")
 
     def choose_packages(self) -> None:
         filenames = filedialog.askopenfilenames(

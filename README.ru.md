@@ -98,3 +98,40 @@ OPlague распознаёт явные INF-декорации `NTx86`, `NTamd64
 `proposed_operation=none`. Перед любым будущим привилегированным действием
 обязательны ручная проверка и дополнительные доказательства. См.
 [контракт графа совместимости](docs/DEVICE_COMPATIBILITY_GRAPH.md).
+
+
+## Расширенный PnP, JSON-реестр и policy-gated dry-run
+
+Инвентаризация Windows использует общий read-only адаптер: instance ID,
+Hardware IDs, Compatible IDs, класс и GUID, PnP Problem Code, родительские и
+служебные связи, поставщик/версия/дата текущего драйвера. Долгий запрос PnP
+выполняется вне Tk event loop; выбор устройства показывает нормализованную
+карточку его свойств. Отчёты INF дополняются консервативным извлечением
+модельных ID из секций Models, сохраняя отдельный анализ целевых архитектур.
+
+Вкладка **Registry & snapshots** сохраняет снимки с SHA-256-идентификатором,
+проверяет версионируемый JSON-реестр и сравнивает последние снимки двух
+реестров. Вкладка **Compatibility & dry-run** сохраняет существующий граф
+точных ID и дополнительно принимает строгий план на один пакет с проверкой
+аудита, политики подписи и актуальности предварительных условий.
+
+Новые модули и CLI описаны в
+[Device Catalogue and Dry-run](docs/DEVICE_CATALOG_AND_DRY_RUN.md). Команды:
+
+\`\`\`powershell
+python -m tools.oplague_cli registry init registry.json
+python -m tools.oplague_cli registry validate registry.json
+python -m tools.oplague_cli snapshot create registry.json snapshot-input.json --label baseline
+python -m tools.oplague_cli snapshot diff before.json after.json
+python -m tools.oplague_cli inf inspect path\to\driver.inf
+python -m tools.oplague_cli compatibility device.json candidates.json
+python -m tools.oplague_cli dry-run plan plan-input.json
+\`\`\`
+
+Dry-run только формирует план: в нём всегда
+\`will_modify_system=false\` и \`execution_supported=false\`. Команды установки
+или применения плана нет. SHA-256 подтверждает идентичность байтов, но не
+подлинность издателя; статус \`trusted\` допустим только после отдельной
+проверки доверия средствами Windows. Ранг SetupAPI, WinVerifyTrust/CAT,
+реальная установка, откат и постпроверка остаются отдельными задачами
+платформенной разработки.
