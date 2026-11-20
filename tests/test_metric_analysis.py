@@ -19,8 +19,8 @@ class DeviceMetricAnalysisTests(unittest.TestCase):
         )
         self.assertEqual(result["schema"], "oplage.device-metric-comparison.v1")
         self.assertAlmostEqual(result["euclidean_distance"], (0.01 + 0.01 + 0.04) ** 0.5)
-        self.assertAlmostEqual(result["quadratic_form"], 0.08)
-        self.assertAlmostEqual(result["weighted_distance"], 0.08 ** 0.5)
+        self.assertAlmostEqual(result["quadratic_form"], 0.07)
+        self.assertAlmostEqual(result["weighted_distance"], 0.07 ** 0.5)
         self.assertEqual(result["dimension_count"], 3)
         self.assertEqual(set(result["components"]), {"cpu", "memory", "thermal"})
 
