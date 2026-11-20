@@ -10,11 +10,11 @@ emits a versioned JSON snapshot for downstream consumers.
 Contract schema: [oplage.device-snapshot.v1.schema.json](../schemas/oplage.device-snapshot.v1.schema.json)
 
 - Schema identifier: oplage.device-snapshot.v1
-- Device identity: stable SHA-256 pseudonymous fingerprint of the PnP InstanceId; the raw InstanceId is omitted. This is not anonymization: snapshots remain linkable, and low-entropy identifiers may be guessable.
+- Device identity: HMAC-SHA-256 pseudonym of the PnP InstanceId with domain separation; the raw InstanceId is omitted. Each default snapshot uses an ephemeral key, preventing cross-export correlation by default. A caller-managed protected key deliberately enables pseudonymous matching across snapshots. This is pseudonymization, not anonymization.
 - Metric values: finite numbers normalized to [0, 1], higher means healthier.
 - A zero package-integrity metric is paired with an audit-coverage metric, so
   no package scan is not silently reported as a pass.
-- Snapshot fingerprint: SHA-256 over canonical JSON before the fingerprint field. It detects accidental drift but is not a vendor signature or authenticity proof.
+- Snapshot fingerprint: SHA-256 over canonical JSON before the fingerprint field. Consumers recompute it and reject content mismatches. It detects content drift but is not a vendor signature or authenticity proof.
 
 Profile dimensions are device_ok_ratio, device_problem_free_ratio,
 device_class_coverage_ratio, device_identity_coverage_ratio,
@@ -42,16 +42,20 @@ otherwise modify a device or driver.
 
 ## Consumer contract
 
-Reaper uses read_json() to load the file, oplage_metrics() to validate/extract
-the metric profile, and oplage_compare() to create a report. Reaper can pass an
-explicit trusted Pytyliki shared-library path to the comparison built-in to
-calculate the Euclidean distance through Pytyliki ABI v1.
+Reaper uses read_json() to load the file, then validates the complete v1
+envelope, device/package record shapes, summary counters, normalized metrics
+and recomputed canonical SHA-256 fingerprint before extracting the metric
+profile. The local schema copy is checked in at
+[Reaper/schemas/oplage.device-snapshot.v1.schema.json](https://github.com/Ivan-VHS/Reaper/blob/main/schemas/oplage.device-snapshot.v1.schema.json).
+oplage_compare() emits a read-only report and rejects dimension drift. Reaper
+can pass an explicit trusted Pytyliki shared-library path to cross-check the
+Euclidean distance through ABI v1.
 
 ## Security and limitations
 
 - PowerShell receives a fixed command string; no user-supplied text is inserted.
 - Inventory is bounded to 10,000 devices and 16 MiB of JSON.
-- PnP instance IDs are hashed before export to avoid serial-bearing identifiers.
+- Raw PnP instance IDs are never exported. HMAC pseudonyms use ephemeral keys by default; reuse of a protected caller-managed key enables deliberate linkability.
 - Optional package paths use the existing read-only UDRV inspector. This is not
   a general INF/catalog signature verifier.
 - A snapshot is telemetry, not proof of driver trust or compatibility.

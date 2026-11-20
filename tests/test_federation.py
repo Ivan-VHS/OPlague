@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import tempfile
 import unittest
@@ -11,6 +12,16 @@ from tools.federation import (
     capture_pnp_devices, compare_device_snapshots, export_device_snapshot,
     load_identity_key, main,
 )
+
+
+def reseal_snapshot(snapshot: dict) -> dict:
+    payload = dict(snapshot)
+    payload.pop("snapshot_sha256", None)
+    canonical = json.dumps(
+        payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False
+    ).encode("utf-8")
+    snapshot["snapshot_sha256"] = hashlib.sha256(canonical).hexdigest()
+    return snapshot
 
 
 class FederationSnapshotTests(unittest.TestCase):
@@ -87,8 +98,18 @@ class FederationSnapshotTests(unittest.TestCase):
         result = compare_device_snapshots(reference, candidate)
         self.assertEqual(result["schema"], "oplage.device-audit.v1")
         self.assertIn("euclidean_distance", result["comparison"])
+        mismatched = build_device_snapshot([self.devices[0]])
+        mismatched["metrics"]["different"] = mismatched["metrics"].pop("device_ok_ratio")
+        reseal_snapshot(mismatched)
         with self.assertRaisesRegex(ValueError, "dimensions differ"):
-            compare_device_snapshots(reference, {"schema": SNAPSHOT_SCHEMA, "metrics": {"different": 0.5}})
+            compare_device_snapshots(reference, mismatched)
+
+
+    def test_snapshot_fingerprint_rejects_metric_tampering(self) -> None:
+        snapshot = build_device_snapshot(self.devices)
+        snapshot["metrics"]["device_ok_ratio"] = 0.25
+        with self.assertRaisesRegex(ValueError, "fingerprint mismatch"):
+            compare_device_snapshots(snapshot, snapshot)
 
     def test_native_cross_check_is_opt_in(self) -> None:
         reference = build_device_snapshot(self.devices)
