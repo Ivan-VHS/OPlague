@@ -132,7 +132,10 @@ def main(argv: list[str] | None = None) -> int:
         declared = [item.strip() for item in args.targets.split(",") if item.strip()]
         if args.inf:
             from pathlib import Path
-            declared.extend(detect_inf_target_architectures(Path(args.inf).read_text(encoding="utf-8-sig", errors="replace")))
+            inf_path = Path(args.inf).expanduser()
+            if inf_path.stat().st_size > 8 * 1024 * 1024:
+                raise ValueError("INF file exceeds the 8 MiB standalone inspection limit")
+            declared.extend(detect_inf_target_architectures(inf_path.read_text(encoding="utf-8-sig", errors="replace")))
         payload = evaluate_driver_targets(args.host, declared)
     if args.json:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
