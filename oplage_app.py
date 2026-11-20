@@ -16,6 +16,7 @@ from ui_motion import MotionController
 from typing import Any
 
 from tools.report_composer import compose_inspection_reports
+from tools.inspection_batch import inspect_batch
 from tools.metric_analysis import analyze_device_profiles
 from tools.architecture_profiles import current_host_architecture, detect_inf_target_architectures, evaluate_driver_targets
 from tools.device_graph import extract_inf_compatibility, build_dry_run_plan
@@ -392,7 +393,7 @@ class OPlagueApp(tk.Tk):
         if not filenames:
             return
         try:
-            reports = [inspect_package(filename) for filename in filenames]
+            reports = inspect_batch(filenames, inspect_package)
             data = compose_inspection_reports(reports)
         except Exception as error:
             self.status.set("Batch package inspection failed")
