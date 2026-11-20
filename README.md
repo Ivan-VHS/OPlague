@@ -140,3 +140,40 @@ verdict. The generated plan is explicitly read-only:
 `install_attempted=false`, `system_modified=false`,
 `proposed_operation=none`. Manual review and further evidence are mandatory.
 See [the compatibility graph contract](docs/DEVICE_COMPATIBILITY_GRAPH.md).
+
+
+## Registry, extended PnP inventory, and policy dry-run
+
+The Windows inventory uses one shared read-only adapter for instance IDs,
+Hardware IDs, Compatible IDs, class metadata, PnP problem state, parent/service
+links, and current driver provider/version/date. Long PnP queries run outside
+the Tk event loop. Selecting a device exposes its full normalized record.
+INF reports also include conservative model-section evidence alongside the
+existing target-architecture analysis.
+
+The **Registry & snapshots** tab captures content-addressed snapshots, validates
+a versioned JSON registry, and compares the latest snapshots from two registry
+files. The **Compatibility & dry-run** tab retains the exact-ID device/driver
+graph and also accepts a stricter per-package plan with audit, signature-policy,
+and freshness preconditions.
+
+The new modules and CLI are documented in
+[Device Catalogue and Dry-run](docs/DEVICE_CATALOG_AND_DRY_RUN.md). Commands:
+
+\`\`\`powershell
+python -m tools.oplague_cli registry init registry.json
+python -m tools.oplague_cli registry validate registry.json
+python -m tools.oplague_cli snapshot create registry.json snapshot-input.json --label baseline
+python -m tools.oplague_cli snapshot diff before.json after.json
+python -m tools.oplague_cli inf inspect path\to\driver.inf
+python -m tools.oplague_cli compatibility device.json candidates.json
+python -m tools.oplague_cli dry-run plan plan-input.json
+\`\`\`
+
+Dry-run is a planning interface only: plans declare
+\`will_modify_system=false\` and \`execution_supported=false\`. There is no
+installer or apply command. SHA-256 proves byte identity, not publisher
+authenticity; an external Windows trust verifier must establish any
+\`trusted\` signature input. SetupAPI rank, WinVerifyTrust/CAT verification,
+actual driver deployment, rollback and post-install validation remain separate
+platform-engineering work.
