@@ -72,3 +72,11 @@ native_cross_check object containing the Pytyliki distance, Python distance,
 absolute error and a numerical tolerance result. The DLL/SO path must be
 absolute and point to a trusted build; loading it executes native code. No
 library is loaded unless this flag is provided.
+
+
+## Cross-repository references
+
+- **Shared 3 × 3 map:** [Project federation matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md).
+- **Reaper:** [repository](https://github.com/Ivan-VHS/Reaper), [federation contract](https://github.com/Ivan-VHS/Reaper/blob/main/docs/FEDERATED_INTEGRATION.md), [snapshot consumer](https://github.com/Ivan-VHS/Reaper/blob/main/reaper/federation.py), [project manifest](https://github.com/Ivan-VHS/Reaper/blob/main/project-contract.json).
+- **Pytyliki:** [repository](https://github.com/Ivan-VHS/Pytyliki), [federation contract](https://github.com/Ivan-VHS/Pytyliki/blob/main/docs/FEDERATED_INTEGRATION.md), [public ABI header](https://github.com/Ivan-VHS/Pytyliki/blob/main/src/interop.h), [project manifest](https://github.com/Ivan-VHS/Pytyliki/blob/main/project-contract.json).
+- **OPlague evidence:** [device snapshot producer](../tools/federation.py), [Pytyliki adapter](../tools/pytyliki_ffi.py), [inspection composer](../tools/report_composer.py), [project manifest](../project-contract.json).
