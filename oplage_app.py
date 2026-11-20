@@ -11,6 +11,7 @@ import zipfile
 from pathlib import Path, PurePosixPath
 from tkinter import filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
+from ui_theme import apply_ui_theme
 from typing import Any
 
 from tools.report_composer import compose_inspection_reports
@@ -190,9 +191,13 @@ class OPlagueApp(tk.Tk):
         self.geometry("1120x720")
         self.minsize(820, 540)
         self.option_add("*Font", ("Segoe UI", 10))
+        self._theme_mode = "system"
+        self._theme_cycle = ("system", "light", "dark")
         header = ttk.Frame(self, padding=(16, 12)); header.pack(fill="x")
         ttk.Label(header, text="OPLAGUE", font=("Segoe UI Semibold", 20)).pack(side="left")
         ttk.Label(header, text="Hardware inventory  /  Driver package inspection", foreground="#526174").pack(side="left", padx=16)
+        self.theme_button = ttk.Button(header, text="Theme: System", command=self.cycle_theme)
+        self.theme_button.pack(side="right")
         self.tabs = ttk.Notebook(self); self.tabs.pack(fill="both", expand=True, padx=14, pady=(0, 10))
         inventory = ttk.Frame(self.tabs, padding=12); packages = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(inventory, text="Device inventory"); self.tabs.add(packages, text="Package inspector")
@@ -265,6 +270,17 @@ class OPlagueApp(tk.Tk):
         ttk.Label(footer, textvariable=self.status, foreground="#526174").pack(side="left")
         self._motion = MotionController(self)
         self._motion.fade_in()
+        self.apply_visual_theme()
+
+    def apply_visual_theme(self) -> None:
+        """Apply the selected appearance to tabs, tables and report editors."""
+        apply_ui_theme(self, self._theme_mode)
+        self.theme_button.configure(text=f"Theme: {self._theme_mode.title()}")
+
+    def cycle_theme(self) -> None:
+        index = self._theme_cycle.index(self._theme_mode)
+        self._theme_mode = self._theme_cycle[(index + 1) % len(self._theme_cycle)]
+        self.apply_visual_theme()
 
     def refresh_devices(self) -> None:
         self.status.set("Querying local Windows device inventory…"); self.update_idletasks()
