@@ -34,6 +34,19 @@ python tools/systems_languages.py --tag formal-verification,embedded --json
 
 The probe only checks executable names on `PATH`. OPlague does not load or execute discovered compilers, driver payloads or third-party native modules; a detected compiler is not represented as an implemented backend or a driver-compatibility guarantee.
 
+## Quantum Contour Syntax (QCS)
+
+OPlague includes a lightweight QCS contract parser alongside its 66-entry systems-language catalogue. QCS provides 66 named hardware-domain profiles over one compact grammar; it is not 66 separate compilers. The validator checks contour boundaries, `domain`, `invariant`, optional architecture / budget metadata, and records explicit `->>` / `<-~` handoffs. Swift-like bodies remain inert text.
+
+```bash
+python -m tools.qcs validate path/to/example.qcs
+python -m tools.qcs validate path/to/example.qcs --json
+python -m tools.qcs dialects
+python -m unittest discover -s tests -p 'test_qcs.py' -v
+```
+
+This is metadata validation only: no compilation, code execution, JIT, device I/O, register access, driver installation, or safety proof. See [QCS syntax and domain profiles](docs/QUANTUM_CONTOUR_SYNTAX.md).
+
 ## Safety principles
 
 1. Inspect packages before trusting them; validate manifests, structure, metadata, and hashes where available.
