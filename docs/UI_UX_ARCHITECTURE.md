@@ -1,6 +1,6 @@
 # OPlague UI/UX and Language-Environment Architecture
 
-**Status:** target architecture for the Windows-first Tkinter workbench. This document specifies an evolution path; dynamic palettes, full localization and 8K layouts are not claimed as already implemented.
+**Status:** target architecture for the Windows-first Tkinter workbench. The white-blue-red light/dark theme and adaptive Metric Lab input layout are implemented; full localization, advanced inspectors and physical 8K regression remain acceptance work.
 
 ## 1. Product fit
 
@@ -34,8 +34,10 @@ Components consume semantic tokens, not hard-coded colors:
 
 - `bg-pond`, `bg-surface`, `bg-elevated`: workbench, cards and dialogs.
 - `fg-primary`, `fg-secondary`, `fg-muted`: evidence, explanations and metadata.
-- `accent-primary`, `accent-secondary`, `accent-warm`: selection/action, graph links and inspection-in-progress.
-- `status-ok`, `status-warn`, `status-danger`: validated, caution and rejected/error.
+- `accent-blue`, `accent-blue-hover`, `accent-red`: primary action, hover/selection and destructive emphasis.
+- `status-ok`, `status-warn`, `status-danger`: always paired with labels/icons; never color-only.
+
+The concrete light/dark token table is maintained in [ANATIDAE_DESKTOP_DESIGN_SYSTEM.md](ANATIDAE_DESKTOP_DESIGN_SYSTEM.md); older palette preset examples below are historical proposals, not the shipped product palette.
 
 Presets: **Morning Pond** (pearl/graphite-blue/teal/amber), **Twilight Water** (slate/soft white/mint/coral), **Northern Ice 8K** (high contrast and strong borders), **Warm Vibe** (cream/sand or chocolate/amber). Provide normal, high and extra-high contrast. Status must also use labels/icons/patterns, never color alone. Theme changes update tabs, tables, text widgets, graphs, labels and dialogs atomically.
 
