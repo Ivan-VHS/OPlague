@@ -80,3 +80,16 @@ library is loaded unless this flag is provided.
 - **Reaper:** [repository](https://github.com/Ivan-VHS/Reaper), [federation contract](https://github.com/Ivan-VHS/Reaper/blob/main/docs/FEDERATED_INTEGRATION.md), [snapshot consumer](https://github.com/Ivan-VHS/Reaper/blob/main/reaper/federation.py), [project manifest](https://github.com/Ivan-VHS/Reaper/blob/main/project-contract.json).
 - **Pytyliki:** [repository](https://github.com/Ivan-VHS/Pytyliki), [federation contract](https://github.com/Ivan-VHS/Pytyliki/blob/main/docs/FEDERATED_INTEGRATION.md), [public ABI header](https://github.com/Ivan-VHS/Pytyliki/blob/main/src/interop.h), [project manifest](https://github.com/Ivan-VHS/Pytyliki/blob/main/project-contract.json).
 - **OPlague evidence:** [device snapshot producer](../tools/federation.py), [Pytyliki adapter](../tools/pytyliki_ffi.py), [inspection composer](../tools/report_composer.py), [project manifest](../project-contract.json).
+
+
+## Reaper report consumer
+
+OPlague validates Reaper's `reaper.oplage-comparison.v1` output through `tools.reaper_report`. The importer checks schema, read-only mode, finite normalized dimensions, component deltas, Python/native metric consistency and canonical report SHA-256. It returns an `oplage.reaper-report-audit.v1` summary. It never executes a report, loads the optional native library named in its metadata, or changes a device.
+
+```powershell
+python -m tools.reaper_report comparison.json --json
+```
+
+## OCTA-8 horizontal mesh
+
+The shared [OCTA-8 topology](OCTA_PYRAMID_FEDERATION.md) defines six directed peer links and three local self-loops. Reaper↔OPlague exchanges bounded snapshots and comparison reports; Reaper↔Pytyliki and OPlague↔Pytyliki use synchronous request/response via explicit Pytyliki ABI v1 calls. Eight pyramid facets define shared invariants; the apex is metadata-only, not an executable gateway.
