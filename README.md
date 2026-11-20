@@ -22,6 +22,7 @@
 - **INF / ZIP inspector:** extract selected INF metadata, calculate SHA-256, inspect archive paths and resource limits, and report exact hardware-ID and target-architecture evidence. Package content is not extracted or executed.
 - **Batch reports:** compose ordered inspection results with aggregate counts and a deterministic bundle fingerprint.
 - **UDRV inspector:** validate a versioned manifest, payload inventory, declared sizes, hashes and path/resource bounds. It does not install, load or execute payloads.
+- **DRIVE-LENS evidence ledger:** HMAC-pseudonymized device references, source-digest provenance, exact attribute/time-window grouping and explicit conflict retention across inspected PnP/INF/UDRV/catalog metadata. No automatic driver verdict ([design](docs/DRIVE_LENS_EVIDENCE_LEDGER.md)).
 - **Compatibility dry-run:** connect devices and INF Models entries only through exact normalized hardware-ID matches. Candidate edges are not driver rankings or compatibility verdicts.
 - **Metric Lab:** compare normalized profiles using weighted distances, cosine similarity, orthogonality and repeated-run variance.
 - **Device federation:** export bounded versioned JSON snapshots and compare saved snapshots offline. Export requires explicit operator confirmation; raw PnP IDs are HMAC-pseudonymized with ephemeral keys by default or an optional protected key for deliberate cross-snapshot matching.
@@ -60,6 +61,8 @@ Mainline includes PnP inventory, bounded INF/ZIP inspection, architecture analys
 **Not implemented:** driver installation/removal, enable/disable, signing, rollback, firmware changes or live DPC/ISR diagnostics. Package integrity does not establish vendor authenticity, driver safety or compatibility. Imported files are untrusted input; inspect reports before making manual decisions. The QCS body is retained as text and is never compiled or executed.
 
 ## Documentation and downloads
+
+[DRIVE-LENS evidence ledger](docs/DRIVE_LENS_EVIDENCE_LEDGER.md)
 
 [Human-first governance](docs/HUMAN_FIRST_GOVERNANCE.md) · [Anatidae desktop design system](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [UI/UX system](docs/UI_UX_SYSTEM.md) · [UDRV format](docs/UDRV_FORMAT_V1.md) · [Device compatibility graph](docs/DEVICE_COMPATIBILITY_GRAPH.md) · [Federation contract](docs/FEDERATED_INTEGRATION.md) · [QCS syntax](docs/QUANTUM_CONTOUR_SYNTAX.md) · [Unified engineering standard](docs/UNIFIED_ENGINEERING_STANDARD.md)
 
