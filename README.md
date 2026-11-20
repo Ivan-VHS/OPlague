@@ -122,3 +122,17 @@ not establish vendor authenticity or driver compatibility.
 The desktop application includes a **Metric Lab** tab. Paste two JSON metric profiles with matching keys and values normalized to [0, 1], where higher values mean better results. Optional per-metric weights control the diagonal quadratic form. The analysis reports Euclidean and weighted distance, cosine similarity, angle, orthogonality, energy and per-dimension contributions. The numerical module also summarizes repeated measurements, calculates sample variance and exposes Parseval coefficient energy.
 
 The analyzer does not infer missing values or claim driver compatibility. See [Orthogonal Metric Diagnostics](docs/ORTHOGONAL_METRIC_DIAGNOSTICS.md) for assumptions and examples.
+
+## Exact-ID compatibility graph and dry-run
+
+The desktop **Compatibility & dry-run** tab connects the refreshed local PnP
+inventory with hardware identifiers declared in inspected INF `Models`
+sections. It creates candidate edges only for exact normalized identifier
+matches and reports architecture mismatches separately. Prefix/name similarity
+is never treated as compatibility.
+
+A candidate is **not** a driver-rank, signature, trust, Windows-build or safety
+verdict. The generated plan is explicitly read-only:
+`install_attempted=false`, `system_modified=false`,
+`proposed_operation=none`. Manual review and further evidence are mandatory.
+See [the compatibility graph contract](docs/DEVICE_COMPATIBILITY_GRAPH.md).
