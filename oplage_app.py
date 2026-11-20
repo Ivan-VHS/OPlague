@@ -106,6 +106,8 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
                 if entry.compress_size and entry.file_size / entry.compress_size > MAX_COMPRESSION_RATIO:
                     raise ValueError(f"Suspicious compression ratio: {entry.filename}")
                 if entry.filename.casefold().endswith(".inf"):
+                    if entry.file_size > MAX_INF_BYTES:
+                        raise ValueError(f"INF file exceeds the 2 MiB inspection limit: {entry.filename}")
                     raw_inf = archive.read(entry)
                     metadata = _inf(raw_inf, entry.filename)
                     targets = detect_inf_target_architectures(_decode_inf(raw_inf))
