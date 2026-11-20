@@ -109,19 +109,78 @@ def build_compatibility_graph(
     *,
     host_architecture: str | None = None,
 ) -> dict[str, Any]:
-    """Build exact-ID candidate edges; never infer compatibility from names."""
+    """Build a bipartite exact-ID candidate graph; never infer compatibility from names."""
     if not isinstance(devices, (list, tuple)) or len(devices) > MAX_DEVICES:
         raise ValueError(f"devices must contain at most {MAX_DEVICES} records")
     if not isinstance(drivers, (list, tuple)) or len(drivers) > MAX_DRIVERS:
         raise ValueError(f"drivers must contain at most {MAX_DRIVERS} records")
 
     host_arch = normalize_architecture(host_architecture)
-    nodes = []
-    edges = []
+    nodes: list[dict[str, str]] = []
+    edges: list[dict[str, Any]] = []
+    normalized_drivers: list[dict[str, Any]] = []
+    seen_driver_ids: set[str] = set()
+
+    for driver_index, driver in enumerate(drivers):
+        if not isinstance(driver, Mapping):
+            raise TypeError("driver records must be mappings")
+        driver_id = str(
+            driver.get("driver_id") or driver.get("package_sha256") or f"driver-{driver_index}"
+        )
+        if not driver_id or len(driver_id) > 512:
+            raise ValueError("driver_id must contain 1..512 characters")
+        if driver_id in seen_driver_ids:
+            raise ValueError(f"duplicate driver_id: {driver_id}")
+        seen_driver_ids.add(driver_id)
+
+        compatibility = (
+            driver.get("compatibility")
+            if isinstance(driver.get("compatibility"), Mapping)
+            else {}
+        )
+        driver_ids = _as_ids(
+            driver.get("hardware_ids", compatibility.get("hardware_ids", []))
+        )
+        raw_arches = driver.get(
+            "architectures", compatibility.get("architectures", ["unspecified"])
+        )
+        if isinstance(raw_arches, str):
+            raw_arches = [raw_arches]
+        elif not isinstance(raw_arches, (list, tuple, set)):
+            raw_arches = ["unspecified"]
+        arches = {
+            normalize_architecture(item)
+            for item in raw_arches
+            if isinstance(item, str)
+        }
+        if not arches:
+            arches = {"unspecified"}
+
+        package_name = str(driver.get("package_name") or driver_id)
+        nodes.append({
+            "id": driver_id,
+            "kind": "driver",
+            "name": package_name[:512],
+        })
+        normalized_drivers.append({
+            "driver_id": driver_id,
+            "hardware_ids": driver_ids,
+            "architectures": arches,
+        })
+
+    seen_device_ids: set[str] = set()
     for index, device in enumerate(devices):
         if not isinstance(device, Mapping):
             raise TypeError("device records must be mappings")
-        device_id = str(device.get("device_id") or device.get("pnp_id") or f"device-{index}")
+        device_id = str(
+            device.get("device_id") or device.get("pnp_id") or f"device-{index}"
+        )
+        if not device_id or len(device_id) > 512:
+            raise ValueError("device_id must contain 1..512 characters")
+        if device_id in seen_device_ids:
+            raise ValueError(f"duplicate device_id: {device_id}")
+        seen_device_ids.add(device_id)
+
         raw_device_ids: list[Any] = []
         for field in ("pnp_id", "hardware_ids", "compatible_ids"):
             value = device.get(field)
@@ -130,54 +189,47 @@ def build_compatibility_graph(
             elif isinstance(value, (list, tuple)):
                 raw_device_ids.extend(value[:MAX_IDS_PER_RECORD])
         device_ids = _as_ids(raw_device_ids)
-        nodes.append({"id": device_id, "kind": "device", "name": str(device.get("name") or device_id)})
-        for driver_index, driver in enumerate(drivers):
-            if not isinstance(driver, Mapping):
-                raise TypeError("driver records must be mappings")
-            driver_id = str(driver.get("driver_id") or driver.get("package_sha256") or f"driver-{driver_index}")
-            compatibility = driver.get("compatibility") if isinstance(driver.get("compatibility"), Mapping) else {}
-            driver_ids = _as_ids(
-                driver.get("hardware_ids", compatibility.get("hardware_ids", []))
-            )
-            raw_arches = driver.get("architectures", compatibility.get("architectures", ["unspecified"]))
-            if isinstance(raw_arches, str):
-                raw_arches = [raw_arches]
-            elif not isinstance(raw_arches, (list, tuple, set)):
-                raw_arches = []
-            arches = {normalize_architecture(item) for item in raw_arches if isinstance(item, str)}
+        device_name = str(device.get("name") or device_id)
+        nodes.append({
+            "id": device_id,
+            "kind": "device",
+            "name": device_name[:512],
+        })
+
+        for driver in normalized_drivers:
+            matched = sorted(set(device_ids).intersection(driver["hardware_ids"]))
+            if not matched:
+                continue
             arch_ok = (
                 not host_arch
-                or not arches
-                or "any" in arches
-                or "unspecified" in arches
-                or host_arch in arches
+                or "any" in driver["architectures"]
+                or "unspecified" in driver["architectures"]
+                or host_arch in driver["architectures"]
             )
-            matched = sorted(set(device_ids).intersection(driver_ids))
-            if matched and arch_ok:
-                edges.append({
-                    "device_id": device_id,
-                    "driver_id": driver_id,
-                    "matched_ids": matched,
-                    "status": "exact_identifier_candidate",
-                    "architecture_check": "passed" if host_arch else "not_requested",
-                })
-            elif matched and not arch_ok:
-                edges.append({
-                    "device_id": device_id,
-                    "driver_id": driver_id,
-                    "matched_ids": matched,
-                    "status": "architecture_mismatch",
-                    "architecture_check": "failed",
-                })
+            edges.append({
+                "device_id": device_id,
+                "driver_id": driver["driver_id"],
+                "matched_ids": matched,
+                "status": (
+                    "exact_identifier_candidate"
+                    if arch_ok else "architecture_mismatch"
+                ),
+                "architecture_check": (
+                    "not_requested" if not host_arch
+                    else "passed" if arch_ok else "failed"
+                ),
+            })
 
     return {
         "schema": "oplague.device-driver-graph.v1",
         "host_architecture": host_arch or None,
         "nodes": nodes,
         "edges": edges,
-        "semantics": "Exact identifier candidates only; an edge is not a compatibility or safety verdict.",
+        "semantics": (
+            "Bipartite exact identifier candidates only; an edge is not a "
+            "compatibility, ranking, signature or safety verdict."
+        ),
     }
-
 
 def build_dry_run_plan(
     devices: Sequence[Mapping[str, Any]],
