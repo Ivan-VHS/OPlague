@@ -173,6 +173,17 @@
         "federation/octa-pyramid.v1.json",
         "docs/OCTA_PYRAMID_FEDERATION.md"
       ]
+    },
+    {
+      "id": "oplage.reaper-report-audit.v1",
+      "format": "Read-only validation summary for a Reaper comparison report",
+      "direction": "provides",
+      "status": "implemented",
+      "evidence": [
+        "tools/reaper_report.py",
+        "tests/test_reaper_report.py",
+        "docs/FEDERATED_INTEGRATION.md"
+      ]
     }
   ],
   "integrations": [
