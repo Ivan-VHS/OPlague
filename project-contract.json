@@ -109,6 +109,17 @@
         "tests/test_self_product.py",
         "docs/SELF_PRODUCT_COMPOSITION.md"
       ]
+    },
+    {
+      "id": "federation.octa-8-horizontal-peer-mesh",
+      "status": "implemented",
+      "summary": "Validates the complete three-project directed peer product, eight octagonal pyramid facets and local self-loops without a central runtime dependency.",
+      "evidence": [
+        "federation/octa-pyramid.v1.json",
+        "tools/validate_octa_pyramid.py",
+        "tests/test_octa_pyramid.py",
+        "docs/OCTA_PYRAMID_FEDERATION.md"
+      ]
     }
   ],
   "interfaces": [
@@ -141,6 +152,27 @@
         "tools/pytyliki_ffi.py",
         "tests/test_pytyliki_ffi.py"
       ]
+    },
+    {
+      "id": "reaper.oplage-comparison.v1",
+      "format": "Versioned read-only Reaper comparison report",
+      "direction": "consumes",
+      "status": "implemented",
+      "evidence": [
+        "tools/reaper_report.py",
+        "tests/test_reaper_report.py",
+        "docs/FEDERATED_INTEGRATION.md"
+      ]
+    },
+    {
+      "id": "octa.pyramid.peer-mesh.v1",
+      "format": "OCTA-8 octagonal-pyramid topology and peer contract",
+      "direction": "both",
+      "status": "implemented",
+      "evidence": [
+        "federation/octa-pyramid.v1.json",
+        "docs/OCTA_PYRAMID_FEDERATION.md"
+      ]
     }
   ],
   "integrations": [
@@ -159,6 +191,30 @@
       "status": "optional",
       "opt_in": true,
       "summary": "Loads a caller-selected trusted Pytyliki library only when a native cross-check is requested."
+    },
+    {
+      "project": "reaper",
+      "interface": "reaper.oplage-comparison.v1",
+      "mode": "json-file",
+      "status": "implemented",
+      "opt_in": true,
+      "summary": "Validates caller-selected Reaper read-only comparison reports; it does not execute reports or change devices."
+    },
+    {
+      "project": "reaper",
+      "interface": "octa.pyramid.peer-mesh.v1",
+      "mode": "shared-contract",
+      "status": "implemented",
+      "opt_in": false,
+      "summary": "Participates in the direct OCTA-8 peer mesh and exposes the Reaper-report consumer edge."
+    },
+    {
+      "project": "pytyliki",
+      "interface": "octa.pyramid.peer-mesh.v1",
+      "mode": "shared-contract",
+      "status": "implemented",
+      "opt_in": false,
+      "summary": "Participates in the OCTA-8 peer mesh; native request/response remains explicit and caller initiated."
     }
   ],
   "safety_boundaries": [
