@@ -253,9 +253,7 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
 
     for widget in _walk(root):
         try:
-            if isinstance(widget, ttk.Label):
-                widget.configure(foreground=colors["muted"] if str(widget.cget("style")) == "Muted.TLabel" else colors["fg"])
-            elif isinstance(widget, tk.Text):
+            if isinstance(widget, tk.Text):
                 widget.configure(
                     background=colors["editor"], foreground=colors["editor_text"],
                     insertbackground=colors["editor_text"], selectbackground=colors["selection"],
