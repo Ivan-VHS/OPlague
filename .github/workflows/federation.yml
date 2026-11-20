@@ -5,6 +5,12 @@ on:
     branches: [main, "feat/**"]
     paths:
       - "tools/federation.py"
+      - "tools/reaper_report.py"
+      - "tools/validate_octa_pyramid.py"
+      - "federation/octa-pyramid.v1.json"
+      - "schemas/octa-pyramid.v1.schema.json"
+      - "tests/test_reaper_report.py"
+      - "tests/test_octa_pyramid.py"
       - "tools/pytyliki_ffi.py"
       - "tests/test_federation.py"
       - "tests/test_pytyliki_ffi.py"
@@ -13,6 +19,12 @@ on:
   pull_request:
     paths:
       - "tools/federation.py"
+      - "tools/reaper_report.py"
+      - "tools/validate_octa_pyramid.py"
+      - "federation/octa-pyramid.v1.json"
+      - "schemas/octa-pyramid.v1.schema.json"
+      - "tests/test_reaper_report.py"
+      - "tests/test_octa_pyramid.py"
       - "tools/pytyliki_ffi.py"
       - "tests/test_federation.py"
       - "tests/test_pytyliki_ffi.py"
