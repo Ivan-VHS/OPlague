@@ -22,6 +22,7 @@
 - **INF / ZIP 检查器：** 提取选定 INF 元数据、计算 SHA-256、检查压缩包路径与资源上限，并分析精确硬件 ID 和目标架构。不提取或执行包内容。
 - **批量报告：** 按顺序合并检查结果，生成汇总计数和确定性 bundle 指纹。
 - **UDRV 检查器：** 验证版本化清单、payload 列表、声明大小、哈希及路径/资源限制；不会安装、加载或执行 payload。
+- **DRIVE-LENS 证据账本：** 对设备引用进行 HMAC 假名化，保留来源摘要，按精确属性与时间窗口分组，并显式保留 PnP/INF/UDRV/目录元数据冲突；不会自动给出驱动结论（[设计说明](docs/DRIVE_LENS_EVIDENCE_LEDGER.md)）。
 - **兼容性 dry-run：** 仅通过精确规范化硬件 ID 关联设备与 INF Models。候选关系不是驱动排名或兼容性结论。
 - **Metric Lab：** 通过加权距离、余弦相似度、正交性和重复测量方差比较归一化配置。
 - **设备联邦：** 导出有界版本化 JSON 快照须由操作者明确确认，并支持离线比较。PnP ID 默认使用临时密钥进行 HMAC 假名化；可显式提供受保护密钥以进行跨快照匹配。假名仍可能被关联，并非匿名化。
@@ -60,6 +61,8 @@ OPlague 于 2026 年 11 月 19 日以 Windows 驱动工作台项目启动。之�
 **尚未实现：** 驱动安装/卸载、启用/禁用、签名、回滚、固件修改和实时 DPC/ISR 诊断。包完整性不等于供应商真实性、驱动安全性或兼容性。导入文件均视为不可信输入。QCS 正文仅作为文本保留，不会编译或执行。
 
 ## 文档与下载
+
+[DRIVE-LENS 证据账本](docs/DRIVE_LENS_EVIDENCE_LEDGER.md)
 
 [UDRV 格式](docs/UDRV_FORMAT_V1.md) · [设备兼容图](docs/DEVICE_COMPATIBILITY_GRAPH.md) · [设备联邦契约](docs/FEDERATED_INTEGRATION.md) · [QCS 语法](docs/QUANTUM_CONTOUR_SYNTAX.md) · [统一工程标准](docs/UNIFIED_ENGINEERING_STANDARD.md)
 
