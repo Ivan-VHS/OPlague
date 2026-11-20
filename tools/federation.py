@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import hmac
+import secrets
 import json
 import math
 import os
@@ -121,7 +123,11 @@ def _problem_code(value: Any) -> tuple[int | None, bool]:
     return None, True
 
 
-def _normalize_devices(devices: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+def _normalize_devices(
+    devices: Sequence[Mapping[str, Any]], *, identity_key: bytes
+) -> list[dict[str, Any]]:
+    if not isinstance(identity_key, bytes) or len(identity_key) < 32:
+        raise ValueError("device identity key must contain at least 32 bytes")
     if not isinstance(devices, (list, tuple)) or len(devices) > MAX_DEVICES:
         raise ValueError(f"devices must be a list of at most {MAX_DEVICES} records")
     normalized: list[dict[str, Any]] = []
@@ -130,7 +136,7 @@ def _normalize_devices(devices: Sequence[Mapping[str, Any]]) -> list[dict[str, A
         if not isinstance(raw, Mapping):
             raise TypeError(f"devices[{index}] must be an object")
         instance_id = _safe_text(raw.get("InstanceId", raw.get("instance_id")), 2048)
-        fingerprint = hashlib.sha256(instance_id.encode("utf-8")).hexdigest() if instance_id else ""
+        fingerprint = hmac.new(identity_key, b"oplage-device-id-v1\\0" + instance_id.encode("utf-8"), hashlib.sha256).hexdigest() if instance_id else ""
         if fingerprint and fingerprint in seen_ids:
             raise ValueError(f"duplicate PnP identity at devices[{index}]")
         if fingerprint:
@@ -150,9 +156,20 @@ def _normalize_devices(devices: Sequence[Mapping[str, Any]]) -> list[dict[str, A
 def build_device_snapshot(
     devices: Sequence[Mapping[str, Any]], *, packages: Sequence[Mapping[str, Any]] = (),
     captured_utc: str | None = None, provider: str = "windows-pnp",
+    identity_key: bytes | None = None,
 ) -> dict[str, Any]:
-    """Build a normalized, deterministic snapshot from an already-read inventory."""
-    normalized = _normalize_devices(devices)
+    """Build a normalized snapshot; IDs are HMAC-pseudonymized, not plain hashes.
+
+    Without a caller-managed key, each export gets a fresh ephemeral key so
+    identifiers cannot be correlated across snapshots. Supplying the same
+    protected key deliberately enables pseudonymous cross-snapshot matching.
+    """
+    key_scope = "caller_managed" if identity_key is not None else "snapshot_ephemeral"
+    if identity_key is None:
+        identity_key = secrets.token_bytes(32)
+    if not isinstance(identity_key, bytes) or len(identity_key) < 32:
+        raise ValueError("identity_key must contain at least 32 bytes")
+    normalized = _normalize_devices(devices, identity_key=identity_key)
     if not isinstance(packages, (list, tuple)) or len(packages) > 256:
         raise ValueError("packages must contain at most 256 object records")
     if any(not isinstance(item, Mapping) for item in packages):
@@ -170,6 +187,7 @@ def build_device_snapshot(
         "schema": SNAPSHOT_SCHEMA,
         "captured_utc": captured_utc or datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "source": {"provider": provider, "mode": "read_only"},
+        "identity_protection": {"algorithm": "HMAC-SHA-256", "key_scope": key_scope},
         "summary": {
             "total_devices": total, "ok_devices": ok_count,
             "problem_devices": problem_count, "other_status_devices": total - ok_count - problem_count,
@@ -189,6 +207,35 @@ def build_device_snapshot(
     canonical = json.dumps(snapshot, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
     snapshot["snapshot_sha256"] = hashlib.sha256(canonical).hexdigest()
     return snapshot
+
+
+def load_identity_key(path: str | os.PathLike[str]) -> bytes:
+    """Read a caller-managed pseudonymization key without following symlinks."""
+    source = Path(path)
+    if source.is_symlink() or not source.is_file():
+        raise ValueError("identity key must be a regular, non-symlink file")
+    if source.stat().st_size > 4096:
+        raise ValueError("identity key file exceeds 4096 bytes")
+    key = source.read_bytes()
+    if len(key) < 32:
+        raise ValueError("identity key file must contain at least 32 bytes")
+    return key
+
+
+def export_device_snapshot(
+    devices: Sequence[Mapping[str, Any]], *, user_confirmed: bool,
+    packages: Sequence[Mapping[str, Any]] = (), captured_utc: str | None = None,
+    provider: str = "windows-pnp", identity_key: bytes | None = None,
+) -> dict[str, Any]:
+    """Export a snapshot only after an explicit operator confirmation."""
+    if user_confirmed is not True:
+        raise PermissionError(
+            "device inventory export requires explicit user confirmation"
+        )
+    return build_device_snapshot(
+        devices, packages=packages, captured_utc=captured_utc,
+        provider=provider, identity_key=identity_key,
+    )
 
 
 def _validated_metrics(snapshot: Any, label: str) -> Mapping[str, Any]:
@@ -269,6 +316,8 @@ def build_parser() -> argparse.ArgumentParser:
     commands = parser.add_subparsers(dest="command", required=True)
     snapshot = commands.add_parser("snapshot", help="capture current Windows PnP state and optional UDRV checks")
     snapshot.add_argument("--output", help="also write the JSON snapshot to this path")
+    snapshot.add_argument("--confirm-inventory-export", action="store_true", help="explicitly acknowledge exporting this local device inventory")
+    snapshot.add_argument("--identity-key-file", help="optional protected 32-byte-or-longer key for pseudonymous matching across exports")
     snapshot.add_argument("--package", action="append", default=[], help="UDRV directory or ZIP to inspect (repeatable)")
     compare = commands.add_parser("compare", help="compare two saved oplage.device-snapshot.v1 files")
     compare.add_argument("--reference", required=True)
@@ -282,14 +331,23 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         if args.command == "snapshot":
-            result = build_device_snapshot(capture_pnp_devices(), packages=_package_reports(args.package))
+            if not args.confirm_inventory_export:
+                raise PermissionError(
+                    "snapshot export requires --confirm-inventory-export"
+                )
+            identity_key = load_identity_key(args.identity_key_file) if args.identity_key_file else None
+            result = export_device_snapshot(
+                capture_pnp_devices(), packages=_package_reports(args.package),
+                user_confirmed=args.confirm_inventory_export,
+                identity_key=identity_key,
+            )
         else:
             result = compare_device_snapshots(
                 _read_json(args.reference), _read_json(args.candidate),
                 pytyliki_library=args.pytyliki_library,
             )
         _emit(result, args.output)
-    except (InventoryError, OSError, ValueError, TypeError, PackageError) as error:
+    except (InventoryError, OSError, ValueError, TypeError, PackageError, PermissionError) as error:
         print(f"OPlague federation: {error}", file=sys.stderr)
         return 1
     return 0
