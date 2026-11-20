@@ -15,7 +15,8 @@ OPlague is the home of **DuckDriver OmniCore (DDO)**, a desktop-first project fo
 - **Universal Driver Container (.udrv):** a proposed portable format for driver payloads, manifests, metadata, compatibility information, and integrity data.
 - **DuckDriver OmniCore:** coordinate discovery, analysis, package validation, packaging, and deployment preparation.
 - **Profiles and recovery:** preserve known-good configurations and make rollback workflows explicit.
-- **Metric Lab:** compare normalized hardware or benchmark profiles using n-dimensional Euclidean distance, weighted quadratic forms, cosine similarity, orthogonality and repeated-run variance summaries.\n- **Diagnostics:** expose device state and supported system signals, with DPC/ISR latency analysis planned where platform APIs permit.
+- **Metric Lab:** compare normalized hardware or benchmark profiles using n-dimensional Euclidean distance, weighted quadratic forms, cosine similarity, orthogonality and repeated-run variance summaries.
+- **Diagnostics:** expose device state and supported system signals, with DPC/ISR latency analysis planned where platform APIs permit.
 - **Native UX:** a focused desktop application with a consistent white, blue, and red visual identity.
 
 ## Systems-language and native-backend matrix
@@ -65,7 +66,8 @@ These are intended architectural boundaries, not a claim that every module is al
 - [x] INF and ZIP package inspection with hash and archive checks, plus deterministic batch report composition
 - [ ] Driver catalogue and compatibility evidence
 - [ ] Profile snapshots and guarded recovery
-- [x] Read-only Device Metric Lab for normalized profile comparison and weighted distance analysis\n- [ ] Live diagnostics, including DPC/ISR analysis where supported
+- [x] Read-only Device Metric Lab for normalized profile comparison and weighted distance analysis
+- [ ] Live diagnostics, including DPC/ISR analysis where supported
 - [ ] Automated tests, signed releases, and platform packaging
 
 ## Screenshots

@@ -135,7 +135,12 @@ def _validate_directory(root: Path) -> tuple[bytes, dict[str, Path]]:
     manifest_path = root / "manifest.json"
     if manifest_path.is_symlink() or not manifest_path.is_file():
         raise PackageError("directory package must contain a regular manifest.json")
-    raw = manifest_path.read_bytes()
+    # Read at most the configured limit plus one byte. Checking only after
+    # read_bytes() would allow an oversized manifest to consume unbounded RAM.
+    with manifest_path.open("rb") as stream:
+        raw = stream.read(MAX_MANIFEST_BYTES + 1)
+    if len(raw) > MAX_MANIFEST_BYTES:
+        raise PackageError("manifest exceeds the 4 MiB limit")
     files: dict[str, Path] = {}
     for current, directories, filenames in os.walk(root, followlinks=False):
         base = Path(current)
