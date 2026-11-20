@@ -80,9 +80,39 @@ jobs:
           Copy-Item LICENSE dist/LICENSE
           Compress-Archive -Path dist/OPlague.exe, dist/README.md, dist/LICENSE -DestinationPath OPlague-windows-x64.zip -Force
 
+  readme:
+    name: README
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate README entry point
+        run: |
+          python -c "from pathlib import Path; s = Path('README.md').read_text(encoding='utf-8'); assert s.startswith('# OPlague'); assert '[English](README.md)' in s; assert '[Русский](README.ru.md)' in s; assert '[Українська](README.uk.md)' in s; assert '[简体中文](README.zh-CN.md)' in s"
+
+  license:
+    name: LICENSE
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate license text
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s LICENSE
+          grep -q 'Apache License' LICENSE
+          grep -q 'Version 2.0' LICENSE
+
   auto-merge:
     name: Enable native GitHub auto-merge
-    needs: [linux-validation, windows-desktop-build]
+    needs: [linux-validation, windows-desktop-build, readme, license]
     if: github.event_name != 'workflow_dispatch' && github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:

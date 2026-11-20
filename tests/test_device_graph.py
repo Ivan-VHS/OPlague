@@ -7,6 +7,7 @@ from tools.device_graph import (
     build_dry_run_plan,
     extract_inf_compatibility,
     normalize_hardware_id,
+    summarize_candidate_coverage,
 )
 
 
@@ -67,6 +68,25 @@ CopyFiles=Payload
         self.assertFalse(plan["system_modified"])
         self.assertEqual(plan["devices"][0]["proposed_operation"], "none")
         self.assertEqual(plan["summary"]["candidate_edges"], 1)
+        self.assertEqual(plan["candidate_coverage"]["devices_with_candidates"], 1)
+
+
+    def test_candidate_coverage_is_aggregated_without_ranking(self):
+        graph = build_compatibility_graph(
+            [
+                {"device_id": "net-1", "pnp_id": "PCI\\\\VEN_1234&DEV_ABCD"},
+                {"device_id": "net-2", "pnp_id": "PCI\\\\VEN_1234&DEV_ABCD"},
+            ],
+            [{
+                "driver_id": "driver-a",
+                "hardware_ids": ["PCI\\\\VEN_1234&DEV_ABCD"],
+            }],
+        )
+        coverage = summarize_candidate_coverage(graph)
+        self.assertEqual(coverage["candidate_edge_count"], 2)
+        self.assertEqual(coverage["devices_with_candidates"], 2)
+        self.assertEqual(coverage["drivers"][0]["candidate_device_count"], 2)
+        self.assertIn("do not rank drivers", coverage["semantics"])
 
     def test_normalization_rejects_bad_ids(self):
         self.assertEqual(normalize_hardware_id(" pci/ven_1234 "), "PCI\\VEN_1234")

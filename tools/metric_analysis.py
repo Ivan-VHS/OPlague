@@ -157,3 +157,77 @@ def combine_uncorrelated_variances(components: Sequence[Any]) -> float:
     if any(value < 0.0 for value in values):
         raise ValueError("variance components cannot be negative")
     return _finite_sum(values, "combined variance")
+
+
+MAX_PROFILE_BATCH = 10_000
+MAX_PROFILE_COMPARISONS = 10_000
+
+
+def aggregate_device_profiles(profiles: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    """Aggregate repeated normalized device profiles without inventing a ranking."""
+    if not isinstance(profiles, (list, tuple)) or not 1 <= len(profiles) <= MAX_PROFILE_BATCH:
+        raise ValueError(f"profiles must contain 1..{MAX_PROFILE_BATCH} records")
+    normalized = [_profile(profile, f"profiles[{index}]") for index, profile in enumerate(profiles)]
+    dimensions = sorted(normalized[0])
+    expected = set(dimensions)
+    for index, profile in enumerate(normalized[1:], start=1):
+        if set(profile) != expected:
+            raise ValueError(f"profiles[{index}] dimensions differ from profiles[0]")
+    metrics: dict[str, dict[str, float | int]] = {}
+    for name in dimensions:
+        values = [profile[name] for profile in normalized]
+        mean = _finite_sum(values, f"{name} aggregate sum") / len(values)
+        variance = (
+            _finite_sum(((value - mean) ** 2 for value in values), f"{name} variance")
+            / (len(values) - 1)
+            if len(values) > 1 else 0.0
+        )
+        product_value = math.prod(values)
+        if not math.isfinite(product_value):
+            raise ValueError(f"{name} aggregate product overflowed")
+        metrics[name] = {
+            "count": len(values),
+            "mean": mean,
+            "product": product_value,
+            "minimum": min(values),
+            "maximum": max(values),
+            "sample_variance": variance,
+        }
+    return {
+        "schema": "oplage.device-metric-aggregate.v1",
+        "record_count": len(normalized),
+        "dimensions": dimensions,
+        "metrics": metrics,
+        "semantics": "Descriptive aggregation only; no compatibility or recommendation verdict.",
+    }
+
+
+def compare_profile_matrix(
+    references: Sequence[Mapping[str, Any]],
+    candidates: Sequence[Mapping[str, Any]],
+    weights: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Compare every reference/candidate pair in a bounded Cartesian matrix."""
+    if not isinstance(references, (list, tuple)) or not references:
+        raise ValueError("references must be a non-empty sequence")
+    if not isinstance(candidates, (list, tuple)) or not candidates:
+        raise ValueError("candidates must be a non-empty sequence")
+    pair_count = len(references) * len(candidates)
+    if pair_count > MAX_PROFILE_COMPARISONS:
+        raise ValueError(f"profile comparison matrix exceeds {MAX_PROFILE_COMPARISONS} pairs")
+    comparisons = []
+    for reference_index, reference in enumerate(references):
+        for candidate_index, candidate in enumerate(candidates):
+            comparisons.append({
+                "reference_index": reference_index,
+                "candidate_index": candidate_index,
+                "comparison": analyze_device_profiles(reference, candidate, weights),
+            })
+    return {
+        "schema": "oplage.device-metric-matrix.v1",
+        "reference_count": len(references),
+        "candidate_count": len(candidates),
+        "pair_count": pair_count,
+        "comparisons": comparisons,
+        "semantics": "Exhaustive pairwise metric analysis; not a driver compatibility verdict.",
+    }

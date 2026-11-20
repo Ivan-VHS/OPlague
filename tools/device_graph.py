@@ -265,6 +265,7 @@ def build_dry_run_plan(
         "system_modified": False,
         "requires_manual_review": True,
         "graph": graph,
+        "candidate_coverage": summarize_candidate_coverage(graph),
         "devices": planned,
         "summary": {
             "devices": len(planned),
@@ -277,4 +278,62 @@ def build_dry_run_plan(
             "Exact PnP identifier matching is discovery evidence, not a compatibility guarantee.",
             "Validate OS build, architecture, INF decoration, catalog signature, rank, policy, and vendor provenance before any future privileged workflow.",
         ],
+    }
+
+
+def summarize_candidate_coverage(graph: Mapping[str, Any]) -> dict[str, Any]:
+    """Aggregate exact-ID graph coverage without ranking or approving candidates."""
+    if not isinstance(graph, Mapping) or graph.get("schema") != "oplague.device-driver-graph.v1":
+        raise ValueError("graph must be an OPlague device-driver graph")
+    nodes = graph.get("nodes")
+    edges = graph.get("edges")
+    if not isinstance(nodes, list) or not isinstance(edges, list):
+        raise ValueError("graph nodes and edges must be lists")
+    device_ids = {
+        node.get("id") for node in nodes
+        if isinstance(node, Mapping) and node.get("kind") == "device"
+        and isinstance(node.get("id"), str)
+    }
+    driver_ids = {
+        node.get("id") for node in nodes
+        if isinstance(node, Mapping) and node.get("kind") == "driver"
+        and isinstance(node.get("id"), str)
+    }
+    devices_by_driver: dict[str, set[str]] = {driver_id: set() for driver_id in driver_ids}
+    matched_ids_by_driver: dict[str, set[str]] = {driver_id: set() for driver_id in driver_ids}
+    for edge in edges:
+        if not isinstance(edge, Mapping):
+            raise ValueError("graph edges must contain objects")
+        device_id, driver_id = edge.get("device_id"), edge.get("driver_id")
+        if device_id not in device_ids or driver_id not in driver_ids:
+            raise ValueError("graph edge references an unknown node")
+        if edge.get("status") != "exact_identifier_candidate":
+            continue
+        devices_by_driver[driver_id].add(device_id)
+        matched = edge.get("matched_ids", [])
+        if isinstance(matched, list):
+            matched_ids_by_driver[driver_id].update(
+                value for value in matched if isinstance(value, str)
+            )
+    covered_devices = set().union(*devices_by_driver.values()) if driver_ids else set()
+    rows = [
+        {
+            "driver_id": driver_id,
+            "candidate_device_count": len(devices_by_driver[driver_id]),
+            "matched_identifier_count": len(matched_ids_by_driver[driver_id]),
+        }
+        for driver_id in sorted(driver_ids)
+    ]
+    return {
+        "schema": "oplague.driver-candidate-coverage.v1",
+        "driver_count": len(driver_ids),
+        "device_count": len(device_ids),
+        "candidate_edge_count": sum(len(values) for values in devices_by_driver.values()),
+        "devices_with_candidates": len(covered_devices),
+        "devices_without_candidates": len(device_ids - covered_devices),
+        "drivers": rows,
+        "semantics": (
+            "Exact identifier discovery coverage only; counts do not rank drivers, "
+            "prove compatibility, verify signatures or authorize installation."
+        ),
     }
