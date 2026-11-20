@@ -89,6 +89,10 @@ A successful run uploads `OPlague-windows-x64.zip`; a `v*` tag publishes the sam
 
 `oplague_app.py` is the correctly spelled Windows source launcher used by the desktop build.
 
+## Driver target architecture analysis
+
+OPlague detects explicit Windows INF architecture decorations (`NTx86`, `NTamd64`, `NTarm`, `NTarm64`, `NTia64`) and compares them with the normalized host architecture. Results are evidence-based (`explicit_match`, `explicit_nonmatch`, or `unknown`), and are included in standalone INF and ZIP package reports. This does not certify signing, OS-version support, device-ID match, or successful installation. See [Driver Target Architecture Analysis](docs/DRIVER_TARGET_ARCHITECTURE.md).
+
 ## Concatenation and report composition
 
 The desktop package inspector supports ordered batch inspection of multiple INF/ZIP inputs and produces a bounded, canonical JSON summary with aggregate counts and a bundle SHA-256 fingerprint. This fingerprint is not a vendor signature or compatibility verdict. See [the composition architecture](docs/CONCATENATION_ARCHITECTURE.md).
