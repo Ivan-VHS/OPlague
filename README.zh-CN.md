@@ -79,3 +79,16 @@ Windows 源码启动文件的正确名称为 `oplague_app.py`，桌面构建工�
 ## 许可证
 
 许可条款请参阅 [LICENSE](LICENSE)。
+
+## 精确硬件 ID 兼容性图与 dry-run
+
+桌面端 **Compatibility & dry-run** 标签页将本机只读 PnP 设备清单与
+已检查 INF 文件 `Models` 节中的硬件标识进行匹配。只有规范化后的
+硬件标识完全一致时才会生成候选边；架构不匹配会单独报告。前缀或设备
+名称相似不会被视为兼容。
+
+候选项**不代表**驱动排名、签名、可信度、Windows 版本兼容性或安全结论。
+生成的计划严格只读：`install_attempted=false`、
+`system_modified=false`、`proposed_operation=none`。任何后续特权操作
+都必须经过人工审核并补充证据。详见
+[兼容性图规范](docs/DEVICE_COMPATIBILITY_GRAPH.md)。

@@ -53,5 +53,32 @@ class InspectorTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Supported package formats"):
                 inspect_package(path)
 
+    def test_inf_and_zip_reports_include_model_id_evidence(self):
+        model_inf = SAMPLE + """
+[Manufacturer]
+%Vendor%=Models,NTamd64
+[Models.NTamd64]
+%Adapter%=Install, PCI\\VEN_1234&DEV_ABCD
+"""
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            inf_path = root / "network.inf"
+            inf_path.write_text(model_inf, encoding="utf-8")
+            direct = inspect_package(inf_path)
+            self.assertEqual(
+                direct["compatibility"]["hardware_ids"],
+                ["PCI\\VEN_1234&DEV_ABCD"],
+            )
+            self.assertEqual(direct["compatibility"]["architectures"], ["x64"])
+
+            zip_path = root / "network.zip"
+            with zipfile.ZipFile(zip_path, "w") as archive:
+                archive.writestr("network.inf", model_inf)
+            zipped = inspect_package(zip_path)
+            self.assertEqual(
+                zipped["inf_files"][0]["compatibility"]["hardware_ids"],
+                ["PCI\\VEN_1234&DEV_ABCD"],
+            )
+
 if __name__ == "__main__":
     unittest.main()
