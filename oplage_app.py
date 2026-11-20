@@ -12,6 +12,7 @@ from pathlib import Path, PurePosixPath
 from tkinter import filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
 from ui_theme import apply_ui_theme, load_preferred_theme, set_dpi_awareness
+from ui_motion import MotionController
 from typing import Any
 
 from tools.report_composer import compose_inspection_reports
@@ -271,6 +272,8 @@ class OPlagueApp(tk.Tk):
         self.status = tk.StringVar(value="Local inspection only — no driver installation or deployment")
         ttk.Label(footer, textvariable=self.status, style="Muted.TLabel").pack(side="left")
         self.apply_visual_theme()
+        self._motion = MotionController(self)
+        self._motion.fade_in()
 
     def apply_visual_theme(self) -> None:
         """Apply the selected appearance to tabs, tables and report editors."""
