@@ -70,3 +70,5 @@ OPlague начался 19 ноября 2026 года как Windows-инстру
 ## Лицензия
 
 [Apache License 2.0](LICENSE)
+
+UI motion: [12 animation principles](docs/DISNEY_MOTION_SYSTEM.md).

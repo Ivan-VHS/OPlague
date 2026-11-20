@@ -14,7 +14,7 @@
 ## Desktop interface preview
 
 <p align="center"><img src="assets/oplague-workbench-preview.svg" alt="Illustrative OPlague desktop interface preview" width="100%"></p>
-<sub>Illustrative reconstruction based on the checked-in Tkinter layout, not a screenshot captured from a running Windows application. A live capture is not yet committed.</sub>
+<sub>Illustrative reconstruction based on the checked-in Tkinter layout, not a screenshot captured from a running Windows application.</sub>
 
 ## Workbenches and tools
 
@@ -55,7 +55,7 @@ python tools/systems_languages.py --profile oplague
 
 ## Project evolution and safety boundary
 
-OPlague began on 19 Nov 2026 as a Windows driver-workbench project. Mainline changes added PnP inventory, bounded INF/ZIP inspection, architecture analysis, exact-ID dry-run planning, UDRV integrity checks, batch reports, normalized metrics, versioned device snapshots, the Pytyliki bridge and the QCS validator.
+Mainline includes PnP inventory, bounded INF/ZIP inspection, architecture analysis, exact-ID dry-run planning, UDRV integrity checks, reports, metrics, device snapshots, Pytyliki interop and QCS validation.
 
 **Not implemented:** driver installation/removal, enable/disable, signing, rollback, firmware changes or live DPC/ISR diagnostics. Package integrity does not establish vendor authenticity, driver safety or compatibility. Imported files are untrusted input; inspect reports before making manual decisions. The QCS body is retained as text and is never compiled or executed.
 
@@ -70,3 +70,5 @@ OPlague began on 19 Nov 2026 as a Windows driver-workbench project. Mainline cha
 ## License
 
 [Apache License 2.0](LICENSE)
+
+UI motion: [12 animation principles](docs/DISNEY_MOTION_SYSTEM.md).
