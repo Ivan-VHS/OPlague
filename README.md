@@ -78,11 +78,17 @@ python -m oplague --catalog
 python -m oplague --search "баллистический"
 python -m oplague --profile 5
 python -m oplague --rank reach
+# Optional: use Reaper C17 to total five validated ordinal dimensions
+python -m oplague --rank-total-native --reaper-library /absolute/path/to/libreaper_ffi.so
 python tools/udrv_inspector.py path/to/package.udrv --json
 python tools/clinical_systems.py --catalog --pretty
 ```
 
 The Windows desktop workflow validates the visual canon and tests, builds the standalone `OPlague.exe`, captures the running app and publishes a Windows x64 archive.
+
+## Optional Reaper C17 runtime
+
+OPlague can optionally delegate ordinal impact-profile total calculations to Reaper's native C17 expression ABI. This requires an explicit trusted library path; no runtime library discovery or download occurs. See [Reaper runtime integration](docs/REAPER_RUNTIME_INTEGRATION.md).
 
 ## Numeric reference
 

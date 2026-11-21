@@ -98,6 +98,35 @@ def rank_profiles(dimension: str, profiles: tuple[dict[str, Any], ...] | list[di
     return sorted(checked, key=lambda item: item["ranks"][dimension], reverse=True)
 
 
+
+def rank_profiles_by_total_native(
+    library_path: str | Path,
+    profiles: tuple[dict[str, Any], ...] | list[dict[str, Any]] = PROFILES,
+) -> list[dict[str, Any]]:
+    """Rank ordinal profile totals through Reaper's native signed-i64 evaluator.
+
+    The shared engine receives only the five already-validated integer ranks.
+    The caller must pass an explicit trusted Reaper shared-library path.
+    """
+    from tools.reaper_ffi import evaluate_i64
+
+    scored: list[dict[str, Any]] = []
+    for profile in profiles:
+        ranks = profile.get("ranks") if isinstance(profile, dict) else None
+        if not isinstance(ranks, dict) or set(ranks) != set(DIMENSIONS):
+            raise ValueError("profile has incomplete or malformed impact dimensions")
+        values = []
+        for dimension in DIMENSIONS:
+            value = ranks.get(dimension)
+            if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= 5:
+                raise ValueError(f"profile has an invalid {dimension!r} rank")
+            values.append(value)
+        expression = " + ".join(str(value) for value in values)
+        score = evaluate_i64(expression, library_path)
+        scored.append({**profile, "ranks": dict(ranks), "native_total_score": score})
+    return sorted(scored, key=lambda item: (-item["native_total_score"], item["id"]))
+
+
 def format_catalog() -> str:
     lines = ["OPlague impact profile registry — 20 semantic profiles"]
     for p in PROFILES:
@@ -117,8 +146,14 @@ def main(argv: list[str] | None = None) -> int:
     group.add_argument("--search", metavar="TEXT", help="search profile terms")
     group.add_argument("--profile", metavar="ID_OR_TERM", help="show one profile")
     group.add_argument("--rank", choices=DIMENSIONS, help="rank profiles by an ordinal dimension")
+    group.add_argument("--rank-total-native", action="store_true", help="rank summed dimensions using Reaper native C17")
+    parser.add_argument("--reaper-library", help="explicit absolute path to a trusted Reaper ABI v1 shared library")
     parser.add_argument("--verify", action="store_true", help="validate the on-disk registry")
     args = parser.parse_args(argv)
+    if args.reaper_library and not args.rank_total_native:
+        parser.error("--reaper-library requires --rank-total-native")
+    if args.rank_total_native and not args.reaper_library:
+        parser.error("--rank-total-native requires an explicit --reaper-library path")
     if args.verify:
         load_profiles()
         print("Impact profile registry: PASS (20 profiles)")
@@ -131,6 +166,8 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(get_profile(query), ensure_ascii=False, indent=2))
     elif args.rank:
         print(json.dumps(rank_profiles(args.rank), ensure_ascii=False, indent=2))
+    elif args.rank_total_native:
+        print(json.dumps(rank_profiles_by_total_native(args.reaper_library), ensure_ascii=False, indent=2))
     return 0
 
 
