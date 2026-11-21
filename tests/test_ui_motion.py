@@ -3,7 +3,7 @@ import tempfile
 import unittest
 
 from ui_motion import (
-    DURATIONS_MS, MotionPreferences, duration_for, ease_out,
+    DURATIONS_MS, MotionPreferences, duration_for, ease_out, ease_paddle_out,
     load_preferences, reduced_motion_enabled, save_preferences,
 )
 
@@ -22,6 +22,18 @@ class MotionTests(unittest.TestCase):
         self.assertEqual(DURATIONS_MS["micro"], 100)
         self.assertLessEqual(duration_for("spatial", MotionPreferences(reduce_motion=True)), 80)
         self.assertLessEqual(duration_for("emphasis", MotionPreferences(eco_visuals=True)), 80)
+        with patch("ui_motion.reduced_motion_enabled", return_value=False):
+            normal = duration_for("spatial", MotionPreferences())
+            expressive = duration_for("spatial", MotionPreferences(expressive_motion=True))
+            reduced = duration_for("spatial", MotionPreferences(True, False, False, True))
+            self.assertGreater(expressive, normal)
+            self.assertLessEqual(expressive, 380)
+            self.assertLessEqual(reduced, 80)
+
+    def test_paddle_easing_is_bounded_at_endpoints_and_has_a_soft_overshoot(self):
+        self.assertEqual(ease_paddle_out(0), 0.0)
+        self.assertEqual(ease_paddle_out(1), 1.0)
+        self.assertGreater(max(ease_paddle_out(i / 100) for i in range(101)), 1.0)
 
     def test_explicit_reduced_motion_override(self):
         previous = os.environ.get("UI_REDUCED_MOTION")
@@ -41,7 +53,7 @@ class MotionTests(unittest.TestCase):
             old_appdata = os.environ.get("APPDATA")
             os.environ["APPDATA"] = folder
             try:
-                expected = MotionPreferences(True, True, False)
+                expected = MotionPreferences(True, True, False, True)
                 save_preferences("motion-tests", expected)
                 self.assertEqual(load_preferences("motion-tests"), expected)
             finally:
