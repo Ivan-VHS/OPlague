@@ -28,6 +28,9 @@ jobs:
             -o /tmp/veelsevul-appguard-test
       - name: Run AppGuard runtime smoke tests
         run: /tmp/veelsevul-appguard-test
+      - name: Run Python AppGuard boundary tests
+        run: python3 -m unittest discover -s tests -p "test_veelsevul_guard.py" -v
+
       - name: Scan changed files for credential leakage and hidden controls
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
