@@ -48,6 +48,8 @@ jobs:
         run: python tools/validate_project_contract.py
       - name: Validate OCTA-8 horizontal peer mesh and eight facets
         run: python tools/validate_octa_pyramid.py
+      - name: Test budget planner calculations
+        run: python -m unittest discover -s tests -p "test_budget_planner.py" -v
       - name: Validate engineering evolution contract
         run: python tools/validate_engineering_evolution.py
       - name: Test engineering evolution contract
