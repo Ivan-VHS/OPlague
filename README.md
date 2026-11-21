@@ -71,3 +71,13 @@ UDRV v1 limits: manifest ≤4 MiB · entries ≤10,000 · file ≤512 MiB · tot
 Exact ID or hash matches do not prove publisher trust, OS compatibility, device suitability or safe installation. HMAC pseudonyms and report fingerprints aid consistency and provenance; they do not establish authenticity by themselves.
 
 [Atomic-Quantum 133](docs/ATOMIC_QUANTUM_133.md) · [Features](docs/FEATURES.md) · [Architecture](docs/ARCHITECTURE.md) · [UDRV format](docs/UDRV_FORMAT_V1.md) · [CSR-120](docs/CLINICAL_SYSTEMS_CSR120.md) · [Impact-profile source](oplague/impact.py) · [Stewardship](docs/PROJECT_STEWARDSHIP_STANDARD.md) · [Design](docs/DUCK_SOVEREIGN_CANON.md) · [Docs index](docs/README.md) · [License](LICENSE)
+
+## DUCK CORE // README & Motion Suite
+
+The shared visual reference for interactive demos and UI documentation defines three palettes: **Pond Noir** (default dark canvas), **Golden Reed** (warm high-contrast accents) and **Arctic Glacier** (cool cyan/blue accents). Use semantic tokens for canvas, surfaces, borders, text, accents and focus states instead of unrelated hard-coded component colors.
+
+Motion follows a clear hierarchy: restrained spring easing for intentional entrances and feedback, smooth easing for routine transitions, and optional Zen / Hyper intensity presets only where the application exposes them. Parallax, floating geometry and ripple effects are decorative, nonessential and must never carry information or block input. The `reduced-motion` preference overrides every preset and suppresses decorative movement.
+
+**Accessibility and responsive behavior:** preserve readable contrast, visible keyboard focus, touch-sized controls, predictable active/disabled states and layouts that collapse cleanly on narrow screens. Motion must not cause layout shifts or make controls harder to operate.
+
+This is a DUCK CORE visual reference, **not a claim** that every theme, animation or control ships in every application. The implementation and project-specific contract are authoritative: [UI motion contract](docs/UI_MOTION.md).
