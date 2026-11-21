@@ -59,9 +59,9 @@ def _install_semantic_status_tokens() -> None:
     for theme_name, palette in PALETTES.items():
         dark = theme_name == "dark"
         palette.update({
-            "success": "#73B7FF" if dark else "#0039A6",
-            "warning": "#FF7D78" if dark else "#B51A10",
-            "error": "#FF7D78" if dark else "#B51A10",
+            "success": "#FFFFFF" if dark else "#0039A6",
+            "warning": "#FFFFFF" if dark else "#B51A10",
+            "error": "#FFFFFF" if dark else "#B51A10",
             "info": "#FFFFFF" if dark else "#0A1E46",
         })
 
@@ -204,7 +204,7 @@ def palette_for(mode: str = "system", *, system_dark: bool | None = None) -> dic
         "accent": result["blue"],
         "accent_hover": result["blue_hover"],
         "danger": result["red"],
-        "success": result["blue"],
+        "success": result["success"],
         "editor": result["surface"],
         "editor_text": result["fg"],
         "log_text": result["log_text"],
