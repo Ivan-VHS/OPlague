@@ -47,3 +47,7 @@ The root profile **quality-commercial.v1.json** records 60 controls. Run **pytho
 OPlague remains read-only. Driver packages are untrusted input and are not executed or installed. Exact normalized hardware-ID matches are evidence for operator review, not a compatibility verdict or driver ranking. SHA-256 establishes byte integrity, not publisher identity or safety. Device identifiers remain subject to the existing HMAC-pseudonymization and consent controls.
 
 Commercial claims require separate customer, financial, licensing and support evidence. No automatic control state represents profit, revenue, return on investment or compatibility certification.
+
+## Market-development alignment
+
+The dedicated [market-development standard](MARKET_DEVELOPMENT_STANDARD.md) and root [versioned profile](../market-development.v1.json) make the marketing, customer, promotion, distribution and monetization dimensions actionable. The profile complements the 20 × 3 quality/execution/commercial matrix; it does not replace evidence checks. Market validation, pricing and unit economics remain unassessed or unset until supported by observed user workflows, rights review and measured costs.
