@@ -109,13 +109,54 @@ def evaluate_driver_targets(host_architecture: str, declared_targets: Sequence[s
 
 
 def current_host_architecture() -> str | None:
-    """Best-effort normalized host label from Python's platform.machine()."""
+    """Best-effort normalized Windows driver target label from platform.machine()."""
     return normalize_architecture(platform.machine())
+
+
+def current_host_profile(machine: str | None = None) -> dict[str, object]:
+    """Describe the host platform without conflating it with Windows INF targets."""
+    raw = platform.machine() if machine is None else machine
+    if not isinstance(raw, str) or not raw.strip() or len(raw) > 64:
+        raise ValueError("host machine label must be a non-empty string of at most 64 characters")
+    label = raw.strip()
+    normalized = label.casefold()
+    if normalized in {"e2k", "elbrus", "elbrus-2000"}:
+        return {
+            "schema": "oplage.host-platform.v1",
+            "machine": label,
+            "platform_family": "MCST Elbrus",
+            "architecture": "e2k",
+            "windows_driver_target": None,
+            "windows_driver_match": "not_applicable",
+            "package_inspection": "available",
+            "pnp_inventory": "windows_only",
+            "limitations": [
+                "E2K is not a Windows INF target decoration or a supported Windows PE machine type in this catalogue.",
+                "INF and ZIP metadata inspection remains platform-neutral and does not install or execute package contents.",
+                "Local Plug-and-Play enumeration requires Windows and is unavailable on Elbrus Linux."
+            ],
+        }
+    target = normalize_architecture(label)
+    return {
+        "schema": "oplage.host-platform.v1",
+        "machine": label,
+        "platform_family": "Windows driver target" if target else "unclassified host",
+        "architecture": target,
+        "windows_driver_target": target,
+        "windows_driver_match": "candidate_only" if target else "unknown",
+        "package_inspection": "available",
+        "pnp_inventory": "windows_only",
+        "limitations": [
+            "An architecture label alone does not prove driver signing, OS-version support, device-ID match, or installability.",
+            "Package inspection is metadata-only; no package code is loaded, extracted, installed, or executed."
+        ],
+    }
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Read-only INF driver target architecture analysis.")
     parser.add_argument("--list", action="store_true", help="list known Windows INF target profiles")
+    parser.add_argument("--host-info", action="store_true", help="describe the current host separately from Windows INF targets")
     parser.add_argument("--host", default=platform.machine(), help="host architecture (for example amd64 or arm64)")
     parser.add_argument("--targets", default="", help="comma-separated declared INF targets")
     parser.add_argument("--inf", help="optional INF path to scan for decorated target architectures")
@@ -128,6 +169,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.list:
         payload = {"schema": "oplage.windows-target-architectures.v1", "targets": [asdict(item) for item in TARGETS]}
+    elif args.host_info:
+        payload = current_host_profile()
     else:
         declared = [item.strip() for item in args.targets.split(",") if item.strip()]
         if args.inf:
