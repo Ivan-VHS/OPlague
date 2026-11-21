@@ -28,18 +28,21 @@ Each echelon defines eleven subsystem domains. Each domain has ten control posit
 
 ## Repository profile
 
-**Runtime:** Desktop driver catalog, package verification, staging, privileged installation workflow and recovery
+**Current runtime:** Read-only Windows workbench for device inventory, driver-package inspection and evidence-based comparison. The application does not install, load, stage or modify drivers.
 
-**Control surfaces**
-- driver catalog and metadata inputs
-- package download and signature verification
-- staging and installation records
-- privileged system changes
-- rollback and offline cache
+**Current control surfaces**
+- Plug and Play device inventory and normalized hardware identifiers
+- INF, ZIP and UDRV metadata inspection, path checks and digest calculation
+- Architecture and compatibility evidence
+- Batch reports, provenance records and privacy-preserving pseudonyms
+
+**Future-only control surfaces (not implemented by this workbench)**
+- package staging, privileged installation, rollback and recovery workflows
 
 **Non-negotiable guardrails**
-- Driver payloads remain untrusted until source, digest and signature checks pass
-- Driver installation and rollback require explicit operator confirmation
+- Driver payloads remain untrusted until source, digest and signature evidence are reviewed; a digest alone does not prove publisher trust
+- Current application behavior remains read-only: no driver installation, loading, service creation, registry modification or system configuration write
+- Any future privileged workflow requires a separate design, explicit operator confirmation and least-privilege review
 - Never disable platform driver-signature enforcement or silently elevate privileges
 
 ## RepositoryGuard 66 crosswalk
