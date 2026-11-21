@@ -107,6 +107,17 @@ Exact ID or hash matches do not prove publisher trust, OS compatibility, device 
 [Documentation index](docs/README.md) · [Apache-2.0 License](LICENSE)
 
 
+## Mental wellbeing awareness reference
+
+OPlague includes a local, read-only reference utility, separate from device inspection, driver analytics and hardware telemetry.
+
+```sh
+python -m tools.wellbeing --catalog
+python -m tools.wellbeing --topic destigmatization
+```
+
+[Source, data contract and safety boundaries](docs/MENTAL_WELLBEING_AWARENESS.md) · [JSON bundle](data/wellbeing/depression-awareness.v1.json)
+
 ## Bounded resource-allocation reference
 An illustrative 500 UAH budget model with a versioned JSON contract and an offline simulator. This is a documentation example, not a feature of the host runtime.
 
