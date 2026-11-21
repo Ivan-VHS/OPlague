@@ -47,3 +47,19 @@ The root profile **quality-commercial.v1.json** records 60 controls. Run **pytho
 OPlague remains read-only. Driver packages are untrusted input and are not executed or installed. Exact normalized hardware-ID matches are evidence for operator review, not a compatibility verdict or driver ranking. SHA-256 establishes byte integrity, not publisher identity or safety. Device identifiers remain subject to the existing HMAC-pseudonymization and consent controls.
 
 Commercial claims require separate customer, financial, licensing and support evidence. No automatic control state represents profit, revenue, return on investment or compatibility certification.
+
+
+## Operational cohesion and prioritized next steps
+
+The second axis (**Execution**) measures the cohesion of the end-to-end operating model: consistent module ownership, bounded workflows, aligned interfaces, reproducible release steps and synchronized documentation. “Monolithic” means a consistent product journey and a single source of truth; it does not mean collapsing independent modules into one source file or removing project boundaries.
+
+The evaluator now emits a prioritized action plan derived from the declared commercial controls:
+
+| Priority | Required next step | Acceptance evidence |
+|---|---|---|
+| P0 | Complete license and third-party rights review | License compatibility, notices, bundled dependencies and asset permissions are reviewed before commercial redistribution claims. |
+| P1 | Define support ownership and release delivery | Maintenance owner, supported versions, issue route, release artifacts and reproducible installation are documented; no SLA is implied. |
+| P2 | Validate user demand and unit economics | Actual user workflows and delivery/support costs are recorded before market-fit or margin claims. |
+| P3 | Consider pricing only after evidence | User value, rights, operating costs and support scope are assessed; no willingness-to-pay is invented. |
+
+Run `python tools/quality_commercial.py` for the text report or `python tools/quality_commercial.py --format json` for structured output. The action plan is advisory; declared statuses do not prove sales, revenue, profitability or investment readiness.
