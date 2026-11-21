@@ -1,0 +1,628 @@
+{
+  "schema": "anatidae.quality-commercial.v1",
+  "project": {
+    "id": "oplague",
+    "name": "OPlague",
+    "scope": "Windows-first read-only hardware inventory, driver-package inspection, evidence reconciliation and customer-facing diagnostics."
+  },
+  "scoring": {
+    "implemented": 1,
+    "planned": 0.25,
+    "not_assessed": 0,
+    "not_applicable": null
+  },
+  "commercial_operations": {
+    "market_validation": "not_assessed",
+    "pricing": "not_set",
+    "unit_economics": "not_assessed",
+    "license_review": "manual_required",
+    "support_model": "planned",
+    "distribution": "implemented",
+    "boundary": "Windows desktop packaging and release automation exist; sales, customer demand, service costs and profitability remain unmeasured."
+  },
+  "criteria": [
+    {
+      "id": "acceptance-evidence",
+      "terms": {
+        "quality": "Качественность",
+        "execution": "Качество",
+        "commercial": "Коммерческий"
+      },
+      "intent": "Каждый диагностический вывод должен иметь критерий приёмки и проверяемые исходные данные.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "tools/udrv_inspector.py"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_udrv_inspector.py",
+            ".github/workflows/desktop-build.yml"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "README.md",
+            "LICENSE"
+          ]
+        }
+      }
+    },
+    {
+      "id": "durable-delivery",
+      "terms": {
+        "quality": "Добротность",
+        "execution": "Добротность",
+        "commercial": "Торговый"
+      },
+      "intent": "Сохранность, ограничения ресурсов и предсказуемая обработка ошибок обязательны.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "tools/driver_evidence.py"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_driver_evidence.py"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "docs/DRIVE_LENS_EVIDENCE_LEDGER.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "defect-prevention",
+      "terms": {
+        "quality": "Безупречность",
+        "execution": "Безупречность",
+        "commercial": "Предпринимательский"
+      },
+      "intent": "Импортируемые пакеты и идентификаторы рассматриваются как недоверенный ввод.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "tools/qcs.py"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_qcs.py"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "docs/QUANTUM_CONTOUR_SYNTAX.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "release-excellence",
+      "terms": {
+        "quality": "Совершенство",
+        "execution": "Совершенство",
+        "commercial": "Рыночный"
+      },
+      "intent": "Сборки, отчёты и релизы воспроизводимы и регрессионно проверяемы.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "tools/validate_project_contract.py"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_architecture_profiles.py",
+            ".github/workflows/desktop-build.yml"
+          ]
+        },
+        "commercial": {
+          "status": "implemented",
+          "evidence": [
+            "README.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "product-cohesion",
+      "terms": {
+        "quality": "Цельность",
+        "execution": "Мастерство",
+        "commercial": "Деловой"
+      },
+      "intent": "Инвентаризация, анализ, отчётность и интерфейс образуют цельный рабочий процесс.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "oplague_app.py"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_inspector.py"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "README.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "trust-governance",
+      "terms": {
+        "quality": "Целостность",
+        "execution": "Профессионализм",
+        "commercial": "Финансовый"
+      },
+      "intent": "Доверие обеспечивают provenance, псевдонимизация и явные границы полномочий.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "tools/driver_evidence.py"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_driver_evidence.py"
+          ]
+        },
+        "commercial": {
+          "status": "not_assessed",
+          "evidence": [
+            "docs/DRIVE_LENS_EVIDENCE_LEDGER.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "operational-reliability",
+      "terms": {
+        "quality": "Монолитность",
+        "execution": "Надёжность",
+        "commercial": "Прибыльный"
+      },
+      "intent": "Пакетные операции и инспекция сохраняют ограничения по объёму и времени.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "tools/inspection_batch.py"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_inspection_batch.py"
+          ]
+        },
+        "commercial": {
+          "status": "not_assessed",
+          "evidence": [
+            "docs/ATOMIC_SETTINGS_PERSISTENCE.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "decision-foundation",
+      "terms": {
+        "quality": "Согласованность",
+        "execution": "Основательность",
+        "commercial": "Доходный"
+      },
+      "intent": "Рекомендации опираются на точные совпадения и документированные доказательства.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "tools/report_composer.py"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_report_composer.py"
+          ]
+        },
+        "commercial": {
+          "status": "not_assessed",
+          "evidence": [
+            "docs/DRIVE_LENS_EVIDENCE_LEDGER.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "repeatable-efficiency",
+      "terms": {
+        "quality": "Последовательность",
+        "execution": "Гармоничность",
+        "commercial": "Экономический"
+      },
+      "intent": "Повторные проверки дают детерминированные результаты и отслеживаемые метрики.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "tools/metric_analysis.py"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_metric_analysis.py"
+          ]
+        },
+        "commercial": {
+          "status": "not_assessed",
+          "evidence": [
+            "docs/ORTHOGONAL_METRIC_DIAGNOSTICS.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "system-control",
+      "terms": {
+        "quality": "Системность",
+        "execution": "Согласованность",
+        "commercial": "Хозяйственный"
+      },
+      "intent": "Политики импорта, доступа, экспорта и хранения согласованы.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "tools/federation.py"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_federation.py"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "docs/FEDERATED_INTEGRATION.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "product-structure",
+      "terms": {
+        "quality": "Структурированность",
+        "execution": "Цельность",
+        "commercial": "Бизнесовый"
+      },
+      "intent": "Форматы INF, UDRV, snapshot и inspection bundle имеют версионированные контракты.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "project-contract.json"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_federation.py"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "schemas/oplage.device-snapshot.v1.schema.json"
+          ]
+        }
+      }
+    },
+    {
+      "id": "market-presentation",
+      "terms": {
+        "quality": "Упорядоченность",
+        "execution": "Целостность",
+        "commercial": "Маркетинговый"
+      },
+      "intent": "Интерфейс и материалы ясно объясняют операторскую ценность и безопасные сценарии.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "assets/oplague-workbench-preview.svg"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_ui_motion.py"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "docs/UI_UX_SYSTEM.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "contract-consistency",
+      "terms": {
+        "quality": "Непротиворечивость",
+        "execution": "Монолитность",
+        "commercial": "Клиентский"
+      },
+      "intent": "Отчёты, документация, схемы и фактическое поведение не противоречат друг другу.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "tools/validate_project_contract.py"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_architecture_profiles.py"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "docs/UNIFIED_PROJECT_CONTRACT.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "customer-continuity",
+      "terms": {
+        "quality": "Однородность",
+        "execution": "Нераздельность",
+        "commercial": "Сбытовой"
+      },
+      "intent": "Путь от обнаружения устройства до аудируемого отчёта последователен.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "tools/device_graph.py"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_device_graph.py"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "docs/DEVICE_COMPATIBILITY_GRAPH.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "standardized-integration",
+      "terms": {
+        "quality": "Унификация",
+        "execution": "Единство",
+        "commercial": "Промышленный"
+      },
+      "intent": "Интеграции и экспорт используют ограниченные и стабильные форматы.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "tools/qcs.py"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_qcs.py"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "schemas/oplage.device-snapshot.v1.schema.json"
+          ]
+        }
+      }
+    },
+    {
+      "id": "release-governance",
+      "terms": {
+        "quality": "Стандартизация",
+        "execution": "Слаженность",
+        "commercial": "Корпоративный"
+      },
+      "intent": "Выпуски desktop-приложения и изменения проходят автоматические проверки.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            ".github/workflows/desktop-build.yml"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_report_composer.py"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "docs/HUMAN_FIRST_GOVERNANCE.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "investment-diligence",
+      "terms": {
+        "quality": "Полнота",
+        "execution": "Ритмичность",
+        "commercial": "Инвестиционный"
+      },
+      "intent": "Доказательства позволяют провести независимую техническую и правовую проверку пакета.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "docs/DRIVE_LENS_EVIDENCE_LEDGER.md"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_driver_evidence.py"
+          ]
+        },
+        "commercial": {
+          "status": "not_assessed",
+          "evidence": [
+            "project-contract.json"
+          ]
+        }
+      }
+    },
+    {
+      "id": "monetization-readiness",
+      "terms": {
+        "quality": "Точность",
+        "execution": "Размеренность",
+        "commercial": "Монетизируемый"
+      },
+      "intent": "Монетизация требует подтверждённого спроса, допустимых прав и прозрачного ценообразования.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "oplague_app.py"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_inspector.py"
+          ]
+        },
+        "commercial": {
+          "status": "not_assessed",
+          "evidence": [
+            "README.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "unit-economics",
+      "terms": {
+        "quality": "Выверенность",
+        "execution": "Синхронность",
+        "commercial": "Рентабельный"
+      },
+      "intent": "Доходность требует измерения разработки, сопровождения и поддержки.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "tools/compute_ops.py"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_compute_ops.py"
+          ]
+        },
+        "commercial": {
+          "status": "not_assessed",
+          "evidence": [
+            "docs/ORTHOGONAL_METRIC_DIAGNOSTICS.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "asset-capitalization",
+      "terms": {
+        "quality": "Профессионализм",
+        "execution": "Упорядоченность",
+        "commercial": "Капитализированный"
+      },
+      "intent": "Код, отчёты, лицензии и релизные активы должны оставаться прослеживаемыми.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "LICENSE"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_federation.py"
+          ]
+        },
+        "commercial": {
+          "status": "not_assessed",
+          "evidence": [
+            "README.md"
+          ]
+        }
+      }
+    }
+  ]
+}

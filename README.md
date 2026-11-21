@@ -1,68 +1,136 @@
-# OPlague
+# OPlague — Driver Workbench
 
-**Native desktop driver management, package engineering, and hardware diagnostics.**
+<p align="center">
+  <a href="https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml"><img alt="Windows desktop build" src="https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml/badge.svg"></a>
+  <img alt="Python 3.10+" src="https://img.shields.io/badge/runtime-Python%203.10%2B-2563EB?style=flat-square">
+  <img alt="Windows" src="https://img.shields.io/badge/desktop-Windows-DC2626?style=flat-square">
+  <img alt="Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-334155?style=flat-square">
+</p>
 
-[English](README.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [简体中文](README.zh-CN.md)
+**OPlague is a Windows-first, read-only workbench for hardware inventory and driver-package diagnostics.** It does not install or modify drivers.
 
-OPlague is the home of **DuckDriver OmniCore (DDO)**, a desktop-first project for safer hardware discovery, driver-package inspection, and portable driver bundles.
+[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
 
-> **Status:** early active development. The default branch is not yet a release-ready application. This README describes product goals and planned architecture; it does not claim that every workflow is implemented.
+## Desktop interface preview
 
-## Product vision
+<p align="center"><img src="assets/oplague-workbench-preview.svg" alt="Illustrative OPlague desktop interface preview" width="100%"></p>
+<sub>Illustrative reconstruction based on the checked-in Tkinter layout, not a screenshot captured from a running Windows application.</sub>
 
-- **Hardware inventory:** discover devices and present hardware identifiers, relationships, and driver state.
-- **Driver workspace:** import, inspect, validate, catalogue, and compare packages before installation.
-- **Universal Driver Container (.udrv):** a proposed portable format for driver payloads, manifests, metadata, compatibility information, and integrity data.
-- **DuckDriver OmniCore:** coordinate discovery, analysis, package validation, packaging, and deployment preparation.
-- **Profiles and recovery:** preserve known-good configurations and make rollback workflows explicit.
-- **Diagnostics:** expose device state and supported system signals, with DPC/ISR latency analysis planned where platform APIs permit.
-- **Native UX:** a focused desktop application with a consistent white, blue, and red visual identity.
+## Workbenches and tools
 
-## Safety principles
+- **Device inventory:** read-only Windows Plug and Play discovery with device name, status, manufacturer and hardware ID.
+- **INF / ZIP inspector:** extract selected INF metadata, calculate SHA-256, inspect archive paths and resource limits, and report exact hardware-ID and target-architecture evidence. Package content is not extracted or executed.
+- **Batch reports:** compose ordered inspection results with aggregate counts and a deterministic bundle fingerprint.
+- **UDRV inspector:** validate a versioned manifest, payload inventory, declared sizes, hashes and path/resource bounds. It does not install, load or execute payloads.
+- **DRIVE-LENS evidence ledger:** HMAC-pseudonymized device references, source-digest provenance, exact attribute/time-window grouping and explicit conflict retention across inspected PnP/INF/UDRV/catalog metadata. No automatic driver verdict ([design](docs/DRIVE_LENS_EVIDENCE_LEDGER.md)).
+- **Compatibility dry-run:** connect devices and INF Models entries only through exact normalized hardware-ID matches. Candidate edges are not driver rankings or compatibility verdicts.
+- **Metric Lab:** compare normalized profiles using weighted distances, cosine similarity, orthogonality and repeated-run variance.
+- **Device federation:** export bounded versioned JSON snapshots and compare saved snapshots offline. Export requires explicit operator confirmation; raw PnP IDs are HMAC-pseudonymized with ephemeral keys by default or an optional protected key for deliberate cross-snapshot matching.
+- **Native cross-check:** optional Pytyliki C ABI v1 metric verification when the caller supplies an explicit trusted library path.
+- **QCS validator:** one compact grammar with 66 named hardware-domain profiles; validates contour metadata and handoff markers. It is not a compiler or hardware verifier.
+- **Systems catalogue:** 66 language/toolchain capability entries with PATH-only discovery.
 
-1. Inspect packages before trusting them; validate manifests, structure, metadata, and hashes where available.
-2. Treat imported packages, scripts, and binaries as untrusted input.
-3. Never execute foreign kernel code merely to identify or inspect hardware.
-4. Separate read-only discovery and package analysis from privileged installation.
-5. Make elevated actions explicit, reviewable, and reversible where the platform allows.
-6. Report missing evidence and validation failures rather than guessing compatibility.
+## Run the desktop app
 
-The `.udrv` format is a packaging concept, not a guarantee that arbitrary drivers are universally compatible or safe. Installation depends on the operating system, hardware, signing policy, and vendor requirements.
+Requirements: Windows x64 and Python 3.10+.
 
-## Architecture map
+```bash
+git clone https://github.com/Ivan-VHS/OPlague.git
+cd OPlague
+python oplague_app.py
+python -m unittest discover -s tests -v
+```
 
-| Layer | Responsibility |
-| --- | --- |
-| Native desktop shell | Lifecycle, navigation, settings, and user workflows |
-| Hardware discovery | Device enumeration and stable hardware identifiers |
-| Driver catalog | Package, version, provider, and compatibility indexing |
-| Package validator | Manifest, content, hash, and consistency checks |
-| UDRV container | Portable package structure and metadata contract |
-| OmniCore orchestrator | Coordinate discovery, analysis, packaging, and deployment stages |
-| Diagnostics | Device state and supported performance signals |
-| Recovery manager | Profiles, snapshots, and rollback plans |
+The Windows workflow builds `OPlague.exe` and uploads `OPlague-windows-x64.zip`. A `v*` tag publishes the archive as a GitHub Release.
 
-These are intended architectural boundaries, not a claim that every module is already present on `main`.
+## Useful read-only tools
 
-## Roadmap
+```bash
+python tools/udrv_inspector.py path/to/package.udrv --json
+python -m tools.federation snapshot --output device-snapshot.json
+python -m tools/federation compare --reference baseline.json --candidate current.json
+python -m tools.qcs dialects
+python -m tools.qcs validate path/to/example.qcs
+python tools/systems_languages.py --profile oplague
+```
 
-- [ ] Native desktop shell and design system
-- [ ] Hardware discovery and searchable device inventory
-- [ ] Versioned `.udrv` container specification
-- [ ] Package import, inspection, and validation
-- [ ] Driver catalogue and compatibility evidence
-- [ ] Profile snapshots and guarded recovery
-- [ ] Diagnostics, including DPC/ISR analysis where supported
-- [ ] Automated tests, signed releases, and platform packaging
+## Project evolution and safety boundary
 
-## Screenshots
+Mainline includes PnP inventory, bounded INF/ZIP inspection, architecture analysis, exact-ID dry-run planning, UDRV integrity checks, reports, metrics, device snapshots, Pytyliki interop and QCS validation.
 
-Real application screenshots will be added when a runnable interface is available. Mockups and concept art will not be presented as screenshots of implemented software.
+**Not implemented:** driver installation/removal, enable/disable, signing, rollback, firmware changes or live DPC/ISR diagnostics. Package integrity does not establish vendor authenticity, driver safety or compatibility. Imported files are untrusted input; inspect reports before making manual decisions. The QCS body is retained as text and is never compiled or executed.
 
-## Contributing
+## Documentation and downloads
 
-Keep changes focused and reproducible. Include tests or validation notes where practical, document OS/hardware assumptions, and do not commit proprietary driver binaries, credentials, private device data, or unlicensed vendor materials. Privileged operations must remain isolated and reviewable.
+[DRIVE-LENS evidence ledger](docs/DRIVE_LENS_EVIDENCE_LEDGER.md)
+
+[Human-first governance](docs/HUMAN_FIRST_GOVERNANCE.md) · [Anatidae desktop design system](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [UI/UX system](docs/UI_UX_SYSTEM.md) · [Atomic UI settings persistence](docs/ATOMIC_SETTINGS_PERSISTENCE.md) · [UDRV format](docs/UDRV_FORMAT_V1.md) · [Device compatibility graph](docs/DEVICE_COMPATIBILITY_GRAPH.md) · [Federation contract](docs/FEDERATED_INTEGRATION.md) · [QCS syntax](docs/QUANTUM_CONTOUR_SYNTAX.md) · [Unified engineering standard](docs/UNIFIED_ENGINEERING_STANDARD.md)
+
+
+[Governance and consent](docs/HUMAN_FIRST_GOVERNANCE.md) · [Anatidae desktop design system](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [UI/UX architecture](docs/UI_UX_ARCHITECTURE.md) · [12 animation principles](docs/DISNEY_MOTION_SYSTEM.md) · [Project contract](docs/UNIFIED_PROJECT_CONTRACT.md)
+[Windows releases](https://github.com/Ivan-VHS/OPlague/releases) · [Desktop build](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)
+
+**Federation:** [Reaper](https://github.com/Ivan-VHS/Reaper) · [Pytyliki](https://github.com/Ivan-VHS/Pytyliki) · [3×3 matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md).
+
+## Desktop design: Duck Sovereign Canon
+
+The Tk workbench uses a top-down workflow: device inventory, package evidence, compatibility dry-run, comparison and explicit export. White surfaces and deep blue carry information; red is reserved for signal and priority. Local serif headings, readable local sans-serif controls, compact rectangular panels, keyboard focus and reduced-motion behavior form the shared visual contract.
+
+Read [the complete design doctrine](docs/DUCK_SOVEREIGN_CANON.md), [desktop design system](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) and [UI/UX architecture](docs/UI_UX_ARCHITECTURE.md). The design specification distinguishes illustrative layouts from screenshots of a running application.
+
+## Anatidae doctrine and safety contract
+
+- **Operator intent first:** inventory and inspection are read-only; snapshot export requires explicit operator confirmation. Native interop is opt-in and requires an explicitly supplied trusted library path.
+- **Treat packages as hostile input:** enforce path and resource bounds; inspect metadata without extracting or executing payloads.
+- **Evidence, not guesswork:** compatibility dry-run links only exact normalized hardware IDs. A candidate edge is evidence for review, not a driver recommendation or compatibility verdict.
+- **Privacy by minimization:** PnP identifiers are HMAC-pseudonymized with ephemeral keys by default; an optional protected key supports deliberate cross-snapshot matching. Pseudonyms remain potentially linkable and are not anonymization.
+- **Safe non-goals:** no driver install/remove/enable/disable/sign/rollback, firmware changes or claimed live DPC/ISR diagnosis.
+- **Accessible desktop behavior:** clear status and error language, keyboard/focus visibility, localization and reduced-motion support. Motion must never hide warnings or consequences.
+
+Package hashes establish byte-level integrity only; they do not establish publisher identity, driver safety or compatibility.
+
+## Documentation governance
+
+[Documentation control](docs/DOCUMENTATION_CONTROL.md) defines the normative rules for public claims, evidence, privacy and integrations.
 
 ## License
 
-See [LICENSE](LICENSE) for the terms that apply to this repository.
+[Apache License 2.0](LICENSE)
+
+UI motion: [12 animation principles](docs/DISNEY_MOTION_SYSTEM.md).
+
+
+## Quality and commercial readiness
+
+OPlague now carries an evidence-linked 20 × 3 matrix for product quality, operational execution and commercial governance. Run **python tools/quality_commercial.py** or add **--format json**. The report does not imply driver compatibility, market demand, revenue or profitability. See [the quality-commercial standard](docs/QUALITY_COMMERCIAL_STANDARD.md).
+
+
+The readiness report also prints a prioritized commercial action plan. Open items stay explicit: license review, support ownership, release delivery, user validation, cost measurement and any future pricing decision. No revenue, profit or market-fit claim is inferred.
+
+## Market development and positioning
+
+The [market-development standard](docs/MARKET_DEVELOPMENT_STANDARD.md) and [versioned profile](market-development.v1.json) define audience segments, evidence-backed positioning, promotion channels, commercialization gates and privacy-respecting measurement. They do not imply market demand, sales or profitability.
+
+## Four-project federation
+
+The shared [OCTA-8 project matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md) documents the implemented pairings and explicit not-applicable boundaries across Reaper, Pytyliki, OPlague and VentuSample. OPlague remains a read-only device/driver diagnostics product and is not coupled to audio generation.
+
+
+## Improvement and conflict resolution
+
+The [20-control improvement, dissonance, and conflict standard](docs/IMPROVEMENT_CONFLICT_STANDARD.md) turns inconsistencies into evidence-led, testable changes while preserving OPlague's read-only device and driver diagnostics boundary. Run `python tools/improvement_conflict.py` to validate the machine-readable register. This validates the governance contract; it is not a source-code scanner and does not claim unassessed controls are resolved.
+
+## Four-project federation
+
+The shared [OCTA-8 project matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md) documents the implemented pairings and explicit not-applicable boundaries across Reaper, Pytyliki, OPlague and VentuSample. OPlague remains a read-only device/driver diagnostics product and is not coupled to audio generation.
+
+
+## Improvement and conflict resolution
+
+The [20-control improvement, dissonance, and conflict standard](docs/IMPROVEMENT_CONFLICT_STANDARD.md) turns inconsistencies into evidence-led, testable changes while preserving OPlague's read-only device and driver diagnostics boundary. Run `python tools/improvement_conflict.py` to validate the machine-readable register. This validates the governance contract; it is not a source-code scanner and does not claim unassessed controls are resolved.
+
+## Correction and defect coverage
+
+The **20 × 3 correction / coverage / defect matrix** preserves all supplied terms and maps them to project-specific targets, acceptance criteria and repository-local evidence. Run `python tools/quality_remediation.py` or add `--format json`; the focused regression suite runs in CI. Evidence-path presence is a traceability check, not proof that behavior is correct or that all defects are gone. See [the remediation standard](docs/QUALITY_REMEDIATION_STANDARD.md).
+
+The repeated term «Исчерпывающесть» is intentionally retained in rows 5 and 18 as supplied; the matrix preserves the original vocabulary rather than silently normalizing it.
