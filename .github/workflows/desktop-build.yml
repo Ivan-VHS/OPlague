@@ -11,10 +11,14 @@ permissions:
   contents: read
 jobs:
   build-windows:
+    permissions:
+      contents: write
     name: Windows x64 desktop app
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -37,6 +41,22 @@ jobs:
           path: assets/screenshots/oplague-workbench.png
           if-no-files-found: error
           retention-days: 30
+      - name: Commit screenshot to same-repository pull request
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        shell: pwsh
+        env:
+          TARGET_BRANCH: ${{ github.head_ref }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "assets/screenshots/oplague-workbench.png"
+          git diff --cached --quiet
+          if ($LASTEXITCODE -ne 0) {
+            git commit -m "docs: refresh live Windows screenshot"
+            git push origin "HEAD:$env:TARGET_BRANCH"
+          } else {
+            Write-Host "Screenshot is unchanged; no repository commit is needed."
+          }
       - name: Prepare distributable archive
         shell: pwsh
         run: |
