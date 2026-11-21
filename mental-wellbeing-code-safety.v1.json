@@ -1,0 +1,67 @@
+{
+  "schema": "mental-wellbeing-code-safety.v1",
+  "version": "1.0.0",
+  "source": {
+    "title": "Mental Wellbeing & Depression Awareness v1",
+    "video_id": "brNbnipJ-i8",
+    "channel": "ебаут",
+    "published_at": "2025-11-23",
+    "duration": "PT1H20M1S",
+    "transcript_coverage": "partial_head_and_tail",
+    "missing_middle": "not_reconstructed",
+    "clinical_authority": false,
+    "used_for": "non-stigmatizing communication, help-seeking without shame, personal autonomy and supportive engineering practices only"
+  },
+  "policy": {
+    "not_a_clinical_protocol": true,
+    "no_diagnosis_or_screening": true,
+    "no_medication_or_treatment_advice": true,
+    "no_crisis_triage_automation": true,
+    "no_mental_health_inference": true,
+    "no_health_or_productivity_surveillance": true,
+    "no_background_collection_of_wellbeing_data": true,
+    "no_unconsented_remote_telemetry": true,
+    "no_raw_sensitive_content_logging": true,
+    "data_minimization_required": true,
+    "bounded_untrusted_input_required": true,
+    "respectful_non_stigmatizing_language_required": true,
+    "accessible_user_control_required": true,
+    "blameless_incident_response_required": true,
+    "evidence_and_uncertainty_required": true
+  },
+  "enforcement": {
+    "contract_path": "mental-wellbeing-code-safety.v1.json",
+    "validator_path": "scripts/check_mental_wellbeing_guardrails.py",
+    "workflow_path": ".github/workflows/mental-wellbeing-guardrails.yml",
+    "fail_closed": true,
+    "standard_library_only": true
+  },
+  "project": {
+    "id": "oplague",
+    "repository": "Ivan-VHS/OPlague",
+    "language": "Python 3.10+",
+    "surfaces": [
+      "windows_pnp_inventory",
+      "inf_zip_inspection",
+      "udrv_manifests",
+      "device_compatibility_graph",
+      "batch_reports",
+      "federation"
+    ]
+  },
+  "boundaries": {
+    "device_inventory_read_only": true,
+    "driver_install_or_load": false,
+    "package_payload_execution": false,
+    "archive_resource_limits": true,
+    "device_identifier_minimization": true,
+    "health_inference_from_hardware": false
+  },
+  "verification": [
+    "python_unit_tests",
+    "zip_path_traversal",
+    "archive_size_and_ratio_limits",
+    "malformed_inf_and_udrv",
+    "identifier_redaction"
+  ]
+}

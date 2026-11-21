@@ -16,6 +16,7 @@
 | [UDRV_FORMAT_V1.md](UDRV_FORMAT_V1.md) | package manifest, hashing and size limits |
 | [DRIVE_LENS_EVIDENCE_LEDGER.md](DRIVE_LENS_EVIDENCE_LEDGER.md) | evidence provenance |
 | [CLINICAL_SYSTEMS_CSR120.md](CLINICAL_SYSTEMS_CSR120.md) | 120 principles and 36 advisory telemetry checks |
+| [SECURITY_ASSURANCE_V2.md](SECURITY_ASSURANCE_V2.md) | federated source audit, INF/UDRV fuzz-smoke, dependency review, privacy tests and shared scoring |
 
 The root README also links the 20-entry semantic impact-profile CLI and the live Windows screenshot. JSON schemas, tests and source define machine-checked behavior. Hardware matches and ordinal profile rankings are advisory evidence, not certification.
 
