@@ -193,7 +193,7 @@ class OPlagueApp(tk.Tk):
         self.geometry("1120x720")
         self.minsize(820, 540)
         self._theme_mode = load_preferred_theme()
-        self._theme_cycle = ("system", "dawn", "sunset", "night")
+        self._theme_cycle = ("system", "light", "dark", "dawn", "sunset", "night")
         header = ttk.Frame(self, padding=(16, 12)); header.pack(fill="x")
         ttk.Label(header, text="OPLAGUE", style="Title.TLabel").pack(side="left")
         ttk.Label(header, text="Инвентаризация оборудования  /  Проверка пакетов драйверов", style="Muted.TLabel").pack(side="left", padx=16)
