@@ -29,3 +29,9 @@ The blue/white/red theme remains semantic: blue for navigation and calm state, r
 Preferences are stored independently of theme settings. The previous preference format remains readable; Expressive Motion defaults to off. Native OS reduced-motion preference and `UI_REDUCED_MOTION` are respected.
 
 This application has no audio transport, so BPM sync remains unavailable. Animation runs only on the UI thread. It must never delay hardware inventory, package hashing, archive-bound checks, report composition or driver inspection. Animation never installs, enables, disables or modifies drivers; all existing read-only and dry-run boundaries remain unchanged.
+
+## Motion implementation profile
+
+The shared duration tokens are `instant=0`, `micro=100`, `fast=140`, `standard=180`, `spatial=220` and `emphasis=320` milliseconds. Expressive Motion scales the selected token by 1.35, with a hard ceiling of 380 ms. Reduce Motion or Eco caps any retained transition at 80 ms and takes precedence over Expressive.
+
+The Tk spring solver uses semi-implicit Euler integration, two substeps and a maximum 32 ms frame delta. It is presentation-only and snaps to its destination when settled or when its bounded duration is reached. Preferences live in `ui-motion.json` under the user's application configuration directory; old settings load with Expressive disabled by default.
