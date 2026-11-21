@@ -12,7 +12,7 @@ from pathlib import Path, PurePosixPath
 from tkinter import filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
 from ui_theme import apply_ui_theme, load_preferred_theme, set_dpi_awareness
-from ui_motion import MotionController
+from ui_motion import MotionController, MotionPreferences
 from typing import Any
 
 from tools.report_composer import compose_inspection_reports
@@ -199,6 +199,8 @@ class OPlagueApp(tk.Tk):
         ttk.Label(header, text="Инвентаризация оборудования  /  Проверка пакетов драйверов", style="Muted.TLabel").pack(side="left", padx=16)
         self.theme_button = ttk.Button(header, text="Тема: системная", command=self.cycle_theme)
         self.theme_button.pack(side="right")
+        self.motion_button = ttk.Button(header, text="Движение", command=self.show_motion_settings)
+        self.motion_button.pack(side="right", padx=(0, 8))
         self.tabs = ttk.Notebook(self); self.tabs.pack(fill="both", expand=True, padx=14, pady=(0, 10))
         inventory = ttk.Frame(self.tabs, padding=12); packages = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(inventory, text="Устройства"); self.tabs.add(packages, text="Проверка пакетов")
@@ -274,8 +276,35 @@ class OPlagueApp(tk.Tk):
         ttk.Label(footer, textvariable=self.status, style="Muted.TLabel").pack(side="left")
         ttk.Label(footer, text="Разработчик: Ivan-VHS", style="Muted.TLabel").pack(side="right")
         self.apply_visual_theme()
-        self._motion = MotionController(self)
+        self._motion = MotionController(self, app_key="oplague")
         self._motion.fade_in()
+
+    def show_motion_settings(self) -> None:
+        """Configure persisted motion and visual-performance preferences."""
+        window = tk.Toplevel(self)
+        window.title("Настройки движения интерфейса")
+        window.resizable(False, False)
+        window.transient(self)
+        current = self._motion.preferences
+        reduce_var = tk.BooleanVar(value=current.reduce_motion)
+        eco_var = tk.BooleanVar(value=current.eco_visuals)
+        frame = ttk.Frame(window, padding=16)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(frame, text="Кинетика интерфейса", style="Title.TLabel").pack(anchor="w", pady=(0, 8))
+        ttk.Checkbutton(frame, text="Reduce Motion — убрать пространственное движение", variable=reduce_var).pack(anchor="w", pady=4)
+        ttk.Checkbutton(frame, text="Eco / Low-CPU Visuals — отключить необязательные эффекты", variable=eco_var).pack(anchor="w", pady=4)
+        ttk.Checkbutton(frame, text="Sync to Transport / BPM", state="disabled").pack(anchor="w", pady=4)
+        ttk.Label(frame, text="OPlague не содержит аудиотранспорта или мастер-BPM. Синхронизация недоступна для этой программы.", wraplength=440).pack(anchor="w", pady=(4, 12))
+        buttons = ttk.Frame(frame)
+        buttons.pack(fill="x")
+        def apply() -> None:
+            self._motion.update_preferences(MotionPreferences(reduce_var.get(), eco_var.get(), False))
+            window.destroy()
+        ttk.Button(buttons, text="Сохранить", style="Primary.TButton", command=apply).pack(side="right")
+        ttk.Button(buttons, text="Отмена", command=window.destroy).pack(side="right", padx=(0, 8))
+        window.grab_set()
+        window.update_idletasks()
+        window.geometry(f"+{self.winfo_rootx() + 120}+{self.winfo_rooty() + 100}")
 
     def apply_visual_theme(self) -> None:
         """Apply the selected appearance to tabs, tables and report editors."""
