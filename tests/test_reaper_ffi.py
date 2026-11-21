@@ -38,7 +38,7 @@ class _Library:
 
     @staticmethod
     def _lookup(identity, ordinal):
-        if identity == b"Сам":
+        if identity == "Сам".encode("utf-8"):
             ordinal._obj.value = 2
             return 0
         return -10
