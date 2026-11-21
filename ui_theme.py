@@ -53,6 +53,38 @@ def contrast_ratio(foreground: str, background: str) -> float:
     return (first + 0.05) / (second + 0.05)
 
 
+
+def _install_semantic_status_tokens() -> None:
+    """Expose brand-compliant status roles; text and icons disambiguate meaning."""
+    for theme_name, palette in PALETTES.items():
+        dark = theme_name == "dark"
+        palette.update({
+            "success": "#FFFFFF" if dark else "#0039A6",
+            "warning": "#FFFFFF" if dark else "#B51A10",
+            "error": "#FFFFFF" if dark else "#B51A10",
+            "info": "#FFFFFF" if dark else "#0A1E46",
+        })
+
+
+def palette_contrast_issues(palette: dict[str, str]) -> list[str]:
+    """Return WCAG AA violations for semantic text on its actual base surface."""
+    pairs = (
+        ("fg", "bg"), ("fg", "surface"), ("muted", "bg"),
+        ("heading", "bg"), ("on_blue", "blue"), ("on_red", "red"),
+        ("selection_fg", "selection"), ("success", "bg"),
+        ("warning", "bg"), ("error", "bg"), ("info", "bg"),
+    )
+    issues = []
+    for foreground, background in pairs:
+        if foreground not in palette or background not in palette:
+            issues.append(f"missing token: {foreground}/{background}")
+        elif contrast_ratio(palette[foreground], palette[background]) < 4.5:
+            issues.append(f"{foreground}/{background} below 4.5:1")
+    return issues
+
+
+_install_semantic_status_tokens()
+
 def set_dpi_awareness() -> None:
     """Request Per-Monitor V2 DPI awareness before creating the Tk root."""
     if os.name != "nt":
@@ -172,11 +204,14 @@ def palette_for(mode: str = "system", *, system_dark: bool | None = None) -> dic
         "accent": result["blue"],
         "accent_hover": result["blue_hover"],
         "danger": result["red"],
-        "success": result["blue"],
+        "success": result["success"],
         "editor": result["surface"],
         "editor_text": result["fg"],
         "log_text": result["log_text"],
     })
+    issues = palette_contrast_issues(result)
+    if issues:
+        raise ValueError("Theme palette fails UI/UX 40026: " + "; ".join(issues))
     return result
 
 
@@ -216,6 +251,12 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
     style.configure("Title.TLabel", background=colors["bg"], foreground=colors["heading"], font=("Georgia", 18, "bold"))
     style.configure("Section.TLabel", background=colors["bg"], foreground=colors["heading"], font=("Georgia", 11, "bold"), padding=(4, 5))
     style.configure("Muted.TLabel", background=colors["bg"], foreground=colors["muted"])
+    for status_name in ("Success", "Warning", "Error", "Info"):
+        token = status_name.lower()
+        style.configure(
+            f"Status.{status_name}.TLabel",
+            background=colors["bg"], foreground=colors[token], padding=(6, 3),
+        )
     style.configure(
         "TButton", padding=(14, 13), focuscolor=colors["focus"],
         foreground=colors["fg"], background=colors["surface"],
