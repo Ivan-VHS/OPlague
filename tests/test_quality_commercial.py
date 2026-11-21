@@ -1,6 +1,9 @@
 from __future__ import annotations
-import json, tempfile, unittest
+
+import json
+import unittest
 from pathlib import Path
+
 from tools.quality_commercial import QualityProfileError, assess_profile, build_commercial_action_plan
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -25,21 +28,21 @@ class QualityCommercialTests(unittest.TestCase):
         profile = json.loads(PROFILE.read_text(encoding="utf-8"))
         profile["criteria"][0]["controls"]["quality"]["evidence"] = ["missing/evidence.txt"]
         report = assess_profile(profile, root=ROOT)
-        self.assertTrue(report["issues"])
         self.assertEqual(report["evidence"]["files_missing"], 1)
+        self.assertTrue(any("missing/evidence.txt" in issue for issue in report["issues"]))
 
     def test_path_traversal_is_rejected(self):
         profile = json.loads(PROFILE.read_text(encoding="utf-8"))
         profile["criteria"][0]["controls"]["quality"]["evidence"] = ["../outside.txt"]
-        with tempfile.TemporaryDirectory() as directory:
-            with self.assertRaises(QualityProfileError):
-                assess_profile(profile, root=directory)
+        with self.assertRaises(QualityProfileError):
+            assess_profile(profile, root=ROOT)
 
     def test_unverified_business_facts_remain_open(self):
         report = assess_profile(PROFILE, root=ROOT)
         fields = {item["field"] for item in report["commercial_open_items"]}
         self.assertTrue({"market_validation", "pricing", "unit_economics"}.issubset(fields))
         self.assertLess(report["axes"]["commercial"]["maturity_percent"], 100.0)
+
 
 
     def test_commercial_action_plan_is_prioritized_and_evidence_oriented(self):
