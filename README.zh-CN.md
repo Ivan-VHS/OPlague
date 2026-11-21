@@ -97,3 +97,9 @@ UDRV v1 限制：manifest ≤4 MiB · ≤10,000 项 · 单文件 ≤512 MiB · �
 ID 或哈希匹配不证明发布者可信、系统兼容、设备适用或安装安全。HMAC 假名和报告 fingerprint 有助于保持一致性与来源记录，但本身不能证明真实性。
 
 [文档索引](docs/README.md) · [Apache-2.0 许可证](LICENSE)
+
+
+## 预算分配参考
+这是一个 500 UAH 预算模型示例，包含 JSON 契约和离线模拟器。它属于文档示例，并非宿主应用运行时功能。
+
+[多语言指南](docs/RESOURCE_ALLOCATION_500_UAH.md) · [交互式模拟器](docs/resource-allocation-500-uah.html) · [JSON 示例](examples/resource-allocation-500-uah.json) · [JSON Schema](schemas/resource-allocation.v1.schema.json)
