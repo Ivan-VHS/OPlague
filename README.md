@@ -102,3 +102,7 @@ OPlague now carries an evidence-linked 20 × 3 matrix for product quality, opera
 ## Four-project federation
 
 The shared [OCTA-8 project matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md) documents the implemented pairings and explicit not-applicable boundaries across Reaper, Pytyliki, OPlague and VentuSample. OPlague remains a read-only device/driver diagnostics product and is not coupled to audio generation.
+
+## Anatidae design layer
+
+The shared [Anatidae naming canon](federation/ANATIDAE_NAMING_CANON.md) governs friendly UI vocabulary across the four-project family. The [OPlague desktop design contract](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) keeps read-only diagnostics and evidence vocabulary explicit.

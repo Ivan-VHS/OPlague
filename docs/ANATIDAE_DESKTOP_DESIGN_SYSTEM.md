@@ -67,3 +67,11 @@ Capture the running app in System/Light/Dark; Device Inventory with a selected r
 - [ ] Focus and keyboard navigation remain visible.
 - [ ] No driver installation, removal, enable/disable, signing or firmware action is added.
 - [ ] Real-device 8K and multi-monitor screenshots are captured before certification.
+
+## 9. Anatidae naming and companion layer
+
+The shared vocabulary and guardrails are defined in [the federation naming canon](../federation/ANATIDAE_NAMING_CANON.md). For OPlague, **Утёнок** or **Кряквёнок** may identify optional first-run guidance only. **Пёрышко** may be a secondary metadata-summary marker only when the full hardware ID, hash, source and evidence are still directly available. These names do not create new inspectors, verdicts or compatibility states.
+
+Keep Device Inventory, INF/ZIP Inspector, DRIVE-LENS, UDRV, Metric Lab and Compatibility Dry-run literal. Candidate matches remain candidate evidence, not a ranking or compatibility verdict. Package inspection stays metadata-oriented and bounded; no driver install/remove/enable/disable/sign/rollback or firmware action may be suggested or implied by a mascot, icon or helper phrase.
+
+Keep decorative identity out of errors, security prompts, exported snapshots and evidence records. Use only the current white-blue-red palette, readable status words and visible keyboard focus. Optional feather/wing artwork must never mask an identifier or warning.
