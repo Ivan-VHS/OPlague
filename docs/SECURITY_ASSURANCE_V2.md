@@ -8,7 +8,7 @@ The federated assurance workflow audits tracked source and configuration files o
 
 - **Source audit:** high-confidence private-key/token patterns, hard-coded credential assignments, developer-machine paths, sensitive-value logging and selected risky APIs.
 - **CodeQL:** Python and GitHub Actions source analysis with the extended query suite.
-- **Dependency review:** GitHub dependency-review gate on pull requests, Dependabot for GitHub Actions, and an offline inventory of dependency manifests, lockfiles, CMake/package declarations and exact pins.
+- **Dependency vulnerabilities:** OSV-Scanner compares dependency advisories on Pull Requests and performs a scheduled full scan; GitHub Dependency Review gates pull-request dependency changes, while Dependabot for GitHub Actions, and an offline inventory of dependency manifests, lockfiles, CMake/package declarations and exact pins.
 - **Fuzz smoke:** production _parse_manifest, parse_inf_text and inspect_package paths receive deterministic bounded malformed JSON/INF and ZIP-shaped inputs, including traversal entries.
 - **Privacy regression:** synthetic-token detection, redaction, local-path handling and policy prohibitions are tested.
 - **Federation:** all four repositories are checked for policy/tool parity; actual tracked source and dependency declarations are scanned in each checkout.
@@ -28,15 +28,16 @@ All four projects use the same 100-point score:
 
 | Category | Weight |
 |---|---:|
-| Secret hygiene | 25 |
+| Secret hygiene | 20 |
 | Privacy leak prevention | 15 |
 | Source-risk review | 15 |
 | Fuzz robustness | 15 |
-| Dependency pin hygiene | 10 |
+| Dependency pin hygiene | 5 |
+| Known dependency vulnerabilities (OSV) | 10 |
 | Privacy regressions | 10 |
 | Federation consistency | 10 |
 
-The federated report also scores cross-repository policy/tool parity, aggregate source findings and dependency pin hygiene. A critical credential finding, failed fuzz/privacy/federation check or total below 70 fails the assurance gate.
+The federated report also scores cross-repository policy/tool parity, aggregate source findings and dependency pin hygiene. A critical credential finding, known dependency vulnerability, failed fuzz/privacy/federation check or total below 70 fails the assurance gate.
 
 ## Boundaries
 
