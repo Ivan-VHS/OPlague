@@ -24,6 +24,7 @@ class MotionPreferences:
     reduce_motion: bool = False
     eco_visuals: bool = False
     sync_to_bpm: bool = False
+    expressive_motion: bool = False
 
 
 def ease_out(progress: float) -> float:
@@ -67,6 +68,7 @@ def load_preferences(app_key: str) -> MotionPreferences:
             reduce_motion=bool(payload.get("reduce_motion", False)),
             eco_visuals=bool(payload.get("eco_visuals", False)),
             sync_to_bpm=bool(payload.get("sync_to_bpm", False)),
+            expressive_motion=bool(payload.get("expressive_motion", False)),
         )
     except (OSError, ValueError, TypeError):
         return MotionPreferences()
@@ -77,7 +79,7 @@ def save_preferences(app_key: str, preferences: MotionPreferences) -> None:
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(
-            json.dumps({"version": 1, **asdict(preferences)}, indent=2) + "\n",
+            json.dumps({"version": 2, **asdict(preferences)}, indent=2) + "\n",
             encoding="utf-8",
         )
     except OSError:
@@ -85,15 +87,24 @@ def save_preferences(app_key: str, preferences: MotionPreferences) -> None:
 
 
 def duration_for(category: str, preferences: MotionPreferences | None = None) -> int:
-    """Return a bounded duration; reduced-motion transitions never exceed 80 ms."""
+    """Return a bounded duration; accessibility and eco settings take priority."""
     duration = DURATIONS_MS.get(category)
     if duration is None:
         raise ValueError(f"Unknown motion category: {category}")
-    if (preferences and preferences.reduce_motion) or reduced_motion_enabled():
+    prefs = preferences or MotionPreferences()
+    if prefs.reduce_motion or reduced_motion_enabled():
         return min(duration, 80)
-    if preferences and preferences.eco_visuals:
+    if prefs.eco_visuals:
         return min(duration, 80)
+    if prefs.expressive_motion:
+        return min(380, int(round(duration * 1.35)))
     return duration
+
+
+def ease_paddle_out(progress: float) -> float:
+    """Back-eased paddle response; callers clamp visual properties to their safe range."""
+    t = max(0.0, min(1.0, float(progress)))
+    return 1.0 + 2.70158 * (t - 1.0) ** 3 + 1.70158 * (t - 1.0) ** 2
 
 
 class MotionController:
@@ -108,8 +119,12 @@ class MotionController:
     ) -> None:
         self.root = root
         self.app_key = app_key
-        self.duration_ms = max(0, int(duration_ms))
         self.preferences = load_preferences(app_key)
+        requested = max(0, int(duration_ms))
+        self.duration_ms = (
+            duration_for("fast", self.preferences)
+            if requested == DURATIONS_MS["fast"] else requested
+        )
         self._after_id: str | None = None
         self._enabled = not reduced_motion_enabled()
 
@@ -139,8 +154,11 @@ class MotionController:
         if not self._enabled:
             return
         progress = min(1.0, elapsed_ms / self.duration_ms)
+        eased = (ease_paddle_out(progress) if self.preferences.expressive_motion
+                 else ease_out(progress))
+        opacity = 0.94 + 0.06 * max(0.0, min(1.0, eased))
         try:
-            self.root.attributes("-alpha", 0.94 + 0.06 * ease_out(progress))
+            self.root.attributes("-alpha", opacity)
         except (tk.TclError, TypeError):
             self._enabled = False
             return
