@@ -2,17 +2,18 @@
 
 | File | Purpose |
 |---|---|
-| [FEATURES.md](FEATURES.md) | tools and boundaries |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | inspection flow |
-| [ENGINEERING.md](ENGINEERING.md) | release/safety gates |
-| [PROJECT_STEWARDSHIP_STANDARD.md](PROJECT_STEWARDSHIP_STANDARD.md) | operator and privacy policy |
-| [DISTRIBUTED_SYSTEMS_ENGINEERING_STANDARD.md](DISTRIBUTED_SYSTEMS_ENGINEERING_STANDARD.md) | resilience/trust contract |
+| [FEATURES.md](FEATURES.md) | supported inspection tools and safety boundaries |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | device and package inspection flow |
+| [ENGINEERING.md](ENGINEERING.md) | release and safety gates |
+| [PROJECT_STEWARDSHIP_STANDARD.md](PROJECT_STEWARDSHIP_STANDARD.md) | operator, privacy and communication policy |
+| [DISTRIBUTED_SYSTEMS_ENGINEERING_STANDARD.md](DISTRIBUTED_SYSTEMS_ENGINEERING_STANDARD.md) | resilience and trust contract |
 | [DUCK_SOVEREIGN_CANON.md](DUCK_SOVEREIGN_CANON.md) | shared design tokens |
-| [UI_UX_SYSTEM.md](UI_UX_SYSTEM.md) | desktop interaction |
-| [DEVICE_COMPATIBILITY_GRAPH.md](DEVICE_COMPATIBILITY_GRAPH.md) | exact-ID candidate graph |
-| [DRIVER_TARGET_ARCHITECTURE.md](DRIVER_TARGET_ARCHITECTURE.md) | INF machine codes |
-| [UDRV_FORMAT_V1.md](UDRV_FORMAT_V1.md) | package contract/limits |
+| [UI_MOTION.md](UI_MOTION.md) | accessible motion preferences, reduced-motion limits and UI performance |
+| [UI_UX_SYSTEM.md](UI_UX_SYSTEM.md) | desktop interaction contract |
+| [DEVICE_COMPATIBILITY_GRAPH.md](DEVICE_COMPATIBILITY_GRAPH.md) | exact-ID candidate graph; not an automatic verdict |
+| [DRIVER_TARGET_ARCHITECTURE.md](DRIVER_TARGET_ARCHITECTURE.md) | INF and PE machine codes |
+| [UDRV_FORMAT_V1.md](UDRV_FORMAT_V1.md) | package manifest, hashing and size limits |
 | [DRIVE_LENS_EVIDENCE_LEDGER.md](DRIVE_LENS_EVIDENCE_LEDGER.md) | evidence provenance |
-| [CLINICAL_SYSTEMS_CSR120.md](CLINICAL_SYSTEMS_CSR120.md) | 120/36 advisory catalogue |
+| [CLINICAL_SYSTEMS_CSR120.md](CLINICAL_SYSTEMS_CSR120.md) | 120 principles and 36 advisory telemetry checks |
 
-JSON schemas, tests and source define the machine-checked contracts.
+The root README also links the 20-entry semantic impact-profile CLI and the live Windows screenshot. JSON schemas, tests and source define machine-checked behavior. Hardware matches and ordinal profile rankings are advisory evidence, not certification.
