@@ -193,7 +193,7 @@ class OPlagueApp(tk.Tk):
         self.geometry("1120x720")
         self.minsize(820, 540)
         self._theme_mode = load_preferred_theme()
-        self._theme_cycle = ("system", "light", "dark")
+        self._theme_cycle = ("system", "dawn", "sunset", "night")
         header = ttk.Frame(self, padding=(16, 12)); header.pack(fill="x")
         ttk.Label(header, text="OPLAGUE", style="Title.TLabel").pack(side="left")
         ttk.Label(header, text="Инвентаризация оборудования  /  Проверка пакетов драйверов", style="Muted.TLabel").pack(side="left", padx=16)
@@ -259,12 +259,24 @@ class OPlagueApp(tk.Tk):
         bar = ttk.Frame(inventory); bar.pack(fill="x", pady=(0, 10))
         ttk.Button(bar, text="Обновить список устройств", command=self.refresh_devices, style="Primary.TButton").pack(side="left")
         ttk.Label(bar, text="Список устройств Windows Plug and Play — только чтение", style="Muted.TLabel").pack(side="left", padx=12)
+        filter_row = ttk.Frame(inventory)
+        filter_row.pack(fill="x", pady=(0, 8))
+        ttk.Label(filter_row, text="Быстрый поиск по устройствам", style="Muted.TLabel").pack(side="left", padx=(0, 10))
+        self.device_filter_var = tk.StringVar()
+        device_filter = ttk.Entry(filter_row, textvariable=self.device_filter_var)
+        device_filter.pack(side="left", fill="x", expand=True)
+        device_filter.configure(width=28)
+        device_filter.bind("<Escape>", lambda _event: self.device_filter_var.set(""))
+
         columns = ("name", "status", "manufacturer", "pnp_id")
         self.devices = ttk.Treeview(inventory, columns=columns, show="headings")
         for col, label, width in (("name","Устройство",280),("status","Состояние",90),("manufacturer","Производитель",170),("pnp_id","Аппаратный ID",410)):
             self.devices.heading(col, text=label); self.devices.column(col, width=width, minwidth=90, stretch=True)
         ybar = ttk.Scrollbar(inventory, orient="vertical", command=self.devices.yview)
         self.devices.configure(yscrollcommand=ybar.set); self.devices.pack(fill="both", expand=True); ybar.pack(side="right", fill="y")
+        self.device_empty_state = ttk.Label(inventory, text="", style="Muted.TLabel")
+        self.device_empty_state.pack(fill="x", pady=(6, 0))
+        self.device_filter_var.trace_add("write", lambda *_: self._render_devices())
         tools = ttk.Frame(packages); tools.pack(fill="x", pady=(0, 10))
         ttk.Button(tools, text="Проверить INF / ZIP…", command=self.choose_package, style="Primary.TButton").pack(side="left")
         ttk.Button(tools, text="Пакетная проверка…", command=self.choose_packages).pack(side="left", padx=(8, 0))
@@ -309,7 +321,10 @@ class OPlagueApp(tk.Tk):
     def apply_visual_theme(self) -> None:
         """Apply the selected appearance to tabs, tables and report editors."""
         apply_ui_theme(self, self._theme_mode)
-        theme_title = {"system": "системная", "light": "светлая", "dark": "тёмная"}.get(self._theme_mode, "системная")
+        theme_title = {
+            "system": "системная", "light": "светлая", "dark": "тёмная",
+            "dawn": "рассвет", "sunset": "закат", "night": "ночь",
+        }.get(self._theme_mode, "системная")
         self.theme_button.configure(text=f"Тема: {theme_title}")
 
     def cycle_theme(self) -> None:
@@ -331,17 +346,37 @@ class OPlagueApp(tk.Tk):
             for column in range(3):
                 container.columnconfigure(column, weight=1 if column < columns else 0)
 
+    def _render_devices(self) -> None:
+        """Filter the locally cached inventory without repeating the hardware query."""
+        if not hasattr(self, "devices"):
+            return
+        query = self.device_filter_var.get().strip().casefold() if hasattr(self, "device_filter_var") else ""
+        self.devices.delete(*self.devices.get_children())
+        shown = 0
+        for row in getattr(self, "device_rows", []):
+            searchable = " ".join(str(row.get(key, "")) for key in ("name", "status", "manufacturer", "pnp_id")).casefold()
+            if query and query not in searchable:
+                continue
+            self.devices.insert("", "end", values=(row["name"], row["status"], row["manufacturer"], row["pnp_id"]))
+            shown += 1
+        if hasattr(self, "device_empty_state"):
+            if not self.device_rows:
+                message = "Здесь появится локальный список после обновления устройств."
+            elif shown == 0:
+                message = "По этому запросу ничего не найдено. Очистите строку поиска, чтобы показать все устройства."
+            else:
+                message = ""
+            self.device_empty_state.configure(text=message)
+
     def refresh_devices(self) -> None:
         self.status.set("Получение локального списка устройств Windows…"); self.update_idletasks()
-        self.devices.delete(*self.devices.get_children())
         try:
             devices = list_pnp_devices()
         except Exception as error:
             self.status.set("Не удалось получить список устройств")
             messagebox.showerror("Список устройств", str(error), parent=self); return
         self.device_rows = devices
-        for row in devices:
-            self.devices.insert("", "end", values=(row["name"], row["status"], row["manufacturer"], row["pnp_id"]))
+        self._render_devices()
         self.status.set(f"Найдено устройств Plug and Play: {len(devices)}")
 
     def compare_profiles(self) -> None:
