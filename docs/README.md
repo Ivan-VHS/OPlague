@@ -17,3 +17,7 @@
 | [CLINICAL_SYSTEMS_CSR120.md](CLINICAL_SYSTEMS_CSR120.md) | 120 principles and 36 advisory telemetry checks |
 
 The root README also links the 20-entry semantic impact-profile CLI and the live Windows screenshot. JSON schemas, tests and source define machine-checked behavior. Hardware matches and ordinal profile rankings are advisory evidence, not certification.
+
+## Publishing standard
+
+[README and visual documentation standard](README_VISUAL_STANDARD.md) — information architecture, Markdown/MDX, diagrams, screenshots, image formats, accessibility, localization and quality gates.
