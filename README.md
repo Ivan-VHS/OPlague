@@ -81,3 +81,8 @@ Motion follows a clear hierarchy: restrained spring easing for intentional entra
 **Accessibility and responsive behavior:** preserve readable contrast, visible keyboard focus, touch-sized controls, predictable active/disabled states and layouts that collapse cleanly on narrow screens. Motion must not cause layout shifts or make controls harder to operate.
 
 This is a DUCK CORE visual reference, **not a claim** that every theme, animation or control ships in every application. The implementation and project-specific contract are authoritative: [UI motion contract](docs/UI_MOTION.md).
+
+
+## Motion Constitution v2026
+
+The shared cross-project contract is [Motion Constitution v2026](docs/MOTION_CONSTITUTION_V2026.md). It standardizes spring/snappy easing, the 0.4×–2.2× motion-scale envelope, reduced-motion precedence, theme parity, 2×2/focus-scene presentation and data-bound SVG/Canvas telemetry. The [native UI motion contract](docs/UI_MOTION.md) defines the shipped Tk behavior and accessibility preferences. OPlague remains read-only: device inventory, INF/ZIP evidence, hashes and candidate compatibility links are real data; firmware OTA, driver installation, USB animation and device DPI/polling controls are not available.
