@@ -27,10 +27,11 @@
 | Metric Lab | normalized vectors, weighted distance and variance | advisory analysis of supplied data |
 | Clinical Systems | 120 principle records and 36 telemetry checks | operational guidance, not medical or device certification |
 | Impact Profiles | 20 searchable semantic profiles with five ordinal dimensions | lexical catalogue only; no hardware inference |
+| Atomic-Quantum 133 | 133 stable operation IDs and read-only simulation-report validation with provenance, time windows, units and uncertainty | advisory evidence only; no device control |
 
 ## Motion and accessibility
 
-The **Движение** control in the workbench header opens persisted **Reduce Motion** and **Eco / Low-CPU Visuals** preferences. Reduced/eco modes cap retained transitions at 80 ms and suppress spatial or nonessential effects. **Sync to Transport / BPM** is disabled because OPlague has no audio transport. Preferences are stored at `%APPDATA%\\oplague\\ui-motion.json` on Windows (or under the user's XDG configuration directory on non-Windows systems). See the [UI motion contract](docs/UI_MOTION.md).
+The **Движение** control in the workbench header opens persisted **Reduce Motion** and **Eco / Low-CPU Visuals** preferences. Reduced/eco modes cap retained transitions at 80 ms and suppress spatial or nonessential effects. **Sync to Transport / BPM** is disabled because OPlague has no audio transport. Preferences are stored at `%APPDATA%\\oplague\\ui-motion.json` on Windows (or under the user's XDG configuration directory). See the [UI motion contract](docs/UI_MOTION.md).
 
 ## Run and test
 
@@ -69,4 +70,4 @@ UDRV v1 limits: manifest ≤4 MiB · entries ≤10,000 · file ≤512 MiB · tot
 
 Exact ID or hash matches do not prove publisher trust, OS compatibility, device suitability or safe installation. HMAC pseudonyms and report fingerprints aid consistency and provenance; they do not establish authenticity by themselves.
 
-[Features](docs/FEATURES.md) · [Architecture](docs/ARCHITECTURE.md) · [UDRV format](docs/UDRV_FORMAT_V1.md) · [CSR-120](docs/CLINICAL_SYSTEMS_CSR120.md) · [Impact-profile source](oplague/impact.py) · [Stewardship](docs/PROJECT_STEWARDSHIP_STANDARD.md) · [Design](docs/DUCK_SOVEREIGN_CANON.md) · [Docs index](docs/README.md) · [License](LICENSE)
+[Atomic-Quantum 133](docs/ATOMIC_QUANTUM_133.md) · [Features](docs/FEATURES.md) · [Architecture](docs/ARCHITECTURE.md) · [UDRV format](docs/UDRV_FORMAT_V1.md) · [CSR-120](docs/CLINICAL_SYSTEMS_CSR120.md) · [Impact-profile source](oplague/impact.py) · [Stewardship](docs/PROJECT_STEWARDSHIP_STANDARD.md) · [Design](docs/DUCK_SOVEREIGN_CANON.md) · [Docs index](docs/README.md) · [License](LICENSE)
