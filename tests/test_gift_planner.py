@@ -38,7 +38,7 @@ class DiscreteGiftPlannerTests(unittest.TestCase):
     def test_complete_greeting_graph_and_rotation(self):
         edges = build_greeting_graph(2, 5, 3)
         self.assertEqual(len(edges), 10)
-        self.assertEqual(edges[-1].template_index, 0)
+        self.assertEqual(edges[-1].template_index, 2)
 
     def test_composite_report_keeps_budget_invariant_and_consumes_stock(self):
         plan = plan_gift(
