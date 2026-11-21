@@ -103,3 +103,7 @@ Windows workflow проверяет визуальный канон и тест�
 Пример модели бюджета 500 грн с JSON-контрактом и автономным симулятором. Это документационный пример, а не функция runtime самого приложения.
 
 [Мультиязычный справочник](docs/RESOURCE_ALLOCATION_500_UAH.md) · [Интерактивный симулятор](docs/resource-allocation-500-uah.html) · [Пример JSON](examples/resource-allocation-500-uah.json) · [JSON Schema](schemas/resource-allocation.v1.schema.json)
+
+## Поддержка хоста Эльбрус E2K
+
+Кроссплатформенный анализ INF/ZIP и граница Windows-only для Plug-and-Play описаны в [руководстве по Эльбрус E2K](docs/ELBRUS_E2K.md).
