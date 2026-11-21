@@ -15,6 +15,7 @@ CHARTER_PATH = Path(__file__).resolve().parents[1] / "data" / "code-wellbeing" /
 MAX_FILES = 5000
 MAX_DEPTH = 16
 MAX_FILE_BYTES = 1024 * 1024
+MAX_TOTAL_SOURCE_BYTES = 32 * 1024 * 1024
 SKIP_DIRS = {".git", "build", "dist", "target", "vendor", "node_modules", ".venv", "venv", "__pycache__", ".pytest_cache"}
 SOURCE_EXTENSIONS = {".c", ".h", ".cc", ".cpp", ".cxx", ".hpp", ".hxx", ".py", ".js", ".jsx", ".ts", ".tsx", ".rs", ".go", ".java", ".cs", ".rpr", ".qcs", ".lua"}
 DOC_EXTENSIONS = {".md", ".mdx", ".rst", ".adoc"}
