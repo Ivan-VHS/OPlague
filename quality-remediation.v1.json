@@ -1,0 +1,295 @@
+{
+  "schema": "anatidae.quality-remediation.v1",
+  "project": {
+    "id": "oplague",
+    "name": "OPlague",
+    "scope": "Windows-first read-only hardware inventory, driver-package inspection, evidence reconciliation and customer-facing diagnostics."
+  },
+  "entries": [
+    {
+      "id": "root-cause-correction",
+      "terms": {
+        "correction": "Исправление",
+        "coverage": "Всеобъемлемость",
+        "defect": "Ошибки"
+      },
+      "target": "Driver-package parsing, metadata validation and safe failure paths",
+      "acceptance": "Reproduce the defect, isolate its root cause, add a regression check, and verify the corrected behavior at the affected entry point.",
+      "evidence": [
+        "tools/udrv_inspector.py",
+        "tests/test_udrv_inspector.py"
+      ]
+    },
+    {
+      "id": "tolerance-calibration",
+      "terms": {
+        "correction": "Корректировка",
+        "coverage": "Всесторонность",
+        "defect": "Погрешности"
+      },
+      "target": "Plug and Play device identities and compatibility metadata",
+      "acceptance": "Check boundaries, units, tolerances, rounding and measurement assumptions from more than one independent path.",
+      "evidence": [
+        "tools/device_graph.py",
+        "tests/test_device_graph.py"
+      ]
+    },
+    {
+      "id": "subsystem-removal",
+      "terms": {
+        "correction": "Устранение",
+        "coverage": "Комплексность",
+        "defect": "Неточности"
+      },
+      "target": "INF and archive inspection, hardware IDs and target architecture",
+      "acceptance": "Remove the underlying cause across dependent components; do not hide symptoms with local workarounds.",
+      "evidence": [
+        "tools/driver_evidence.py",
+        "tests/test_driver_evidence.py"
+      ]
+    },
+    {
+      "id": "acceptance-completeness",
+      "terms": {
+        "correction": "Поправка",
+        "coverage": "Полнота",
+        "defect": "Недочёты"
+      },
+      "target": "Ordered batch inspection and aggregate results",
+      "acceptance": "Close missing acceptance conditions across implementation, tests, documentation, configuration and distribution artifacts.",
+      "evidence": [
+        "tools/inspection_batch.py",
+        "tests/test_inspection_batch.py"
+      ]
+    },
+    {
+      "id": "end-to-end-workflows",
+      "terms": {
+        "correction": "Налаживание",
+        "coverage": "Исчерпывающесть",
+        "defect": "Просчёты"
+      },
+      "target": "UDRV package validation and untrusted archive boundaries",
+      "acceptance": "Exercise the complete user workflow, including invalid input, cancellation, failure and recovery branches.",
+      "evidence": [
+        "tools/udrv_inspector.py",
+        "tests/test_udrv_inspector.py"
+      ]
+    },
+    {
+      "id": "cross-platform-diagnostics",
+      "terms": {
+        "correction": "Отладка",
+        "coverage": "Универсальность",
+        "defect": "Отклонения"
+      },
+      "target": "Snapshot history and state transitions",
+      "acceptance": "Run deterministic diagnostics for supported platforms and configurations; report unsupported combinations explicitly.",
+      "evidence": [
+        "tools/snapshot_history.py",
+        "tests/test_snapshot_history.py"
+      ]
+    },
+    {
+      "id": "multidimensional-review",
+      "terms": {
+        "correction": "Доработка",
+        "coverage": "Многогранность",
+        "defect": "Дефекты"
+      },
+      "target": "Metric analysis and diagnostic report consistency",
+      "acceptance": "Review functional behavior, security, resource use, accessibility, compatibility and documentation as one change set.",
+      "evidence": [
+        "tools/metric_analysis.py",
+        "tests/test_metric_analysis.py"
+      ]
+    },
+    {
+      "id": "measured-optimization",
+      "terms": {
+        "correction": "Оптимизация",
+        "coverage": "Масштабность",
+        "defect": "Изъяны"
+      },
+      "target": "Compute operations and resource-limited inspection",
+      "acceptance": "Measure a reproducible baseline before optimizing and prove that correctness, safety and output quality do not regress.",
+      "evidence": [
+        "tools/compute_ops.py",
+        "tests/test_compute_ops.py"
+      ]
+    },
+    {
+      "id": "contract-safe-reconstruction",
+      "terms": {
+        "correction": "Реконструкция",
+        "coverage": "Охватность",
+        "defect": "Недостатки"
+      },
+      "target": "QCS policy and contour validation",
+      "acceptance": "Restructure components only with explicit interface contracts, migration notes and compatibility regression checks.",
+      "evidence": [
+        "tools/qcs.py",
+        "tests/test_qcs.py"
+      ]
+    },
+    {
+      "id": "toolchain-modernization",
+      "terms": {
+        "correction": "Модернизация",
+        "coverage": "Многоаспектность",
+        "defect": "Оплошности"
+      },
+      "target": "Desktop theme and motion system",
+      "acceptance": "Update toolchains, platforms and dependencies deliberately, then run the affected build and regression matrix.",
+      "evidence": [
+        "ui_theme.py",
+        "tests/test_ui_theme.py"
+      ]
+    },
+    {
+      "id": "profile-synchronization",
+      "terms": {
+        "correction": "Обновление",
+        "coverage": "Многопрофильность",
+        "defect": "Промахи"
+      },
+      "target": "Device-snapshot schema and published format documentation",
+      "acceptance": "Synchronize supported profiles, operating modes, locales and configurations so they do not drift independently.",
+      "evidence": [
+        "schemas/oplage.device-snapshot.v1.schema.json",
+        "tests/test_inspector.py"
+      ]
+    },
+    {
+      "id": "evidence-audit",
+      "terms": {
+        "correction": "Ревизия",
+        "coverage": "Разносторонность",
+        "defect": "Сбои"
+      },
+      "target": "Report composition and diagnostic traceability",
+      "acceptance": "Audit implementation, tests, diagnostics, release workflows and evidence links; record findings with reproducible references.",
+      "evidence": [
+        "tools/report_composer.py",
+        "tests/test_report_composer.py"
+      ]
+    },
+    {
+      "id": "safe-recovery",
+      "terms": {
+        "correction": "Восстановление",
+        "coverage": "Всеохватность",
+        "defect": "Нарушения"
+      },
+      "target": "Pytyliki FFI boundary and imported processor evidence",
+      "acceptance": "Recover from partial failures without corrupting existing data; verify idempotency and atomicity where relevant.",
+      "evidence": [
+        "tools/pytyliki_ffi.py",
+        "tests/test_pytyliki_ffi.py"
+      ]
+    },
+    {
+      "id": "bounded-configuration",
+      "terms": {
+        "correction": "Регулировка",
+        "coverage": "Целостность",
+        "defect": "Упущения"
+      },
+      "target": "Federation contracts and cross-repository inputs",
+      "acceptance": "Keep defaults, thresholds, quotas, timeouts and policy boundaries consistent with the documented operating envelope.",
+      "evidence": [
+        "tools/federation.py",
+        "tests/test_federation.py"
+      ]
+    },
+    {
+      "id": "cross-layer-conformance",
+      "terms": {
+        "correction": "Совершенствование",
+        "coverage": "Совокупность",
+        "defect": "Несоответствия"
+      },
+      "target": "Architecture profiles and configuration consistency",
+      "acceptance": "Verify end-to-end conformance from the public interface through implementation and persisted/exported results.",
+      "evidence": [
+        "tools/architecture_profiles.py",
+        "tests/test_architecture_profiles.py"
+      ]
+    },
+    {
+      "id": "dependency-aware-refactoring",
+      "terms": {
+        "correction": "Рефакторинг",
+        "coverage": "Глобальность",
+        "defect": "Дисфункции"
+      },
+      "target": "Inspection batch ordering and duplicate handling",
+      "acceptance": "Remove harmful duplication and dependency cycles while preserving public contracts and observable behavior.",
+      "evidence": [
+        "tools/inspection_batch.py",
+        "tests/test_inspection_batch.py"
+      ]
+    },
+    {
+      "id": "fault-containment",
+      "terms": {
+        "correction": "Стабилизация",
+        "coverage": "Безграничность",
+        "defect": "Неисправности"
+      },
+      "target": "Windows desktop build and packaging pipeline",
+      "acceptance": "Contain failures with explicit upper bounds for memory, CPU, retries, input sizes and execution time.",
+      "evidence": [
+        ".github/workflows/desktop-build.yml",
+        "tests/test_udrv_inspector.py"
+      ]
+    },
+    {
+      "id": "specification-alignment",
+      "terms": {
+        "correction": "Согласование",
+        "coverage": "Исчерпывающесть",
+        "defect": "Оговорки"
+      },
+      "target": "Device compatibility graph and related inventory",
+      "acceptance": "Resolve mismatches between source code, schemas, APIs, specifications, tests and user-facing documentation.",
+      "evidence": [
+        "docs/DEVICE_COMPATIBILITY_GRAPH.md",
+        "tests/test_device_graph.py"
+      ]
+    },
+    {
+      "id": "canonical-unification",
+      "terms": {
+        "correction": "Унификация",
+        "coverage": "Фундаментальность",
+        "defect": "Ляпы"
+      },
+      "target": "Snapshot schema and regression coverage",
+      "acceptance": "Use canonical data formats and versioned interfaces for shared capabilities without erasing project-specific boundaries.",
+      "evidence": [
+        "schemas/oplage.device-snapshot.v1.schema.json",
+        "tests/test_snapshot_history.py"
+      ]
+    },
+    {
+      "id": "release-readiness",
+      "terms": {
+        "correction": "Безошибочность",
+        "coverage": "Энциклопедичность",
+        "defect": "Деформации"
+      },
+      "target": "Engineering baseline and release acceptance",
+      "acceptance": "Gate releases on relevant regression checks, clean build artifacts, synchronized documentation and reviewable evidence.",
+      "evidence": [
+        "docs/ENGINEERING_BASELINE.md",
+        "tests/test_quality_commercial.py"
+      ]
+    }
+  ],
+  "limitations": [
+    "Evidence checks verify repository-relative file presence only; they do not execute or semantically validate the referenced implementation.",
+    "Passing this profile does not certify zero defects, security, hardware compatibility, language parity, audio fidelity or commercial readiness.",
+    "The project's existing permissions, licensing, interoperability and safety boundaries remain authoritative."
+  ]
+}
