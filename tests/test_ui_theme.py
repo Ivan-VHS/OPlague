@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from ui_theme import PALETTES, _save_preferred_theme, contrast_ratio, load_preferred_theme, palette_for
+from ui_theme import PALETTES, _save_preferred_theme, contrast_ratio, load_preferred_theme, palette_contrast_issues, palette_for
 
 
 class OPlagueThemeTests(unittest.TestCase):
@@ -17,7 +17,7 @@ class OPlagueThemeTests(unittest.TestCase):
         required = {
             "bg", "surface", "elevated", "fg", "secondary", "muted",
             "blue", "blue_hover", "on_blue", "red", "red_hover", "on_red",
-            "border", "focus", "selection", "selection_fg", "disabled",
+            "border", "focus", "selection", "selection_fg", "disabled",\n            "success", "warning", "error", "info",
         }
         self.assertTrue(required.issubset(light))
         self.assertTrue(required.issubset(dark))
@@ -31,6 +31,12 @@ class OPlagueThemeTests(unittest.TestCase):
             self.assertGreaterEqual(contrast_ratio(palette["fg"], palette["bg"]), 7.0)
             self.assertGreaterEqual(contrast_ratio(palette["on_blue"], palette["blue"]), 4.5)
             self.assertGreaterEqual(contrast_ratio(palette["on_red"], palette["red"]), 4.5)
+
+    def test_every_palette_meets_ui_ux_40026_text_contrast(self):
+        for name, palette in PALETTES.items():
+            self.assertEqual(palette_contrast_issues(palette), [], name)
+            for token in ("success", "warning", "error", "info"):
+                self.assertIn(token, palette)
 
     def test_invalid_color_is_rejected(self):
         with self.assertRaises(ValueError):
