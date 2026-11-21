@@ -21,6 +21,7 @@
 | Batch reports | ordered results, totals, fingerprint | no system write |
 | Metric Lab | normalized vectors, weighted distance, variance | user-supplied data |
 | Clinical Systems | 120 principle records, 36 telemetry checks | advisory only |
+| Atomic-Quantum 133 | stable function catalogue and read-only simulator-report validation with provenance, time windows, units and uncertainty | advisory evidence only; no device control |
 
 ## Run and test
 
@@ -45,4 +46,4 @@ UDRV v1: manifest ≤4 MiB · entries ≤10,000 · file ≤512 MiB · total ≤2
 
 Exact ID/hash matches do not prove publisher trust, OS compatibility or safe installation. Reaper integration is versioned JSON; Pytyliki native metrics require an explicit trusted library path.
 
-[Features](docs/FEATURES.md) · [Architecture](docs/ARCHITECTURE.md) · [UDRV](docs/UDRV_FORMAT_V1.md) · [Stewardship](docs/PROJECT_STEWARDSHIP_STANDARD.md) · [Design](docs/DUCK_SOVEREIGN_CANON.md) · [Docs index](docs/README.md) · [License](LICENSE)
+[Atomic-Quantum 133](docs/ATOMIC_QUANTUM_133.md) · [Features](docs/FEATURES.md) · [Architecture](docs/ARCHITECTURE.md) · [UDRV](docs/UDRV_FORMAT_V1.md) · [Stewardship](docs/PROJECT_STEWARDSHIP_STANDARD.md) · [Design](docs/DUCK_SOVEREIGN_CANON.md) · [Docs index](docs/README.md) · [License](LICENSE)
