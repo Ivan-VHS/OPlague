@@ -59,9 +59,9 @@ OPlague began on 19 Nov 2026 as a Windows driver-workbench project. Mainline cha
 
 **Not implemented:** driver installation/removal, enable/disable, signing, rollback, firmware changes or live DPC/ISR diagnostics. Package integrity does not establish vendor authenticity, driver safety or compatibility. Imported files are untrusted input; inspect reports before making manual decisions. The QCS body is retained as text and is never compiled or executed.
 
-## Documentation
+## Documentation and downloads
 
-[Clinical Systems Reliability CSR-120](docs/CLINICAL_SYSTEMS_CSR120.md) ·  and downloads
+[Clinical Systems Reliability CSR-120](docs/CLINICAL_SYSTEMS_CSR120.md)
 
 [Anatidae desktop design system](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [UI/UX system](docs/UI_UX_SYSTEM.md) · [UDRV format](docs/UDRV_FORMAT_V1.md) · [Device compatibility graph](docs/DEVICE_COMPATIBILITY_GRAPH.md) · [Federation contract](docs/FEDERATED_INTEGRATION.md) · [QCS syntax](docs/QUANTUM_CONTOUR_SYNTAX.md) · [Unified engineering standard](docs/UNIFIED_ENGINEERING_STANDARD.md)
 
