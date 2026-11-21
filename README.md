@@ -70,7 +70,7 @@ Mainline includes PnP inventory, bounded INF/ZIP inspection, architecture analys
 [Governance and consent](docs/HUMAN_FIRST_GOVERNANCE.md) · [Anatidae desktop design system](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [UI/UX architecture](docs/UI_UX_ARCHITECTURE.md) · [12 animation principles](docs/DISNEY_MOTION_SYSTEM.md) · [Project contract](docs/UNIFIED_PROJECT_CONTRACT.md)
 [Windows releases](https://github.com/Ivan-VHS/OPlague/releases) · [Desktop build](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)
 
-**Federation:** [Reaper](https://github.com/Ivan-VHS/Reaper) · [Pytyliki](https://github.com/Ivan-VHS/Pytyliki) · [4×4 matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md).
+**Federation:** [Reaper](https://github.com/Ivan-VHS/Reaper) · [Pytyliki](https://github.com/Ivan-VHS/Pytyliki) · [3×3 matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md).
 
 ## Anatidae doctrine and safety contract
 
@@ -83,6 +83,10 @@ Mainline includes PnP inventory, bounded INF/ZIP inspection, architecture analys
 
 Package hashes establish byte-level integrity only; they do not establish publisher identity, driver safety or compatibility.
 
+## Documentation governance
+
+[Documentation control](docs/DOCUMENTATION_CONTROL.md) defines the normative rules for public claims, evidence, privacy and integrations.
+
 ## License
 
 [Apache License 2.0](LICENSE)
@@ -90,4 +94,11 @@ Package hashes establish byte-level integrity only; they do not establish publis
 UI motion: [12 animation principles](docs/DISNEY_MOTION_SYSTEM.md).
 
 
-OPlague remains outside audio generation and WAV processing; see the [four-project federation matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md) for the explicit not-applicable boundary.
+## Quality and commercial readiness
+
+OPlague now carries an evidence-linked 20 × 3 matrix for product quality, operational execution and commercial governance. Run **python tools/quality_commercial.py** or add **--format json**. The report does not imply driver compatibility, market demand, revenue or profitability. See [the quality-commercial standard](docs/QUALITY_COMMERCIAL_STANDARD.md).
+
+
+## Four-project federation
+
+The shared [OCTA-8 project matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md) documents the implemented pairings and explicit not-applicable boundaries across Reaper, Pytyliki, OPlague and VentuSample. OPlague remains a read-only device/driver diagnostics product and is not coupled to audio generation.
