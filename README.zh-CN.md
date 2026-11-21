@@ -11,6 +11,37 @@
 
 <p align="center"><img src="assets/screenshots/oplague-workbench.png" alt="Windows 中运行的 OPlague 工作台" width="100%"></p>
 
+<sub>应用实际截屏 · 原始图像为 1920×1080 · 保留原始像素，不进行人为放大。</sub>
+
+## 功能数据流
+
+该图概述 Windows 设备记录、驱动包检查和报告生成之间已经实现的数据流转。
+
+```mermaid
+flowchart TD
+    A[Windows Plug and Play 记录] --> B[只读设备清单]
+    B --> C[规范化硬件 ID]
+    D[INF / ZIP 驱动包] --> E[元数据、路径和哈希检查]
+    E --> F[目标架构证据]
+    C --> G[候选兼容性关系]
+    F --> G
+    G --> H[批量比较报告]
+    H --> I[汇总与报告指纹]
+```
+
+## 软件包检查与指标处理
+
+第二张图描述软件包完整性检查，以及对用户提供数值向量的分析。
+
+```mermaid
+flowchart LR
+    A[UDRV v1 包] --> B[Manifest 与大小检查]
+    B --> C[SHA-256 检查]
+    C --> D[完整性证据]
+    E[用户提供的数值向量] --> F[归一化与比较]
+    F --> G[加权距离和方差报告]
+```
+
 ## 工作台模块
 
 | 模块 | 证据 / 输出 | 边界 |
@@ -62,3 +93,5 @@ Windows 工作流会检查视觉规范并运行测试，构建独立的 `OPlague
 UDRV v1 限制：manifest ≤4 MiB · ≤10,000 项 · 单文件 ≤512 MiB · 总载荷 ≤2 GiB · SHA-256 缓冲区 1 MiB。
 
 ID 或哈希匹配不证明发布者可信、系统兼容、设备适用或安装安全。HMAC 假名和报告 fingerprint 有助于保持一致性与来源记录，但本身不能证明真实性。
+
+[文档索引](docs/README.md) · [Apache-2.0 许可证](LICENSE)
