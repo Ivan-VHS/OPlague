@@ -45,6 +45,15 @@ class UdrvInspectorTests(unittest.TestCase):
         self.assertEqual(report.total_bytes, len(payload))
         self.assertEqual(report.container, "directory")
 
+    def test_oversized_directory_manifest_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = root / "manifest.json"
+            manifest.write_bytes(b"x" * (4 * 1024 * 1024 + 1))
+
+            with self.assertRaisesRegex(PackageError, "manifest exceeds the 4 MiB limit"):
+                inspect_package(root)
+
     def test_valid_zip_package(self) -> None:
         payload = b"driver payload"
         with tempfile.TemporaryDirectory() as directory:

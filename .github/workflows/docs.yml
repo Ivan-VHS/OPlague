@@ -9,6 +9,8 @@ on:
       - "README.zh-CN.md"
       - "LICENSE"
       - ".github/workflows/docs.yml"
+      - ".github/scripts/check_readme_links.py"
+      - ".github/workflows/verified-auto-merge.yml"
   push:
     branches: ['**']
     paths:
@@ -18,6 +20,8 @@ on:
       - "README.zh-CN.md"
       - "LICENSE"
       - ".github/workflows/docs.yml"
+      - ".github/scripts/check_readme_links.py"
+      - ".github/workflows/verified-auto-merge.yml"
 
 permissions:
   contents: read
@@ -54,3 +58,5 @@ jobs:
         run: |
           set -euo pipefail
           test -s LICENSE
+      - name: Validate local README links
+        run: python .github/scripts/check_readme_links.py
