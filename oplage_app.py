@@ -13,6 +13,7 @@ from tkinter import filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
 from ui_theme import apply_ui_theme, load_preferred_theme, set_dpi_awareness
 from ui_motion import MotionController, MotionPreferences, fade_in_window
+from budget_planner import open_budget_planner
 from typing import Any
 
 from tools.report_composer import compose_inspection_reports
@@ -201,6 +202,8 @@ class OPlagueApp(tk.Tk):
         self.theme_button.pack(side="right")
         self.motion_button = ttk.Button(header, text="Движение", command=self.show_motion_settings)
         self.motion_button.pack(side="right", padx=(0, 8))
+        self.budget_button = ttk.Button(header, text="Бюджет 500 грн", command=lambda: open_budget_planner(self))
+        self.budget_button.pack(side="right", padx=(0, 8))
         self.tabs = ttk.Notebook(self); self.tabs.pack(fill="both", expand=True, padx=14, pady=(0, 10))
         inventory = ttk.Frame(self.tabs, padding=12); packages = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(inventory, text="Устройства"); self.tabs.add(packages, text="Проверка пакетов")
