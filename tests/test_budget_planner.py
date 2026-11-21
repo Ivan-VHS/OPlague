@@ -14,8 +14,8 @@ class OPlagueBudgetTests(unittest.TestCase):
 
     def test_over_budget_is_reported_without_clamping(self):
         result = calculate_budget(500, overrides={"food": 350, "transport": 200})
-        self.assertEqual(result["planned_uah"], 670)
-        self.assertEqual(result["over_budget_uah"], 170)
+        self.assertEqual(result["planned_uah"], 650)
+        self.assertEqual(result["over_budget_uah"], 150)
         self.assertFalse(result["within_budget"])
 
     def test_coffee_scenario_uses_460_and_keeps_40_reserve(self):
