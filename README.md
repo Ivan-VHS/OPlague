@@ -70,7 +70,7 @@ Mainline includes PnP inventory, bounded INF/ZIP inspection, architecture analys
 [Governance and consent](docs/HUMAN_FIRST_GOVERNANCE.md) · [Anatidae desktop design system](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [UI/UX architecture](docs/UI_UX_ARCHITECTURE.md) · [12 animation principles](docs/DISNEY_MOTION_SYSTEM.md) · [Project contract](docs/UNIFIED_PROJECT_CONTRACT.md)
 [Windows releases](https://github.com/Ivan-VHS/OPlague/releases) · [Desktop build](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)
 
-**Federation:** [Reaper](https://github.com/Ivan-VHS/Reaper) · [Pytyliki](https://github.com/Ivan-VHS/Pytyliki) · [3×3 matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md).
+**Federation:** [Reaper](https://github.com/Ivan-VHS/Reaper) · [Pytyliki](https://github.com/Ivan-VHS/Pytyliki) · [4×4 matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md).
 
 ## Anatidae doctrine and safety contract
 
@@ -88,3 +88,6 @@ Package hashes establish byte-level integrity only; they do not establish publis
 [Apache License 2.0](LICENSE)
 
 UI motion: [12 animation principles](docs/DISNEY_MOTION_SYSTEM.md).
+
+
+OPlague remains outside audio generation and WAV processing; see the [four-project federation matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md) for the explicit not-applicable boundary.
