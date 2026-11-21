@@ -21,13 +21,27 @@ $target = Join-Path (Get-Location) $OutputPath
 New-Item -ItemType Directory -Force -Path (Split-Path -Parent $target) | Out-Null
 $process = Start-Process -FilePath $FilePath -ArgumentList $Arguments -PassThru -WindowStyle Normal
 $handle = [IntPtr]::Zero
+$visibleProcess = $null
+$processName = [System.IO.Path]::GetFileNameWithoutExtension($FilePath)
 for ($i = 0; $i -lt ($StartupSeconds * 4); $i++) {
   Start-Sleep -Milliseconds 250
-  $process.Refresh()
-  if ($process.HasExited) { throw "Application exited before capture (code $($process.ExitCode))." }
-  if ($process.MainWindowHandle -ne [IntPtr]::Zero) { $handle = $process.MainWindowHandle; break }
+  # GUI bootloaders (including PyInstaller one-file apps) may spawn a child
+  # process. Poll all matching processes and capture the one with a real window.
+  $candidates = @(Get-Process -Name $processName -ErrorAction SilentlyContinue)
+  foreach ($candidate in $candidates) {
+    $candidate.Refresh()
+    if ($candidate.MainWindowHandle -ne [IntPtr]::Zero) {
+      $visibleProcess = $candidate
+      $handle = $candidate.MainWindowHandle
+      break
+    }
+  }
+  if ($handle -ne [IntPtr]::Zero) { break }
 }
-if ($handle -eq [IntPtr]::Zero) { throw "No visible application window was created by $FilePath." }
+if ($handle -eq [IntPtr]::Zero) {
+  $remaining = @(Get-Process -Name $processName -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Id)
+  throw "No visible application window was created by $FilePath. Remaining process IDs: $($remaining -join ', ')."
+}
 [void][DesktopCaptureNative]::ShowWindowAsync($handle, 3)
 [void][DesktopCaptureNative]::SetForegroundWindow($handle)
 Start-Sleep -Seconds 2
@@ -43,4 +57,7 @@ $canvas.DrawImage($source, 0, 0, 1920, 1080)
 $bitmap.Save($target, [System.Drawing.Imaging.ImageFormat]::Png)
 $canvas.Dispose(); $bitmap.Dispose(); $graphics.Dispose(); $source.Dispose()
 Write-Host "Saved live desktop capture: $OutputPath (source: $($bounds.Width)x$($bounds.Height))."
-try { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue } catch {}
+try {
+  Get-Process -Name $processName -ErrorAction SilentlyContinue |
+    Stop-Process -Force -ErrorAction SilentlyContinue
+} catch {}
