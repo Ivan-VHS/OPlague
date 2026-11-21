@@ -95,14 +95,22 @@ def scan_project(root: str | Path = ".") -> dict[str, Any]:
     markers = {marker: 0 for marker in MARKERS}
     large: list[str] = []
     scanned = 0
+    source_bytes_scanned = 0
+    source_scan_truncated = False
     for item in source:
         absolute = project / item
         try:
-            if absolute.stat().st_size > MAX_FILE_BYTES:
+            file_size = absolute.stat().st_size
+            if file_size > MAX_FILE_BYTES:
+                source_scan_truncated = True
+                continue
+            if source_bytes_scanned + file_size > MAX_TOTAL_SOURCE_BYTES:
+                source_scan_truncated = True
                 continue
             lines = absolute.read_text(encoding="utf-8", errors="replace").splitlines()
         except OSError:
             continue
+        source_bytes_scanned += file_size
         scanned += 1
         if len(lines) > 1000 and len(large) < 100:
             large.append(item.as_posix())
@@ -137,10 +145,10 @@ def scan_project(root: str | Path = ".") -> dict[str, Any]:
     return {
         "schema_version":1,"concept":charter["concept"]["name"],"project":project.name,
         "scan":{"read_only":True,"truncated_at_file_limit":truncated,"file_limit":MAX_FILES,
-                "depth_limit":MAX_DEPTH,"max_source_file_bytes_scanned":MAX_FILE_BYTES},
+                "depth_limit":MAX_DEPTH,"max_source_file_bytes_scanned":MAX_FILE_BYTES,"max_total_source_bytes":MAX_TOTAL_SOURCE_BYTES,"source_text_scan_truncated":source_scan_truncated},
         "inventory":{"total_files":len(files),"source_files":len(source),"test_files":len(tests),
                      "documentation_files":len(docs),"readme_files":len(readmes),"ci_workflow_files":len(workflows),
-                     "ownership_files":len(owners),"dependency_manifest_files":len(dependencies),
+                     "ownership_files":len(owners),"dependency_manifest_files":len(dependencies),"source_bytes_scanned":source_bytes_scanned,
                      "recovery_guides":len(recovery),"incident_or_decision_records":len(learning),
                      "source_files_text_scanned":scanned,"maintenance_markers":markers,
                      "large_source_units_over_1000_lines":large},
