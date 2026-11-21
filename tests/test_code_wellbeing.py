@@ -53,6 +53,14 @@ class CodebaseWellbeingTests(unittest.TestCase):
             with self.assertRaises(CodeWellbeingError):
                 scan_project(Path(directory) / "absent")
 
+    def test_large_source_file_is_reported_as_partial_scan(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "large.py").write_text("x" * (1024 * 1024 + 16), encoding="utf-8")
+            report = scan_project(root)
+        self.assertTrue(report["scan"]["source_text_scan_truncated"])
+        self.assertLessEqual(report["inventory"]["source_bytes_scanned"], 32 * 1024 * 1024)
+
     def test_no_aggregate_score_is_created(self):
         with tempfile.TemporaryDirectory() as directory:
             report = scan_project(directory)
