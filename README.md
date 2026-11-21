@@ -111,3 +111,7 @@ Exact ID or hash matches do not prove publisher trust, OS compatibility, device 
 An illustrative 500 UAH budget model with a versioned JSON contract and an offline simulator. This is a documentation example, not a feature of the host runtime.
 
 [Multilingual guide](docs/RESOURCE_ALLOCATION_500_UAH.md) · [Interactive simulator](docs/resource-allocation-500-uah.html) · [JSON example](examples/resource-allocation-500-uah.json) · [JSON Schema](schemas/resource-allocation.v1.schema.json)
+
+## Cross-repository plugin federation
+
+This repository's host adapter, shared 18-plugin catalog and compatibility rules are documented in [Plugin Federation](docs/PLUGIN_FEDERATION.md). The machine-readable host declaration is `federation/plugins/host.v1.json`.
