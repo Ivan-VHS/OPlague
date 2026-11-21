@@ -30,4 +30,4 @@ Default payload limit is 8 MiB. Snapshots use canonical JSON and SHA-256, migrat
 
 ## Tests
 
-Run `python -m unittest tests.test_transactions -v`.
+Run `python -m unittest discover -s tests -p "test_transactions.py" -v`.
