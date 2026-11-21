@@ -14,6 +14,8 @@
 
 <sub>Actual application capture · 1920×1080 source image · original pixels retained; no artificial upscaling.</sub>
 
+Device and package relationships are presented as evidence for operator review; no driver installation is triggered.
+
 ## Functional data flow
 
 The diagram summarizes implemented data movement between Windows device records, package inspection and report generation.
