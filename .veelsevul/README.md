@@ -47,3 +47,9 @@ The runtime library does not independently configure OS sandboxes, TLS, identity
 ## Exceptions
 
 No exceptions are pre-authorized. Each exception requires an owner, reason, approver, exact rule scope, creation date and expiry within 30 days. Expired or malformed exceptions fail validation.
+
+## Wired application boundaries
+
+- `oplage_app.py::inspect_package` applies `L192` / `A-09` to the package byte ceiling and expanded archive size.
+- Archive entry enumeration applies `L167` / `A-09`; `_safe_archive_name` applies `L163` / `A-12` before extraction or inspection.
+- `veelsevul_guard.py` emits structured, content-free Python audit events; audit-sink failure fails closed. `tests/test_veelsevul_guard.py` covers the size, path, collection, invalid-context and audit-failure cases.
