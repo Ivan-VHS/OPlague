@@ -99,3 +99,9 @@ UDRV v1 limits: manifest ≤4 MiB · entries ≤10,000 · file ≤512 MiB · tot
 Exact ID or hash matches do not prove publisher trust, OS compatibility, device suitability or safe installation. HMAC pseudonyms and report fingerprints aid consistency and provenance; they do not establish authenticity by themselves.
 
 [Documentation index](docs/README.md) · [Apache-2.0 License](LICENSE)
+
+
+## Bounded resource-allocation reference
+An illustrative 500 UAH budget model with a versioned JSON contract and an offline simulator. This is a documentation example, not a feature of the host runtime.
+
+[Multilingual guide](docs/RESOURCE_ALLOCATION_500_UAH.md) · [Interactive simulator](docs/resource-allocation-500-uah.html) · [JSON example](examples/resource-allocation-500-uah.json) · [JSON Schema](schemas/resource-allocation.v1.schema.json)
