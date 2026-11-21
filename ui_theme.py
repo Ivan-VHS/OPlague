@@ -29,7 +29,7 @@ PALETTES: dict[str, dict[str, str]] = {
         "heading": "#FFFFFF", "blue": "#0039A6", "blue_hover": "#0A1E46", "on_blue": "#FFFFFF",
         "red": "#B51A10", "red_hover": "#D52B1E", "on_red": "#FFFFFF",
         "border": "#FFFFFF", "focus": "#D52B1E",
-        "selection": "#0039A6", "selection_fg": "#FFFFFF", "disabled": "#FFFFFF",
+        "selection": "#0A1E46", "selection_fg": "#FFFFFF", "disabled": "#FFFFFF",
         "log": "#0A1E46", "log_text": "#FFFFFF", "mode": "dark",
     },
 }
