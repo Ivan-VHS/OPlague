@@ -92,3 +92,8 @@ Package hashes establish byte-level integrity only; they do not establish publis
 [Apache License 2.0](LICENSE)
 
 UI motion: [12 animation principles](docs/DISNEY_MOTION_SYSTEM.md).
+
+
+## Quality and commercial readiness
+
+OPlague now carries an evidence-linked 20 × 3 matrix for product quality, operational execution and commercial governance. Run **python tools/quality_commercial.py** or add **--format json**. The report does not imply driver compatibility, market demand, revenue or profitability. See [the quality-commercial standard](docs/QUALITY_COMMERCIAL_STANDARD.md).
