@@ -16,13 +16,13 @@ OPlague remains a read-only Windows device and driver workbench. CLife adds pres
 
 Run from the repository root with Python 3.10+:
 
-\`\`\`sh
+```sh
 python tools/clife.py snapshot path/to/evidence
 python tools/clife.py inspect path/to/snapshot.clife
 python tools/clife.py verify path/to/snapshot.clife
 python tools/clife.py restore path/to/snapshot.clife --to path/to/recovered-evidence
 python -m unittest discover -s tests -p "test_clife.py" -v
-\`\`\`
+```
 
 The default archive location is <evidence-root>/.clife/snapshots/. Symlinks and generated folders (.git, build, dist, caches, virtual environments, dependency trees and .clife) are excluded.
 
