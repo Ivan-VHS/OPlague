@@ -63,7 +63,7 @@ class ReaperFfiTests(unittest.TestCase):
     def test_rejects_nul_and_oversized_source_before_loading_library(self):
         with patch("tools.reaper_ffi.ctypes.CDLL") as loader:
             with self.assertRaisesRegex(ValueError, "NUL"):
-                reaper_ffi.evaluate_i64("1\\x002", "/absolute/reaper.so")
+                reaper_ffi.evaluate_i64("1\x002", "/absolute/reaper.so")
             with self.assertRaisesRegex(ValueError, "UTF-8 bytes"):
                 reaper_ffi.evaluate_i64("x" * (reaper_ffi.MAX_SOURCE_BYTES + 1),
                                          "/absolute/reaper.so")
