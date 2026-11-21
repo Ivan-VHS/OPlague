@@ -10,3 +10,7 @@
 | Settings | versioned local theme preference |
 
 Themes: System / Light / Dark. Keep tables resizable, data surfaces opaque, keyboard focus visible and status text explicit. Live PnP is Windows-only; saved-file analysis is portable.
+
+## UI/UX 2026 convergence
+
+See [UI_UX_2026_CONVERGENCE.md](UI_UX_2026_CONVERGENCE.md) for shared tokens, accessibility targets, responsive behavior and motion budgets. The read-only product boundary remains authoritative.
