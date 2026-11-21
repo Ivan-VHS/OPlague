@@ -62,6 +62,9 @@ Mainline includes PnP inventory, bounded INF/ZIP inspection, architecture analys
 
 ## Documentation and downloads
 
+[Clinical Systems Reliability CSR-120](docs/CLINICAL_SYSTEMS_CSR120.md)
+
+
 [DRIVE-LENS evidence ledger](docs/DRIVE_LENS_EVIDENCE_LEDGER.md)
 
 [Human-first governance](docs/HUMAN_FIRST_GOVERNANCE.md) · [Anatidae desktop design system](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [UI/UX system](docs/UI_UX_SYSTEM.md) · [Atomic UI settings persistence](docs/ATOMIC_SETTINGS_PERSISTENCE.md) · [UDRV format](docs/UDRV_FORMAT_V1.md) · [Device compatibility graph](docs/DEVICE_COMPATIBILITY_GRAPH.md) · [Federation contract](docs/FEDERATED_INTEGRATION.md) · [QCS syntax](docs/QUANTUM_CONTOUR_SYNTAX.md) · [Unified engineering standard](docs/UNIFIED_ENGINEERING_STANDARD.md)
@@ -96,6 +99,12 @@ Package hashes establish byte-level integrity only; they do not establish publis
 ## Project stewardship
 
 The [project stewardship standard](docs/PROJECT_STEWARDSHIP_STANDARD.md) defines an anonymized, role-neutral approach to decision records, delivery cadence, feedback, incident response and sustainable maintenance. It complements the existing safety and quality contracts without expanding product permissions or overstating implementation status.
+
+## CSR-120 reliability telemetry
+
+The optional CSR-120 tool contains **120 traceable engineering-principle records across eight domains** and **36 executable telemetry checks** for service capacity, queues, latency, retries, resource reserve, configuration drift, integrity and recovery readiness. It accepts JSON metrics, supports per-metric threshold overrides and produces severity-ranked findings.
+
+CSR-120 is an advisory software-reliability aid — **not** a medical product, clinical diagnostic system or medical advice. Catalogue entries without matching executable checks remain design references, and findings never trigger automatic or irreversible remediation. See [the full contract](docs/CLINICAL_SYSTEMS_CSR120.md).
 
 ## License
 
