@@ -97,3 +97,6 @@ UI motion: [12 animation principles](docs/DISNEY_MOTION_SYSTEM.md).
 ## Quality and commercial readiness
 
 OPlague now carries an evidence-linked 20 × 3 matrix for product quality, operational execution and commercial governance. Run **python tools/quality_commercial.py** or add **--format json**. The report does not imply driver compatibility, market demand, revenue or profitability. See [the quality-commercial standard](docs/QUALITY_COMMERCIAL_STANDARD.md).
+
+
+The readiness report also prints a prioritized commercial action plan. Open items stay explicit: license review, support ownership, release delivery, user validation, cost measurement and any future pricing decision. No revenue, profit or market-fit claim is inferred.
