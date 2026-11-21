@@ -13,8 +13,7 @@ class SnapshotHistoryTests(unittest.TestCase):
             "friendly_name": "Demo device",
             "class": "System",
             "status": "Error" if problem else "OK",
-            "problem_code": 1 if problem else None,
-            "problem_reported": problem,
+            "problem": 1 if problem else None,
         }]
         return build_device_snapshot(
             devices,
