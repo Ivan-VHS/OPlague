@@ -27,6 +27,7 @@ MAX_ARCHIVE_ENTRIES = 10_000
 MAX_EXPANDED_BYTES = 2 * 1024 * 1024 * 1024
 MAX_INF_BYTES = 2 * 1024 * 1024
 MAX_COMPRESSION_RATIO = 200
+_APP_GUARD = AppGuard()
 
 def parse_inf_text(content: str) -> dict[str, str]:
     """Extract selected values from the [Version] section of a Windows INF."""
@@ -68,6 +69,10 @@ def _inf(data: bytes, label: str) -> dict[str, str]:
 
 def _safe_archive_name(name: str) -> None:
     normalized = name.replace("\\", "/")
+    if not _APP_GUARD.check_relative_path(
+        normalized, level_id=163, rule_id="A-12", object_id="archive-entry"
+    ):
+        raise ValueError("AppGuard rejected an unsafe archive path")
     parsed = PurePosixPath(normalized)
     if parsed.is_absolute() or ".." in parsed.parts or "\x00" in normalized or re.match(r"^[A-Za-z]:", normalized):
         raise ValueError(f"Unsafe archive path detected: {name}")
@@ -78,8 +83,10 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
     if not path.is_file():
         raise FileNotFoundError(f"Package file not found: {path}")
     size = path.stat().st_size
-    if size > MAX_PACKAGE_BYTES:
-        raise ValueError("Package exceeds the 512 MiB inspection limit")
+    if not _APP_GUARD.check_payload(
+        size, MAX_PACKAGE_BYTES, level_id=192, rule_id="A-11", object_id="driver-package"
+    ):
+        raise ValueError("Package exceeds the AppGuard inspection byte ceiling")
     suffix = path.suffix.casefold()
     report: dict[str, Any] = {
         "file_name": path.name, "path": str(path.resolve()), "size_bytes": size,
@@ -98,16 +105,22 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
     try:
         with zipfile.ZipFile(path) as archive:
             entries = archive.infolist()
-            if len(entries) > MAX_ARCHIVE_ENTRIES:
-                raise ValueError("Archive contains more than 10,000 entries")
+            if not _APP_GUARD.check_collection(
+                len(entries), MAX_ARCHIVE_ENTRIES, level_id=167,
+                rule_id="A-09", object_id="driver-archive"
+            ):
+                raise ValueError("Archive exceeds the AppGuard entry-count ceiling")
             expanded, inf_files = 0, []
             for entry in entries:
                 _safe_archive_name(entry.filename)
                 if entry.is_dir():
                     continue
                 expanded += entry.file_size
-                if expanded > MAX_EXPANDED_BYTES:
-                    raise ValueError("Archive exceeds the expanded-size inspection limit")
+                if not _APP_GUARD.check_payload(
+                    expanded, MAX_EXPANDED_BYTES, level_id=192,
+                    rule_id="A-11", object_id="archive-expanded-data"
+                ):
+                    raise ValueError("Archive exceeds the AppGuard expanded-size ceiling")
                 if entry.file_size and not entry.compress_size:
                     raise ValueError(f"Suspicious compressed entry: {entry.filename}")
                 if entry.compress_size and entry.file_size / entry.compress_size > MAX_COMPRESSION_RATIO:
