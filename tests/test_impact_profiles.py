@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from oplague.impact import DIMENSIONS, PROFILES, get_profile, rank_profiles, search_profiles, load_profiles
+from oplague.impact import (DIMENSIONS, PROFILES, get_profile, rank_profiles,\n                            rank_profiles_by_total_native, search_profiles, load_profiles)
 
 
 class ImpactProfileTests(unittest.TestCase):
@@ -38,6 +38,30 @@ class ImpactProfileTests(unittest.TestCase):
         ranks = [item["ranks"]["reach"] for item in ordered]
         self.assertEqual(ranks, sorted(ranks, reverse=True))
         self.assertEqual(ordered[0]["id"], 5)
+
+    def test_native_total_ranking_delegates_to_reaper(self):
+        from unittest.mock import patch
+
+        def native_score(expression, library_path):
+            self.assertEqual(library_path, "/trusted/reaper/libreaper_ffi.so")
+            return sum(int(part.strip()) for part in expression.split("+"))
+
+        with patch("tools.reaper_ffi.evaluate_i64", side_effect=native_score) as evaluator:
+            ranked = rank_profiles_by_total_native("/trusted/reaper/libreaper_ffi.so")
+        self.assertEqual(len(ranked), 20)
+        scores = [item["native_total_score"] for item in ranked]
+        self.assertEqual(scores, sorted(scores, reverse=True))
+        self.assertEqual(evaluator.call_count, 20)
+        self.assertEqual(set(ranked[0]), set(PROFILES[0]) | {"native_total_score"})
+
+    def test_native_total_ranking_rejects_malformed_profiles(self):
+        from unittest.mock import patch
+
+        invalid = {"id": 1, "ranks": {"acoustic": 2}}
+        with patch("tools.reaper_ffi.evaluate_i64") as evaluator:
+            with self.assertRaisesRegex(ValueError, "incomplete"):
+                rank_profiles_by_total_native("/trusted/reaper/libreaper_ffi.so", [invalid])
+        evaluator.assert_not_called()
 
     def test_invalid_dimension_is_rejected(self):
         with self.assertRaises(ValueError):
