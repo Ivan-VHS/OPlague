@@ -1,0 +1,253 @@
+{
+  "schema": "unified.project-contract.v1",
+  "project": {
+    "id": "oplague",
+    "name": "OPlague",
+    "repository": "Ivan-VHS/OPlague",
+    "summary": "Windows-first driver-management workbench for read-only hardware discovery, bounded package inspection, integrity reports, normalized metrics and federated device snapshots.",
+    "documentation": "docs/UNIFIED_PROJECT_CONTRACT.md"
+  },
+  "implementation": {
+    "languages": [
+      "Python 3.10+",
+      "JSON Schema"
+    ],
+    "runtime_platforms": [
+      "Windows",
+      "Linux",
+      "macOS"
+    ],
+    "desktop_platforms": [
+      "Windows"
+    ]
+  },
+  "capabilities": [
+    {
+      "id": "inventory.windows-pnp-read-only",
+      "status": "implemented",
+      "summary": "Collects present Windows Plug and Play device records through a fixed, read-only PowerShell query.",
+      "evidence": [
+        "tools/federation.py",
+        "oplage_app.py",
+        "tests/test_federation.py"
+      ]
+    },
+    {
+      "id": "packages.inf-zip-inspection",
+      "status": "implemented",
+      "summary": "Inspects INF metadata and ZIP archive structure with bounded entry, path, size and compression checks; does not extract or execute payloads.",
+      "evidence": [
+        "oplage_app.py",
+        "tests/test_inspector.py"
+      ]
+    },
+    {
+      "id": "udrv.integrity-inspection",
+      "status": "implemented",
+      "summary": "Validates UDRV manifests, payload inventory, declared sizes, hashes and path/resource constraints without installation or execution.",
+      "evidence": [
+        "tools/udrv_inspector.py",
+        "tests/test_udrv_inspector.py",
+        "docs/UDRV_FORMAT_V1.md"
+      ]
+    },
+    {
+      "id": "reports.deterministic-batch-composition",
+      "status": "implemented",
+      "summary": "Builds ordered batch inspection summaries with aggregate counts and a deterministic bundle fingerprint.",
+      "evidence": [
+        "tools/report_composer.py",
+        "tests/test_report_composer.py",
+        "docs/CONCATENATION_ARCHITECTURE.md"
+      ]
+    },
+    {
+      "id": "metrics.normalized-profile-lab",
+      "status": "implemented",
+      "summary": "Compares normalized profiles using weighted distances, cosine similarity, orthogonality and repeated-run variance.",
+      "evidence": [
+        "tools/metric_analysis.py",
+        "tests/test_metric_analysis.py"
+      ]
+    },
+    {
+      "id": "compatibility.exact-id-dry-run",
+      "status": "implemented",
+      "summary": "Creates candidate-only edges from exact normalized hardware-ID matches; it does not rank, install or certify drivers.",
+      "evidence": [
+        "tools/device_graph.py",
+        "tests/test_device_graph.py",
+        "docs/DEVICE_COMPATIBILITY_GRAPH.md"
+      ]
+    },
+    {
+      "id": "federation.versioned-device-snapshot",
+      "status": "implemented",
+      "summary": "Exports bounded, versioned JSON snapshots with pseudonymous device fingerprints and explicit read-only mode.",
+      "evidence": [
+        "tools/federation.py",
+        "schemas/oplage.device-snapshot.v1.schema.json",
+        "tests/test_federation.py"
+      ]
+    },
+    {
+      "id": "interop.pytyliki-native-cross-check",
+      "status": "implemented",
+      "summary": "Offers an opt-in native metric cross-check through a trusted Pytyliki ABI v1 library.",
+      "evidence": [
+        "tools/pytyliki_ffi.py",
+        "tests/test_pytyliki_ffi.py",
+        "docs/FEDERATED_INTEGRATION.md"
+      ]
+    },
+    {
+      "id": "compatibility.vertical-graph-self-product",
+      "status": "implemented",
+      "summary": "Computes bounded boolean powers of the exact-ID device-driver candidate graph while preserving read-only, evidence-only semantics.",
+      "evidence": [
+        "tools/self_product.py",
+        "tests/test_self_product.py",
+        "docs/SELF_PRODUCT_COMPOSITION.md"
+      ]
+    },
+    {
+      "id": "federation.octa-8-horizontal-peer-mesh",
+      "status": "implemented",
+      "summary": "Validates the complete three-project directed peer product, eight octagonal pyramid facets and local self-loops without a central runtime dependency.",
+      "evidence": [
+        "federation/octa-pyramid.v1.json",
+        "tools/validate_octa_pyramid.py",
+        "tests/test_octa_pyramid.py",
+        "docs/OCTA_PYRAMID_FEDERATION.md"
+      ]
+    }
+  ],
+  "interfaces": [
+    {
+      "id": "oplage.device-snapshot.v1",
+      "format": "Versioned JSON device snapshot",
+      "direction": "provides",
+      "status": "implemented",
+      "evidence": [
+        "tools/federation.py",
+        "schemas/oplage.device-snapshot.v1.schema.json"
+      ]
+    },
+    {
+      "id": "oplage.inspection-bundle.v1",
+      "format": "Canonical JSON batch-inspection summary",
+      "direction": "provides",
+      "status": "implemented",
+      "evidence": [
+        "tools/report_composer.py",
+        "docs/CONCATENATION_ARCHITECTURE.md"
+      ]
+    },
+    {
+      "id": "pytyliki.c-abi.v1",
+      "format": "Versioned native C shared-library ABI",
+      "direction": "consumes",
+      "status": "implemented",
+      "evidence": [
+        "tools/pytyliki_ffi.py",
+        "tests/test_pytyliki_ffi.py"
+      ]
+    },
+    {
+      "id": "reaper.oplage-comparison.v1",
+      "format": "Versioned read-only Reaper comparison report",
+      "direction": "consumes",
+      "status": "implemented",
+      "evidence": [
+        "tools/reaper_report.py",
+        "tests/test_reaper_report.py",
+        "docs/FEDERATED_INTEGRATION.md"
+      ]
+    },
+    {
+      "id": "octa.pyramid.peer-mesh.v1",
+      "format": "OCTA-8 octagonal-pyramid topology and peer contract",
+      "direction": "both",
+      "status": "implemented",
+      "evidence": [
+        "federation/octa-pyramid.v1.json",
+        "docs/OCTA_PYRAMID_FEDERATION.md"
+      ]
+    },
+    {
+      "id": "oplage.reaper-report-audit.v1",
+      "format": "Read-only validation summary for a Reaper comparison report",
+      "direction": "provides",
+      "status": "implemented",
+      "evidence": [
+        "tools/reaper_report.py",
+        "tests/test_reaper_report.py",
+        "docs/FEDERATED_INTEGRATION.md"
+      ]
+    }
+  ],
+  "integrations": [
+    {
+      "project": "reaper",
+      "interface": "oplage.device-snapshot.v1",
+      "mode": "json-file",
+      "status": "implemented",
+      "opt_in": true,
+      "summary": "Exports snapshots that Reaper can import for offline device-profile comparison."
+    },
+    {
+      "project": "pytyliki",
+      "interface": "pytyliki.c-abi.v1",
+      "mode": "native-ffi",
+      "status": "optional",
+      "opt_in": true,
+      "summary": "Loads a caller-selected trusted Pytyliki library only when a native cross-check is requested."
+    },
+    {
+      "project": "reaper",
+      "interface": "reaper.oplage-comparison.v1",
+      "mode": "json-file",
+      "status": "implemented",
+      "opt_in": true,
+      "summary": "Validates caller-selected Reaper read-only comparison reports; it does not execute reports or change devices."
+    },
+    {
+      "project": "reaper",
+      "interface": "octa.pyramid.peer-mesh.v1",
+      "mode": "shared-contract",
+      "status": "implemented",
+      "opt_in": false,
+      "summary": "Participates in the direct OCTA-8 peer mesh and exposes the Reaper-report consumer edge."
+    },
+    {
+      "project": "pytyliki",
+      "interface": "octa.pyramid.peer-mesh.v1",
+      "mode": "shared-contract",
+      "status": "implemented",
+      "opt_in": false,
+      "summary": "Participates in the OCTA-8 peer mesh; native request/response remains explicit and caller initiated."
+    },
+    {
+      "project": "ventusample",
+      "interface": "not-applicable.v1",
+      "mode": "shared-contract",
+      "status": "not_applicable",
+      "opt_in": false,
+      "summary": "Audio-pack generation is outside OPlague's Windows device and driver-package inspection domain; no device actions are coupled to VentuSample."
+    }
+  ],
+  "safety_boundaries": [
+    "Live device enumeration is read-only and currently Windows-only; portable analysis applies to saved files and reports.",
+    "Imported INF, ZIP, UDRV and other package content is treated as untrusted and is never executed by the inspector.",
+    "Compatibility output is candidate evidence, not a trust, signing, OS-support or installation verdict.",
+    "No driver is installed, removed, enabled, disabled, extracted or modified by the federated inspection workflow.",
+    "Raw PnP instance IDs are omitted from snapshots in favor of linkable SHA-256 fingerprints; this is pseudonymization, not anonymization."
+  ],
+  "extension_points": [
+    "Versioned JSON device and inspection-bundle interfaces.",
+    "Read-only package inspector adapters with bounded input and archive policies.",
+    "Explicit exact-ID matching rules and metric dimensions.",
+    "Opt-in native C ABI adapter for trusted Pytyliki builds.",
+    "Bounded boolean graph self-product for multi-hop exact-candidate relationship analysis."
+  ]
+}

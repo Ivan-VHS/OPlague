@@ -1,0 +1,181 @@
+{
+  "schema": "anatidae.market-development.v1",
+  "version": 1,
+  "project": {
+    "id": "oplague",
+    "name": "OPlague",
+    "repository": "Ivan-VHS/OPlague"
+  },
+  "product": {
+    "category": "Windows-first read-only driver and hardware diagnostics workbench",
+    "summary": "A Windows-first workbench for hardware inventory, driver-package inspection, integrity evidence and structured diagnostic reports; it does not install or modify drivers.",
+    "proof_points": [
+      "Read-only Windows Plug and Play inventory.",
+      "Bounded INF, ZIP and UDRV package inspection without payload execution.",
+      "Evidence-linked reports and normalized device snapshots."
+    ],
+    "non_claims": [
+      "OPlague does not install, update, remove or modify drivers.",
+      "Inspection results are not a guarantee of device compatibility or a certified driver recommendation.",
+      "Market demand, paid conversion and profitability are not established."
+    ]
+  },
+  "audiences": [
+    {
+      "id": "it-support",
+      "audience": "IT support technicians and system administrators",
+      "need": "Inspect hardware and driver packages while retaining a clear evidence trail.",
+      "value": "A read-only workflow for inventory, package review and diagnostic reporting."
+    },
+    {
+      "id": "repair-services",
+      "audience": "Computer repair and maintenance services",
+      "need": "Understand device identity and package metadata before separate administrative action.",
+      "value": "Structured evidence without automated installation or destructive changes."
+    },
+    {
+      "id": "driver-qa",
+      "audience": "Driver packagers and hardware QA teams",
+      "need": "Review package structure, hashes and declared metadata under resource limits.",
+      "value": "Bounded inspection and deterministic report composition."
+    }
+  ],
+  "positioning": {
+    "statement": "OPlague is a read-only Windows workbench for inspecting hardware identity and driver-package evidence before any separate maintenance action.",
+    "differentiators": [
+      "Read-only device inventory with no driver installation or modification.",
+      "Bounded package inspection treats imported files as untrusted input.",
+      "Reports preserve evidence and distinguish exact matches from uncertain similarity."
+    ]
+  },
+  "brand": {
+    "promise": "Make hardware and driver-package inspection safer, clearer and evidence-led.",
+    "voice": [
+      "cautious",
+      "precise",
+      "operator-focused",
+      "transparent"
+    ],
+    "message_pillars": [
+      "Read-only inspection",
+      "Evidence before recommendation",
+      "Bounded untrusted-input handling",
+      "Explicit compatibility limits"
+    ]
+  },
+  "go_to_market": {
+    "stages": [
+      {
+        "name": "Problem discovery",
+        "status": "not_assessed",
+        "success_criteria": "Collect workflow evidence from IT support, repair and driver QA users."
+      },
+      {
+        "name": "Message and documentation",
+        "status": "implemented",
+        "success_criteria": "README and product documentation state the read-only boundary and inspection workflow."
+      },
+      {
+        "name": "Distribution",
+        "status": "implemented",
+        "success_criteria": "Windows desktop packaging and the public source/release workflow are documented."
+      },
+      {
+        "name": "User validation",
+        "status": "not_assessed",
+        "success_criteria": "Validate the diagnostic workflow with representative, consented operator feedback."
+      },
+      {
+        "name": "Retention and support",
+        "status": "planned",
+        "success_criteria": "Define supported Windows versions, package-format policy and issue triage."
+      }
+    ]
+  },
+  "channels": [
+    {
+      "name": "GitHub repository and Windows release information",
+      "kind": "owned documentation",
+      "status": "implemented",
+      "purpose": "Explain read-only capabilities, supported package inputs and safety boundaries.",
+      "guardrail": "Never advertise automated driver updates or universal compatibility."
+    },
+    {
+      "name": "Technical walkthroughs",
+      "kind": "technical media",
+      "status": "planned",
+      "purpose": "Demonstrate inventory, package inspection and evidence reports.",
+      "guardrail": "Use sanitized examples; do not expose device identifiers or personal machine data."
+    },
+    {
+      "name": "IT support and repair communities",
+      "kind": "community",
+      "status": "planned",
+      "purpose": "Collect real operator workflows and usability feedback.",
+      "guardrail": "No unsupported repair guarantees or aggressive promotion."
+    },
+    {
+      "name": "Release notes and compatibility matrix",
+      "kind": "software distribution",
+      "status": "planned",
+      "purpose": "Make supported Windows versions and tested formats discoverable.",
+      "guardrail": "List exact tested versions and keep unknown combinations explicit."
+    }
+  ],
+  "commercial_gates": {
+    "market_validation": {
+      "status": "not_assessed",
+      "notes": "No measured customer demand or workflow adoption is asserted."
+    },
+    "pricing": {
+      "status": "not_set",
+      "notes": "No paid tier, subscription or willingness-to-pay assumption is published."
+    },
+    "unit_economics": {
+      "status": "not_assessed",
+      "notes": "Packaging, maintenance and support costs require measurement."
+    },
+    "licensing": {
+      "status": "manual_review_required",
+      "notes": "Review application license, PowerShell usage, dependencies and third-party notices."
+    },
+    "support": {
+      "status": "planned",
+      "notes": "Define Windows support policy, triage and maintenance lifecycle."
+    },
+    "distribution": {
+      "status": "implemented",
+      "notes": "The repository contains a Windows desktop build/release path; each release artifact must be verified individually."
+    }
+  },
+  "metrics": [
+    {
+      "name": "First completed inspection",
+      "definition": "Share of evaluators who complete an inventory or package-review workflow.",
+      "status": "not_assessed",
+      "source": "Consent-based usability feedback or documented support reports.",
+      "privacy_note": "Do not collect machine identifiers through hidden telemetry."
+    },
+    {
+      "name": "Evidence completeness",
+      "definition": "Share of reports containing required source references and inspection metadata.",
+      "status": "not_assessed",
+      "source": "Deterministic report output and tests.",
+      "privacy_note": "Do not treat completeness as proof of compatibility."
+    },
+    {
+      "name": "Support resolution",
+      "definition": "Time from reproducible issue to verified fix or documented limitation.",
+      "status": "not_assessed",
+      "source": "Public issue history and release notes.",
+      "privacy_note": "Sanitize logs and attachments before publication."
+    }
+  ],
+  "governance": {
+    "claims": "Describe OPlague as read-only. Never claim to install, update, repair or certify drivers; qualify match and compatibility statements.",
+    "promotion": "Demonstrate safe inspection and evidence provenance, not automatic remediation or guaranteed fixes.",
+    "privacy": "Sanitize screenshots, reports and examples; do not publish serial numbers, hostnames or personal device inventories.",
+    "rights": "Review dependency licenses and third-party notices before packaging or redistribution."
+  },
+  "vocabulary_alignment": "docs/MARKET_DEVELOPMENT_STANDARD.md — 20-term Russian vocabulary-to-control crosswalk."
+}

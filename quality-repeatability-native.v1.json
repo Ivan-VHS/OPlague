@@ -1,0 +1,157 @@
+{
+  "schema": "anatidae.quality-repeatability-native.v1",
+  "project": {
+    "id": "oplague",
+    "name": "OPlague",
+    "runtime": "Python + native desktop interfaces",
+    "native_surfaces": [
+      "OS device and driver inventory",
+      "UDRV/INF and versioned snapshots",
+      "native desktop UI and Pytyliki FFI"
+    ]
+  },
+  "pillars": {
+    "quality": {
+      "intent": "Inspection safety, evidence quality, failure containment and trustworthy reports.",
+      "criteria": [
+        {
+          "id": "device-graph-integrity",
+          "status": "implemented",
+          "requirement": "Device relationships preserve stable identity and explicit uncertainty.",
+          "verification": "Device graph tests cover graph assembly and relationship invariants.",
+          "evidence": {
+            "implementation": [
+              "tools/device_graph.py"
+            ],
+            "verification": [
+              "tests/test_device_graph.py"
+            ]
+          }
+        },
+        {
+          "id": "driver-evidence",
+          "status": "implemented",
+          "requirement": "Driver findings distinguish sourced observations from derived conclusions.",
+          "verification": "Evidence tests cover provenance and reportable evidence.",
+          "evidence": {
+            "implementation": [
+              "tools/driver_evidence.py"
+            ],
+            "verification": [
+              "tests/test_driver_evidence.py"
+            ]
+          }
+        },
+        {
+          "id": "report-integrity",
+          "status": "implemented",
+          "requirement": "Inspection reports preserve status, evidence and machine-readable boundaries.",
+          "verification": "Report composition tests cover stable output assembly.",
+          "evidence": {
+            "implementation": [
+              "tools/report_composer.py"
+            ],
+            "verification": [
+              "tests/test_report_composer.py"
+            ]
+          }
+        }
+      ]
+    },
+    "multiplicity": {
+      "intent": "Repeated and batched inspections remain bounded, comparable and auditable.",
+      "criteria": [
+        {
+          "id": "bounded-inspection-batches",
+          "status": "implemented",
+          "requirement": "Batch inspection defines input limits and reports per-item outcomes.",
+          "verification": "Inspection batch tests cover batching and outcome aggregation.",
+          "evidence": {
+            "implementation": [
+              "tools/inspection_batch.py"
+            ],
+            "verification": [
+              "tests/test_inspection_batch.py"
+            ]
+          }
+        },
+        {
+          "id": "repeatable-federation",
+          "status": "implemented",
+          "requirement": "Federated snapshots and transfers use explicit versioned contracts.",
+          "verification": "Federation tests cover repeatable import, export and validation paths.",
+          "evidence": {
+            "implementation": [
+              "tools/federation.py"
+            ],
+            "verification": [
+              "tests/test_federation.py"
+            ]
+          }
+        },
+        {
+          "id": "metric-replay",
+          "status": "implemented",
+          "requirement": "Metric analysis uses stable inputs and reproducible calculations.",
+          "verification": "Metric analysis tests cover calculation and report consistency.",
+          "evidence": {
+            "implementation": [
+              "tools/metric_analysis.py"
+            ],
+            "verification": [
+              "tests/test_metric_analysis.py"
+            ]
+          }
+        }
+      ]
+    },
+    "native": {
+      "intent": "OS-facing data collection and desktop behavior remain explicit, native and capability-aware.",
+      "criteria": [
+        {
+          "id": "native-driver-inspection",
+          "status": "implemented",
+          "requirement": "Driver and device inspection stays within explicit OS-facing interfaces.",
+          "verification": "UDRV inspector tests cover native inspection boundaries.",
+          "evidence": {
+            "implementation": [
+              "tools/udrv_inspector.py"
+            ],
+            "verification": [
+              "tests/test_udrv_inspector.py"
+            ]
+          }
+        },
+        {
+          "id": "native-ffi-boundary",
+          "status": "implemented",
+          "requirement": "Cross-project native calls use a narrow FFI boundary with explicit error handling.",
+          "verification": "FFI tests cover the Pytyliki interoperability boundary.",
+          "evidence": {
+            "implementation": [
+              "tools/pytyliki_ffi.py"
+            ],
+            "verification": [
+              "tests/test_pytyliki_ffi.py"
+            ]
+          }
+        },
+        {
+          "id": "desktop-conventions",
+          "status": "implemented",
+          "requirement": "Desktop visual behavior follows a consistent platform-aware theme and motion system.",
+          "verification": "UI tests protect theme and motion contracts.",
+          "evidence": {
+            "implementation": [
+              "ui_theme.py"
+            ],
+            "verification": [
+              "tests/test_ui_theme.py",
+              "tests/test_ui_motion.py"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
