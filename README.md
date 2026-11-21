@@ -1,6 +1,7 @@
 # OPlague — Driver Workbench
 
 [![Windows desktop build](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml/badge.svg)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml) · Python 3.10+ · Windows · Apache-2.0
+**Developer:** [Ivan-VHS](https://github.com/Ivan-VHS)
 
 **Read-only workbench for Windows device inventory, driver-package inspection and evidence-based comparison.** It does not install, load or modify drivers.
 

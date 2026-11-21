@@ -189,7 +189,7 @@ class OPlagueApp(tk.Tk):
     def __init__(self) -> None:
         set_dpi_awareness()
         super().__init__()
-        self.title("OPlague — мастерская оборудования и драйверов")
+        self.title("OPlague — мастерская оборудования и драйверов · Ivan-VHS")
         self.geometry("1120x720")
         self.minsize(820, 540)
         self._theme_mode = load_preferred_theme()
@@ -272,6 +272,7 @@ class OPlagueApp(tk.Tk):
         footer = ttk.Frame(self, padding=(14, 4, 14, 10)); footer.pack(fill="x")
         self.status = tk.StringVar(value="Только локальная проверка — установка и развёртывание драйверов не выполняются")
         ttk.Label(footer, textvariable=self.status, style="Muted.TLabel").pack(side="left")
+        ttk.Label(footer, text="Разработчик: Ivan-VHS", style="Muted.TLabel").pack(side="right")
         self.apply_visual_theme()
         self._motion = MotionController(self)
         self._motion.fade_in()

@@ -1,6 +1,7 @@
 # OPlague — рабочая станция драйверов
 
 Python 3.10+ · Windows · Apache-2.0 · [Desktop CI](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)
+**Разработчик:** [Ivan-VHS](https://github.com/Ivan-VHS)
 
 **Инструмент только для чтения:** инвентаризация Windows, анализ пакетов драйверов и сопоставление доказательств. Не устанавливает, не загружает и не изменяет драйверы.
 

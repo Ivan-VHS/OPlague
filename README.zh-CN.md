@@ -1,6 +1,7 @@
 # OPlague — 驱动工作台
 
 Python 3.10+ · Windows · Apache-2.0 · [桌面 CI](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)
+**开发者：** [Ivan-VHS](https://github.com/Ivan-VHS)
 
 **只读工作台：** Windows 设备盘点、驱动包检查与兼容性证据比较。不会安装、加载或修改驱动。
 
