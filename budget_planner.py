@@ -176,7 +176,7 @@ def open_budget_planner(parent: Any) -> None:
         try:
             amount = int(amount_var.get())
             values = {key: int(allocations[key].get()) for key in CATEGORIES}
-            result = calculate_budget(amount, "weekly", values)
+            result = calculate_budget(amount, key_by_label.get(scenario_var.get(), "weekly"), values)
         except (ValueError, BudgetError):
             total_var.set("Введите целые неотрицательные суммы в допустимом диапазоне.")
             status_var.set("Расчёт ожидает корректных значений.")
