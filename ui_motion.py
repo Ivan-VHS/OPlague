@@ -14,6 +14,8 @@ DURATIONS_MS = {
 }
 EASING = "cubic-bezier(0.2, 0.8, 0.2, 1)"
 INSTRUMENTAL_EASING = "cubic-bezier(0.05, 0.9, 0.2, 1)"
+MAX_FRAME_DT_SECONDS = 0.032
+SPRING_SUBSTEPS = 2
 
 
 @dataclass(frozen=True)
@@ -64,8 +66,8 @@ class Spring1D:
         k = max(1.0, float(self.stiffness if stiffness is None else stiffness))
         c = max(0.0, float(self.damping if damping is None else damping))
         m = max(0.1, float(self.mass if mass is None else mass))
-        h = min(dt, 0.032) / 2.0
-        for _ in range(2):
+        h = min(dt, MAX_FRAME_DT_SECONDS) / SPRING_SUBSTEPS
+        for _ in range(SPRING_SUBSTEPS):
             acceleration = (-k * (self.value - self.target) - c * self.velocity) / m
             self.velocity += acceleration * h
             self.value += self.velocity * h
