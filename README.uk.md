@@ -1,34 +1,66 @@
 # OPlague — робоча станція драйверів
 
-Python 3.10+ · Windows · Apache-2.0 · [Desktop CI](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)
+[Збирання Windows](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml) · [CI](https://github.com/Ivan-VHS/OPlague/actions) · Python 3.10+ · Windows · Apache-2.0
 
-**Інструмент лише для читання:** інвентаризація Windows, аналіз пакетів драйверів і зіставлення доказів. Не встановлює, не завантажує та не змінює драйвери.
+**OPlague — інструмент лише для читання: інвентаризація пристроїв Windows, аналіз пакетів драйверів і зіставлення доказів. Він не встановлює, не завантажує та не змінює драйвери.**
 
 [English](README.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [简体中文](README.zh-CN.md)
 
-| Модуль | Результат | Межа |
-|---|---|---|
-| Пристрої | Plug and Play, стан, hardware ID | read-only |
-| INF/ZIP | метадані, хеші, шляхи, ліміти | без розпакування/запуску |
-| Архітектура | INF target vs host | ознака, не висновок |
-| Граф | точний hardware ID | кандидат |
-| UDRV v1 | manifest, розмір, SHA-256 | лише перевірка |
-| DRIVE-LENS | походження, HMAC-псевдоніми | без автоматичного вердикту |
-| Звіти | порядок, підсумки, fingerprint | без змін системи |
-| Clinical Systems | 120 принципів, 36 перевірок метрик | лише поради |
+## Реальний знімок Windows-застосунку
 
-Запуск: `python oplague_app.py` · Тести: `python -m unittest discover -s tests -v`.
+<p align="center"><img src="assets/screenshots/oplague-workbench.png" alt="Робоча станція OPlague у Windows" width="100%"></p>
+<sub>Справжній знімок запущеного застосунку з desktop-build workflow, 1920×1080. Ілюстративний SVG-макет доступний окремо: <a href="assets/oplague-workbench-preview.svg">відкрити макет</a>.</sub>
+
+## Модулі робочої станції
+
+| Модуль | Дані та результат | Межа |
+|---|---|---|
+| Пристрої | Plug and Play, стан і hardware ID | виявлення лише для читання |
+| INF / ZIP | метадані, хеші, шляхи та ліміти ресурсів | без виконання пакета й інсталяції драйвера |
+| Архітектура | INF target та архітектура хоста | доказ, а не вердикт сумісності |
+| Граф сумісності | точні нормалізовані зв’язки hardware ID | лише кандидати |
+| UDRV v1 | manifest, розміри файлів і SHA-256 | перевірка цілісності; без інсталяції/завантаження |
+| DRIVE-LENS | походження, HMAC-псевдоніми та групування за атрибутами/часом | без автоматичного вердикту |
+| Batch reports | порядок результатів, підсумки й fingerprint звіту | без запису в систему |
+| Metric Lab | нормалізовані вектори, зважена відстань і дисперсія | аналіз наданих даних |
+| Clinical Systems | 120 принципів і 36 телеметричних перевірок | рекомендації, не медична чи апаратна сертифікація |
+| Impact Profiles | 20 семантичних профілів і п’ять порядкових вимірів | лише лексичний каталог; без висновків про обладнання |
+
+## Запуск і тести
+
+Запуск робочої станції Windows:
+
+```sh
+python oplague_app.py
+```
+
+Тести та каталог семантичних профілів:
+
+```sh
+python -m unittest discover -s tests -v
+python -m oplague --verify
+python -m oplague --catalog
+python -m oplague --search "баллістичний"
+python -m oplague --profile 5
+python -m oplague --rank reach
+python tools/udrv_inspector.py path/to/package.udrv --json
+python tools/clinical_systems.py --catalog --pretty
+```
+
+Windows workflow перевіряє візуальний канон і тести, збирає автономний `OPlague.exe`, створює реальний знімок запущеного застосунку та публікує архів Windows x64.
+
+## Довідник кодів
 
 | INF target | PE machine |
 |---|---:|
-| NTx86 | 0x014C |
-| NTamd64 | 0x8664 |
-| NTarm | 0x01C4 |
-| NTarm64 | 0xAA64 |
-| NTia64 (legacy) | 0x0200 |
+| NTx86 | `0x014C` |
+| NTamd64 | `0x8664` |
+| NTarm | `0x01C4` |
+| NTarm64 | `0xAA64` |
+| NTia64 (застарілий) | `0x0200` |
 
-UDRV v1: manifest ≤4 МіБ · ≤10 000 записів · файл ≤512 МіБ · загалом ≤2 ГіБ · SHA-256 buffer 1 МіБ.
+Ліміти UDRV v1: manifest ≤4 МіБ · ≤10 000 записів · файл ≤512 МіБ · загалом ≤2 ГіБ · буфер SHA-256 1 МіБ.
 
-Збіг ID/hash не підтверджує підпис, сумісність з ОС або безпечність інсталяції. [Функції](docs/FEATURES.md) · [Архітектура](docs/ARCHITECTURE.md) · [UDRV](docs/UDRV_FORMAT_V1.md) · [Регламент](docs/PROJECT_STEWARDSHIP_STANDARD.md) · [Дизайн](docs/DUCK_SOVEREIGN_CANON.md) · [Індекс](docs/README.md)
+Збіг ID або хешу не доводить довіру до видавця, сумісність з ОС, придатність пристрою чи безпечність інсталяції. HMAC-псевдоніми та fingerprint звіту допомагають зберігати узгодженість і походження даних, але самі по собі не підтверджують справжність.
 
-[Apache-2.0](LICENSE)
+[Можливості](docs/FEATURES.md) · [Архітектура](docs/ARCHITECTURE.md) · [Формат UDRV](docs/UDRV_FORMAT_V1.md) · [CSR-120](docs/CLINICAL_SYSTEMS_CSR120.md) · [Impact Profiles](oplague/impact.py) · [Регламент](docs/PROJECT_STEWARDSHIP_STANDARD.md) · [Дизайн](docs/DUCK_SOVEREIGN_CANON.md) · [Індекс](docs/README.md) · [Ліцензія](LICENSE)
