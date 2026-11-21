@@ -119,3 +119,11 @@ This repository's host adapter, shared 18-plugin catalog and compatibility rules
 ## Beelzebul repository protection
 
 This repository uses the versioned [Beelzebul 66-rule security policy](SECURITY.md), machine-readable [policy](security/beelzebul.v1.json), and read-only [scanner](tools/beelzebul.py). Run `python tools/beelzebul.py` locally; GitHub Actions runs the same gate for pull requests and protected-branch updates.
+
+
+## CLife — read-only evidence preservation
+
+OPlague's CLife adapter checkpoints only inventory reports, package manifests, metric reports
+and inspection notes. It verifies SHA-256 and project/artifact binding, and exports verified
+evidence to a caller-selected file. It does not install, load or modify drivers or devices.
+See [CLife contract](clife/contract.v1.json) and [adapter guide](docs/CLIFE_EVIDENCE_POD.md).
