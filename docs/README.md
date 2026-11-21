@@ -17,3 +17,8 @@
 | [CLINICAL_SYSTEMS_CSR120.md](CLINICAL_SYSTEMS_CSR120.md) | 120 principles and 36 advisory telemetry checks |
 
 The root README also links the 20-entry semantic impact-profile CLI and the live Windows screenshot. JSON schemas, tests and source define machine-checked behavior. Hardware matches and ordinal profile rankings are advisory evidence, not certification.
+
+
+## Motion and embedded graphics
+
+[Motion Constitution v2026](MOTION_CONSTITUTION_V2026.md) is the shared source for timing/easing tokens, adaptive motion, reduced-motion precedence, themes, the 2×2/focus-scene lab layout, SVG/Canvas telemetry rules and the four-domain capability matrix. [UI_MOTION.md](UI_MOTION.md) records the native behavior implemented in this repository; planned showcase features are not reported as shipped.
