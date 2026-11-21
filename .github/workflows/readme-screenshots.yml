@@ -27,7 +27,18 @@ jobs:
           python -m unittest discover -s tests -v
       - name: Capture running OPlague workbench
         shell: pwsh
-        run: .github/scripts/capture_desktop_screenshot.ps1 -FilePath "python" -Arguments @("oplague_app.py") -OutputPath "assets/screenshots/oplague-workbench.png" -StartupSeconds 12
+        run: |
+          $python = (Get-Command python).Source
+          $pythonw = $python -replace 'python.exe
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: readme-screenshot-oplage
+          path: assets/screenshots/oplague-workbench.png
+          if-no-files-found: error
+          retention-days: 30
+, 'pythonw.exe'
+          if (-not (Test-Path $pythonw)) { throw "pythonw.exe was not found beside the configured Python runtime." }
+          .github/scripts/capture_desktop_screenshot.ps1 -FilePath $pythonw -Arguments @("oplague_app.py") -OutputPath "assets/screenshots/oplague-workbench.png" -StartupSeconds 12
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: readme-screenshot-oplage
