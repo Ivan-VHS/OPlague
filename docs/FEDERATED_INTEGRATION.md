@@ -94,6 +94,6 @@ OPlague validates Reaper's `reaper.oplage-comparison.v1` output through `tools.r
 python -m tools.reaper_report comparison.json --json
 ```
 
-## OCTA-8 horizontal mesh
+## OCTA-8 four-project mesh
 
-The shared [OCTA-8 topology](OCTA_PYRAMID_FEDERATION.md) defines six directed peer links and three local self-loops. Reaper↔OPlague exchanges bounded snapshots and comparison reports; Reaper↔Pytyliki and OPlague↔Pytyliki use synchronous request/response via explicit Pytyliki ABI v1 calls. Eight pyramid facets define shared invariants; the apex is metadata-only, not an executable gateway.
+The shared [OCTA-8 topology](OCTA_PYRAMID_FEDERATION.md) defines twelve status-labelled directed links and four independent self-loops. Reaper↔OPlague exchanges bounded device snapshots and comparison reports. Reaper and OPlague may call Pytyliki only through explicit ABI v1 library selection. VentuSample exports a WAV + manifest pack; its Reaper consumer and Pytyliki adapter remain partial/planned respectively. There is no direct OPlague/VentuSample driver-audio interface. The apex is non-executable metadata, not a privileged runtime gateway.
