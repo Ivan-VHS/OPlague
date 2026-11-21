@@ -4,7 +4,8 @@ import unittest
 from unittest.mock import patch
 
 from ui_motion import (
-    DURATIONS_MS, MotionPreferences, Spring1D, duration_for, ease_out,
+    DURATIONS_MS, MAX_FRAME_DT_SECONDS, SPRING_SUBSTEPS, MotionPreferences,
+    Spring1D, duration_for, ease_out,
     load_preferences, reduced_motion_enabled, save_preferences,
 )
 
@@ -17,6 +18,10 @@ class MotionTests(unittest.TestCase):
         self.assertEqual(ease_out(2), 1.0)
         values = [ease_out(i / 20) for i in range(21)]
         self.assertEqual(values, sorted(values))
+
+    def test_spring_frame_budget_is_bounded(self):
+        self.assertEqual(MAX_FRAME_DT_SECONDS, 0.032)
+        self.assertEqual(SPRING_SUBSTEPS, 2)
 
     def test_duration_tokens_follow_motion_budget(self):
         with patch("ui_motion.reduced_motion_enabled", return_value=False):
