@@ -79,3 +79,11 @@ ID 或哈希匹配不证明发布者可信、系统兼容、设备适用或安�
 **无障碍与响应式：**保持清晰的文本对比度、可见的键盘焦点、适合触控的控件尺寸、明确的 active/disabled 状态，并确保窄屏布局自然折叠。动效不得造成布局跳动或妨碍操作。
 
 本节是 DUCK CORE 视觉参考，**不代表**每个应用都已实现所有主题、动画或控件。实际发布的实现和项目专属规范才是最终依据：[界面动效规范](docs/UI_MOTION.md)。
+
+<!-- VISUAL-DOCS:BEGIN -->
+## 证据流程图
+
+![OPlague 证据流程：设备清单、驱动包检查、证据模型和离线比较](assets/visual-documentation-map.svg)
+
+此图为静态流程示意，并非设备扫描结果或兼容性结论。上方真实 Windows 截图才是已交付工作台的界面依据。请参阅[视觉文档规范](docs/VISUAL_DOCUMENTATION.md)。
+<!-- VISUAL-DOCS:END -->

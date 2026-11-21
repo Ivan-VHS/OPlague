@@ -81,3 +81,11 @@ Motion follows a clear hierarchy: restrained spring easing for intentional entra
 **Accessibility and responsive behavior:** preserve readable contrast, visible keyboard focus, touch-sized controls, predictable active/disabled states and layouts that collapse cleanly on narrow screens. Motion must not cause layout shifts or make controls harder to operate.
 
 This is a DUCK CORE visual reference, **not a claim** that every theme, animation or control ships in every application. The implementation and project-specific contract are authoritative: [UI motion contract](docs/UI_MOTION.md).
+
+<!-- VISUAL-DOCS:BEGIN -->
+## Visual evidence map
+
+![OPlague evidence pipeline: device inventory, package inspection, evidence model and offline comparison](assets/visual-documentation-map.svg)
+
+This is a static workflow illustration, not a device scan or compatibility verdict. The live Windows screenshot above remains the reference for the shipped workbench. See [Visual documentation and graphics contract](docs/VISUAL_DOCUMENTATION.md).
+<!-- VISUAL-DOCS:END -->
