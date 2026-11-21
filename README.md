@@ -11,7 +11,6 @@
 ## Live Windows workbench
 
 <p align="center"><img src="assets/screenshots/oplague-workbench.png" alt="OPlague workbench running on Windows" width="100%"></p>
-<sub>Actual Windows desktop capture from the desktop-build workflow (1920×1080). The SVG preview remains available as an illustrative design reference: <a href="assets/oplague-workbench-preview.svg">open preview</a>.</sub>
 
 ## Workbench modules
 
@@ -28,10 +27,6 @@
 | Clinical Systems | 120 principle records and 36 telemetry checks | operational guidance, not medical or device certification |
 | Impact Profiles | 20 searchable semantic profiles with five ordinal dimensions | lexical catalogue only; no hardware inference |
 | Atomic-Quantum 133 | 133 stable operation IDs and read-only simulation-report validation with provenance, time windows, units and uncertainty | advisory evidence only; no device control |
-
-## Motion and accessibility
-
-The **Движение** control in the workbench header opens persisted **Reduce Motion**, **Eco / Low-CPU Visuals** and **Expressive Motion** preferences. Expressive Motion uses the stronger native spring preset (up to 380 ms); reduced/eco modes override it and cap retained transitions at 80 ms. **Sync to Transport / BPM** is disabled because OPlague has no audio transport. Preferences are stored at `%APPDATA%\\oplague\\ui-motion.json` on Windows (or under the user's XDG configuration directory). See the [UI motion contract](docs/UI_MOTION.md) and [Anatidae motion constitution](docs/ANATIDAE_MOTION_CONSTITUTION.md).
 
 ## Run and test
 
@@ -69,34 +64,3 @@ The Windows desktop workflow validates the visual canon and tests, builds the st
 UDRV v1 limits: manifest ≤4 MiB · entries ≤10,000 · file ≤512 MiB · total payload ≤2 GiB · SHA-256 buffer 1 MiB.
 
 Exact ID or hash matches do not prove publisher trust, OS compatibility, device suitability or safe installation. HMAC pseudonyms and report fingerprints aid consistency and provenance; they do not establish authenticity by themselves.
-
-[Atomic-Quantum 133](docs/ATOMIC_QUANTUM_133.md) · [Features](docs/FEATURES.md) · [Architecture](docs/ARCHITECTURE.md) · [UDRV format](docs/UDRV_FORMAT_V1.md) · [CSR-120](docs/CLINICAL_SYSTEMS_CSR120.md) · [Impact-profile source](oplague/impact.py) · [Stewardship](docs/PROJECT_STEWARDSHIP_STANDARD.md) · [Design](docs/DUCK_SOVEREIGN_CANON.md) · [Docs index](docs/README.md) · [License](LICENSE)
-
-## DUCK CORE // README & Motion Suite
-
-The shared visual reference for interactive demos and UI documentation defines three palettes: **Pond Noir** (default dark canvas), **Golden Reed** (warm high-contrast accents) and **Arctic Glacier** (cool cyan/blue accents). Use semantic tokens for canvas, surfaces, borders, text, accents and focus states instead of unrelated hard-coded component colors.
-
-Motion follows a clear hierarchy: restrained spring easing for intentional entrances and feedback, smooth easing for routine transitions, and optional Zen / Hyper intensity presets only where the application exposes them. Parallax, floating geometry and ripple effects are decorative, nonessential and must never carry information or block input. The `reduced-motion` preference overrides every preset and suppresses decorative movement.
-
-**Accessibility and responsive behavior:** preserve readable contrast, visible keyboard focus, touch-sized controls, predictable active/disabled states and layouts that collapse cleanly on narrow screens. Motion must not cause layout shifts or make controls harder to operate.
-
-This is a DUCK CORE visual reference, **not a claim** that every theme, animation or control ships in every application. The implementation and project-specific contract are authoritative: [UI motion contract](docs/UI_MOTION.md).
-
-<!-- VISUAL-DOCS:BEGIN -->
-## Visual evidence map
-
-![OPlague evidence pipeline: device inventory, package inspection, evidence model and offline comparison](assets/visual-documentation-map.svg)
-
-This is a static workflow illustration, not a device scan or compatibility verdict. The live Windows screenshot above remains the reference for the shipped workbench. See [Visual documentation and graphics contract](docs/VISUAL_DOCUMENTATION.md).
-<!-- VISUAL-DOCS:END -->
-
-
-## Motion Constitution v2026
-
-The shared cross-project contract is [Motion Constitution v2026](docs/MOTION_CONSTITUTION_V2026.md). It standardizes spring/snappy easing, the 0.4×–2.2× motion-scale envelope, reduced-motion precedence, theme parity, 2×2/focus-scene presentation and data-bound SVG/Canvas telemetry. The [native UI motion contract](docs/UI_MOTION.md) defines the shipped Tk behavior and accessibility preferences. OPlague remains read-only: device inventory, INF/ZIP evidence, hashes and candidate compatibility links are real data; firmware OTA, driver installation, USB animation and device DPI/polling controls are not available.
-
-## Shared motion architecture map
-
-<p align="center"><img src="assets/motion-constitution-v2026.svg" alt="Motion Constitution v2026: four-domain architecture map" width="100%"></p>
-
-This is the shared 2×2 architecture reference, not a live application screenshot. It distinguishes shipped product scope from unavailable or planned capabilities.
