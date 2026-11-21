@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from dataclasses import replace
 
 from oplague.gift_planner import (
     Candy, allocate_equal, allocate_weighted, build_candy_basket,
@@ -49,6 +50,7 @@ class DiscreteGiftPlannerTests(unittest.TestCase):
         self.assertEqual(plan.spent + plan.remaining, 500)
         self.assertEqual(len(plan.greeting_edges), 10)
         self.assertEqual(len(plan.baskets), 5)
+        self.assertFalse(replace(plan, spent=plan.spent + 1).verify())
 
     def test_rejects_invalid_and_oversized_inputs(self):
         calls = (
