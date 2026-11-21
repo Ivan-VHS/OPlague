@@ -58,10 +58,11 @@ def _install_semantic_status_tokens() -> None:
     for theme_name, palette in PALETTES.items():
         dark = theme_name in {"dark", "night"}
         palette.update({
-            "success": "#86EFAC" if dark else "#166534",
-            "warning": "#FCD34D" if dark else "#92400E",
-            "error": "#FCA5A5" if dark else "#B91C1C",
-            "info": "#93C5FD" if dark else "#1D4ED8",
+            # Status meaning is carried by text/icon; hues stay inside the shared brand canon.
+            "success": "#73B7FF" if dark else "#0039A6",
+            "warning": "#FF7D78" if dark else "#B51A10",
+            "error": "#FF7D78" if dark else "#B51A10",
+            "info": "#FFFFFF" if dark else "#0A1E46",
         })
 
 
@@ -70,8 +71,8 @@ def palette_contrast_issues(palette: dict[str, str]) -> list[str]:
     required_pairs = (
         ("fg", "bg"), ("fg", "surface"), ("muted", "bg"),
         ("heading", "bg"), ("on_blue", "blue"), ("on_red", "red"),
-        ("selection_fg", "selection"), ("success", "surface"),
-        ("warning", "surface"), ("error", "surface"), ("info", "surface"),
+        ("selection_fg", "selection"), ("success", "bg"),
+        ("warning", "bg"), ("error", "bg"), ("info", "bg"),
     )
     issues = []
     for foreground, background in required_pairs:
@@ -258,7 +259,7 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
         token = status_name.lower()
         style.configure(
             f"Status.{status_name}.TLabel",
-            background=colors["surface"],
+            background=colors["bg"],
             foreground=colors[token],
             padding=(6, 3),
         )
