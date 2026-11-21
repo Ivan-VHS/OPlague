@@ -77,10 +77,13 @@ class GiftPlan:
             return False
         if not 0 <= self.spent <= self.budget:
             return False
-        return all(
-            sum(line.line_total for line in basket) <= share
-            for basket, share in zip(self.baskets, self.allocations)
-        )
+        basket_spent = 0
+        for basket, share in zip(self.baskets, self.allocations):
+            basket_total = sum(line.line_total for line in basket)
+            if basket_total > share:
+                return False
+            basket_spent += basket_total
+        return basket_spent == self.spent
 
 
 def _budget(value: int) -> None:
