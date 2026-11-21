@@ -45,6 +45,10 @@ OPlague is a hardware inventory and driver-package diagnostic workbench. Its pri
 | Action red | #B5122D | #FF7B86 |
 | Border | #CAD8E8 | #31516F |
 
+## Anatidae visual grammar
+
+The product uses the shared lexical/visual system in [ANATIDAE_DESKTOP_DESIGN_SYSTEM.md](ANATIDAE_DESKTOP_DESIGN_SYSTEM.md): calm surfaces, layered evidence, restrained plumage-like separators and fluid responsive layout. The metaphor never changes the read-only product boundary, turns candidate matches into recommendations, or replaces textual evidence with color.
+
 ## Related repositories
 
 - [Pytyliki processor workstation](https://github.com/Ivan-VHS/Pytyliki/blob/main/docs/UI_UX_SYSTEM.md)
