@@ -7,6 +7,7 @@ from tools.architecture_profiles import (
     detect_inf_target_architectures,
     evaluate_driver_targets,
     normalize_architecture,
+    current_host_profile,
 )
 
 
@@ -19,6 +20,17 @@ class ArchitectureProfileTests(unittest.TestCase):
         self.assertEqual(normalize_architecture("AMD64"), "amd64")
         self.assertEqual(normalize_architecture("x86_64"), "amd64")
         self.assertEqual(normalize_architecture("AArch64"), "arm64")
+        self.assertIsNone(normalize_architecture("e2k"))
+
+    def test_e2k_host_is_not_misclassified_as_a_windows_driver_target(self) -> None:
+        profile = current_host_profile("e2k")
+        self.assertEqual(profile["schema"], "oplage.host-platform.v1")
+        self.assertEqual(profile["platform_family"], "MCST Elbrus")
+        self.assertEqual(profile["architecture"], "e2k")
+        self.assertIsNone(profile["windows_driver_target"])
+        self.assertEqual(profile["windows_driver_match"], "not_applicable")
+        self.assertEqual(profile["package_inspection"], "available")
+        self.assertEqual(profile["pnp_inventory"], "windows_only")
         self.assertIsNone(normalize_architecture("e2k"))
 
     def test_extracts_decorated_inf_targets(self) -> None:
