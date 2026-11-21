@@ -84,3 +84,10 @@ ID 或哈希匹配不证明发布者可信、系统兼容、设备适用或安�
 ## Motion Constitution v2026
 
 跨项目规范见 [Motion Constitution v2026](docs/MOTION_CONSTITUTION_V2026.md)。它统一弹簧/快速缓动、0.4×–2.2× 动效缩放范围、Reduce Motion 优先级、主题、2×2/焦点场景以及绑定真实数据的 SVG/Canvas 遥测。[原生界面动效规范](docs/UI_MOTION.md)记录已交付的 Tk 行为和无障碍偏好。OPlague 仍是只读工具：设备盘点、INF/ZIP 证据、哈希和候选兼容关系均来自真实数据；固件 OTA、驱动安装、USB 动画以及设备 DPI/轮询频率控制均不可用。
+
+
+## 统一动效架构图
+
+<p align="center"><img src="assets/motion-constitution-v2026.svg" alt="Motion Constitution v2026 四领域架构图" width="100%"></p>
+
+这是共享的 2×2 架构示意图，并非应用运行截图。它将已交付功能与不可用或规划中的能力明确区分。
