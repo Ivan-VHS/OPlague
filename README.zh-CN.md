@@ -79,3 +79,8 @@ ID 或哈希匹配不证明发布者可信、系统兼容、设备适用或安�
 **无障碍与响应式：**保持清晰的文本对比度、可见的键盘焦点、适合触控的控件尺寸、明确的 active/disabled 状态，并确保窄屏布局自然折叠。动效不得造成布局跳动或妨碍操作。
 
 本节是 DUCK CORE 视觉参考，**不代表**每个应用都已实现所有主题、动画或控件。实际发布的实现和项目专属规范才是最终依据：[界面动效规范](docs/UI_MOTION.md)。
+
+
+## Motion Constitution v2026
+
+跨项目规范见 [Motion Constitution v2026](docs/MOTION_CONSTITUTION_V2026.md)。它统一弹簧/快速缓动、0.4×–2.2× 动效缩放范围、Reduce Motion 优先级、主题、2×2/焦点场景以及绑定真实数据的 SVG/Canvas 遥测。[原生界面动效规范](docs/UI_MOTION.md)记录已交付的 Tk 行为和无障碍偏好。OPlague 仍是只读工具：设备盘点、INF/ZIP 证据、哈希和候选兼容关系均来自真实数据；固件 OTA、驱动安装、USB 动画以及设备 DPI/轮询频率控制均不可用。
