@@ -85,7 +85,7 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
         raise FileNotFoundError(f"Package file not found: {path}")
     size = path.stat().st_size
     if not _APP_GUARD.check_payload(
-        size, MAX_PACKAGE_BYTES, level_id=192, rule_id="A-11", object_id="driver-package"
+        size, MAX_PACKAGE_BYTES, level_id=192, rule_id="A-09", object_id="driver-package"
     ):
         raise ValueError("Package exceeds the AppGuard inspection byte ceiling")
     suffix = path.suffix.casefold()
@@ -119,7 +119,7 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
                 expanded += entry.file_size
                 if not _APP_GUARD.check_payload(
                     expanded, MAX_EXPANDED_BYTES, level_id=192,
-                    rule_id="A-11", object_id="archive-expanded-data"
+                    rule_id="A-09", object_id="archive-expanded-data"
                 ):
                     raise ValueError("Archive exceeds the AppGuard expanded-size ceiling")
                 if entry.file_size and not entry.compress_size:
