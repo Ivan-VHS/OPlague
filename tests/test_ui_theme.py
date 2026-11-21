@@ -75,6 +75,13 @@ class OPlagueThemeTests(unittest.TestCase):
     def test_preferred_theme_loader_returns_supported_mode(self):
         self.assertIn(load_preferred_theme(), {"system", "light", "dark"})
 
+    def test_focus_and_supporting_text_have_semantic_contrast(self):
+        for palette in PALETTES.values():
+            self.assertGreaterEqual(contrast_ratio(palette["focus"], palette["bg"]), 3.0)
+            self.assertGreaterEqual(contrast_ratio(palette["muted"], palette["bg"]), 4.5)
+            self.assertNotEqual(palette["blue"], palette["red"])
+
+
 
 if __name__ == "__main__":
     unittest.main()
