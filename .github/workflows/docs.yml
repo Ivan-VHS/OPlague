@@ -11,6 +11,7 @@ on:
       - ".github/workflows/docs.yml"
       - ".github/scripts/check_readme_links.py"
       - ".github/workflows/verified-auto-merge.yml"
+      - "assets/screenshots/**"
   push:
     branches: ['**']
     paths:
@@ -22,6 +23,7 @@ on:
       - ".github/workflows/docs.yml"
       - ".github/scripts/check_readme_links.py"
       - ".github/workflows/verified-auto-merge.yml"
+      - "assets/screenshots/**"
 
 permissions:
   contents: read
