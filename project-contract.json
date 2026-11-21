@@ -4,7 +4,7 @@
     "id": "oplague",
     "name": "OPlague",
     "repository": "Ivan-VHS/OPlague",
-    "summary": "Windows-first driver-management workbench for read-only hardware discovery, bounded package inspection, integrity reports, normalized metrics and federated device snapshots.",
+    "summary": "Windows-first driver evidence workbench for read-only hardware inventory, bounded package inspection and federated diagnostic artifacts.",
     "documentation": "docs/UNIFIED_PROJECT_CONTRACT.md"
   },
   "implementation": {
@@ -113,7 +113,7 @@
     {
       "id": "federation.octa-8-horizontal-peer-mesh",
       "status": "implemented",
-      "summary": "Validates the complete three-project directed peer product, eight octagonal pyramid facets and local self-loops without a central runtime dependency.",
+      "summary": "Validates the complete four-project directed peer product, twelve status-labelled links, eight facets and four independent self-loops without a central runtime dependency.",
       "evidence": [
         "federation/octa-pyramid.v1.json",
         "tools/validate_octa_pyramid.py",
@@ -226,6 +226,14 @@
       "status": "implemented",
       "opt_in": false,
       "summary": "Participates in the OCTA-8 peer mesh; native request/response remains explicit and caller initiated."
+    },
+    {
+      "project": "ventusample",
+      "interface": "octa.pyramid.peer-mesh.v1",
+      "mode": "shared-contract",
+      "status": "implemented",
+      "opt_in": false,
+      "summary": "Records the fourth repository in the shared OCTA-8 topology; no driver/audio runtime interface is defined."
     }
   ],
   "safety_boundaries": [
