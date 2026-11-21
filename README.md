@@ -83,6 +83,10 @@ Mainline includes PnP inventory, bounded INF/ZIP inspection, architecture analys
 
 Package hashes establish byte-level integrity only; they do not establish publisher identity, driver safety or compatibility.
 
+## Documentation governance
+
+[Documentation control](docs/DOCUMENTATION_CONTROL.md) defines the normative rules for public claims, evidence, privacy and integrations.
+
 ## License
 
 [Apache License 2.0](LICENSE)
