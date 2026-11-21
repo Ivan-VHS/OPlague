@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Ivan-VHS/OPlague/blob/main/schemas/decomposition-plan.schema.json",
+  "title": "OPlague Decomposition Plan",
+  "description": "Portable, non-mutating plan for partitioning package inventory and validation work.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "plan_id",
+    "algorithm",
+    "source",
+    "groups",
+    "invariants"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "plan_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "algorithm": {
+      "enum": [
+        "equal-remainder",
+        "weighted-largest-remainder",
+        "dependency-aware"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package_id",
+        "inventory_sha256",
+        "item_count"
+      ],
+      "properties": {
+        "package_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "inventory_sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "item_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "groups": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "group_id",
+          "item_ids"
+        ],
+        "properties": {
+          "group_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "item_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0
+          },
+          "dependency_group_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        }
+      }
+    },
+    "invariants": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "read_only",
+        "preserve_payload_bytes",
+        "preserve_dependency_closure",
+        "reconstruction_required"
+      ],
+      "properties": {
+        "read_only": {
+          "const": true
+        },
+        "preserve_payload_bytes": {
+          "const": true
+        },
+        "preserve_dependency_closure": {
+          "const": true
+        },
+        "reconstruction_required": {
+          "const": true
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "estimated_memory_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "measured_elapsed_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "measurement_environment": {
+          "type": "string",
+          "maxLength": 1024
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "proposed",
+            "verified",
+            "rejected",
+            "approved"
+          ]
+        },
+        "reviewer": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 4096
+        }
+      }
+    }
+  }
+}
