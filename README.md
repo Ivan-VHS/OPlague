@@ -119,3 +119,10 @@ This repository's host adapter, shared 18-plugin catalog and compatibility rules
 ## Beelzebul repository protection
 
 This repository uses the versioned [Beelzebul 66-rule security policy](SECURITY.md), machine-readable [policy](security/beelzebul.v1.json), and read-only [scanner](tools/beelzebul.py). Run `python tools/beelzebul.py` locally; GitHub Actions runs the same gate for pull requests and protected-branch updates.
+
+
+## CLife evidence checkpoints
+
+CLife preserves reports and review evidence in SHA-256-verified snapshots. Recovery writes a copy to a new directory; it never installs, modifies or restores drivers or devices.
+
+[CLife documentation](docs/CLIFE.md) · Run `python tools/clife.py snapshot path/to/evidence`.
