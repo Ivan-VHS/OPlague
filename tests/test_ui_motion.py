@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from ui_motion import (
     DURATIONS_MS, MAX_FRAME_DT_SECONDS, SPRING_SUBSTEPS, MotionPreferences,
-    Spring1D, duration_for, ease_out,
+    Spring1D, PADDLE_EASING, WATER_EASING, duration_for, ease_out,
     load_preferences, reduced_motion_enabled, save_preferences,
 )
 
@@ -18,6 +18,10 @@ class MotionTests(unittest.TestCase):
         self.assertEqual(ease_out(2), 1.0)
         values = [ease_out(i / 20) for i in range(21)]
         self.assertEqual(values, sorted(values))
+
+    def test_shared_paddle_and_water_motion_tokens_are_stable(self):
+        self.assertEqual(PADDLE_EASING, "cubic-bezier(0.22, 1.18, 0.36, 1)")
+        self.assertEqual(WATER_EASING, "cubic-bezier(0.37, 0, 0.63, 1)")
 
     def test_spring_frame_budget_is_bounded(self):
         self.assertEqual(MAX_FRAME_DT_SECONDS, 0.032)
