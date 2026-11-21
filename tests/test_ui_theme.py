@@ -17,7 +17,8 @@ class OPlagueThemeTests(unittest.TestCase):
         required = {
             "bg", "surface", "elevated", "fg", "secondary", "muted",
             "blue", "blue_hover", "on_blue", "red", "red_hover", "on_red",
-            "border", "focus", "selection", "selection_fg", "disabled",\n            "success", "warning", "error", "info",
+            "border", "focus", "selection", "selection_fg", "disabled",
+            "success", "warning", "error", "info",
         }
         self.assertTrue(required.issubset(light))
         self.assertTrue(required.issubset(dark))
