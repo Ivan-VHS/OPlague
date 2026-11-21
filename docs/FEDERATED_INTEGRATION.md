@@ -80,7 +80,7 @@ library is loaded unless this flag is provided.
 
 ## Cross-repository references
 
-- **Shared 3 × 3 map:** [Project federation matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md).
+- **Shared 4 × 4 map:** [Project federation matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md).
 - **Reaper:** [repository](https://github.com/Ivan-VHS/Reaper), [federation contract](https://github.com/Ivan-VHS/Reaper/blob/main/docs/FEDERATED_INTEGRATION.md), [snapshot consumer](https://github.com/Ivan-VHS/Reaper/blob/main/reaper/federation.py), [project manifest](https://github.com/Ivan-VHS/Reaper/blob/main/project-contract.json).
 - **Pytyliki:** [repository](https://github.com/Ivan-VHS/Pytyliki), [federation contract](https://github.com/Ivan-VHS/Pytyliki/blob/main/docs/FEDERATED_INTEGRATION.md), [public ABI header](https://github.com/Ivan-VHS/Pytyliki/blob/main/src/interop.h), [project manifest](https://github.com/Ivan-VHS/Pytyliki/blob/main/project-contract.json).
 - **OPlague evidence:** [device snapshot producer](../tools/federation.py), [Pytyliki adapter](../tools/pytyliki_ffi.py), [inspection composer](../tools/report_composer.py), [project manifest](../project-contract.json).
@@ -96,4 +96,4 @@ python -m tools.reaper_report comparison.json --json
 
 ## OCTA-8 horizontal mesh
 
-The shared [OCTA-8 topology](OCTA_PYRAMID_FEDERATION.md) defines six directed peer links and three local self-loops. Reaper↔OPlague exchanges bounded snapshots and comparison reports; Reaper↔Pytyliki and OPlague↔Pytyliki use synchronous request/response via explicit Pytyliki ABI v1 calls. Eight pyramid facets define shared invariants; the apex is metadata-only, not an executable gateway.
+The shared [four-project OCTA-8 topology](OCTA_PYRAMID_FEDERATION.md) defines twelve directed peer links, four local self-loops and eight protocol facets. Reaper↔OPlague exchanges bounded read-only snapshots and comparison reports; Reaper↔Pytyliki and OPlague↔Pytyliki use synchronous request/response via explicit Pytyliki ABI v1 calls. VentuSample exports pack v1 manifests for Reaper's read-only metric audit. OPlague↔VentuSample is explicitly not applicable: device/driver diagnostics are not part of audio generation. The apex is metadata-only, not an executable gateway.

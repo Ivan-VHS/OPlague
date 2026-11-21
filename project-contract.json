@@ -226,6 +226,14 @@
       "status": "implemented",
       "opt_in": false,
       "summary": "Participates in the OCTA-8 peer mesh; native request/response remains explicit and caller initiated."
+    },
+    {
+      "project": "ventusample",
+      "interface": "not-applicable.v1",
+      "mode": "shared-contract",
+      "status": "not_applicable",
+      "opt_in": false,
+      "summary": "Audio-pack generation is outside OPlague's Windows device and driver-package inspection domain; no device actions are coupled to VentuSample."
     }
   ],
   "safety_boundaries": [
