@@ -44,3 +44,18 @@ OPlague reuses the existing bounded Tk spring controller for the duck-inspired p
 Duck, feather, ripple and parallax effects are optional landing/showcase motifs only. They do not appear behind the inventory, hash, INF, archive, device graph or compatibility evidence surfaces. Animation is presentation-only on the Tk UI thread; it never delays package inspection or changes driver state.
 
 See the [shared Anatidae motion constitution](ANATIDAE_MOTION_CONSTITUTION.md).
+
+
+## Motion Constitution v2026 mapping
+
+The shared token, accessibility and documentation source is [Motion Constitution v2026](MOTION_CONSTITUTION_V2026.md). This native contract remains the authority for what this application actually ships.
+
+- Canonical easing names: `--ease-spring` (bounded paddle response) and `--ease-snappy` (predictable state transitions); native curves are mapped in this document.
+- Canonical scale envelope: `--motion-scale` = 0.4×–2.2× and spring stiffness multiplier 0.7–1.4. These are shared design tokens; they are not exposed as user controls unless the application UI and runtime explicitly implement them.
+- Reduced Motion: OS preference and `UI_REDUCED_MOTION` take precedence; spatial/ambient motion is removed, state changes remain immediate, and only essential feedback may retain a fade of up to 80 ms.
+- Theme/layout parity: light/dark themes, keyboard focus and high-DPI layouts remain required. 2×2 overview and focus-scene are showcase layout targets, not a claim that this native product already provides those views.
+- Telemetry graphics: SVG/Canvas/native-paint charts must bind to sourced model values, show units and an accessible textual equivalent, and expose stale/error/unknown states. Demo data must be labelled.
+
+### Product-specific maturity
+
+OPlague has a native Tk spring controller and persisted Reduce Motion/Eco/Expressive preferences. Its device inventory, INF/ZIP inspection, SHA-256 and compatibility relationships are read-only. USB ripple, firmware OTA rings, device DPI/Hz controls and driver installation/update flows are unavailable and must not be presented as live controls or telemetry.

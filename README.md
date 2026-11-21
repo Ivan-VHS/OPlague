@@ -89,3 +89,14 @@ This is a DUCK CORE visual reference, **not a claim** that every theme, animatio
 
 This is a static workflow illustration, not a device scan or compatibility verdict. The live Windows screenshot above remains the reference for the shipped workbench. See [Visual documentation and graphics contract](docs/VISUAL_DOCUMENTATION.md).
 <!-- VISUAL-DOCS:END -->
+
+
+## Motion Constitution v2026
+
+The shared cross-project contract is [Motion Constitution v2026](docs/MOTION_CONSTITUTION_V2026.md). It standardizes spring/snappy easing, the 0.4×–2.2× motion-scale envelope, reduced-motion precedence, theme parity, 2×2/focus-scene presentation and data-bound SVG/Canvas telemetry. The [native UI motion contract](docs/UI_MOTION.md) defines the shipped Tk behavior and accessibility preferences. OPlague remains read-only: device inventory, INF/ZIP evidence, hashes and candidate compatibility links are real data; firmware OTA, driver installation, USB animation and device DPI/polling controls are not available.
+
+## Shared motion architecture map
+
+<p align="center"><img src="assets/motion-constitution-v2026.svg" alt="Motion Constitution v2026: four-domain architecture map" width="100%"></p>
+
+This is the shared 2×2 architecture reference, not a live application screenshot. It distinguishes shipped product scope from unavailable or planned capabilities.
