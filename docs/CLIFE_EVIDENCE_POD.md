@@ -9,9 +9,9 @@ checkpoint writes; strict schema, size and checksum validation; recovery branche
 read-only resume, verified evidence export, hold-for-review and safe stop.
 
 Commands:
-python -m oplague.clife capture report.json .clife/report.json --project-id oplague-local --artifact-kind inventory_report --generation 1
-python -m oplague.clife verify .clife/report.json
-python -m oplague.clife export .clife/report.json recovered/report.json --project-id oplague-local --artifact-kind inventory_report
+python -m oplague clife capture report.json .clife/report.json --project-id oplague-local --artifact-kind inventory_report --generation 1
+python -m oplague clife verify .clife/report.json
+python -m oplague clife export .clife/report.json recovered/report.json --project-id oplague-local --artifact-kind inventory_report
 python -m unittest tests.test_clife -v
 
 No command installs, loads, modifies or rolls back a driver or device. Export writes only the
