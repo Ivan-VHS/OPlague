@@ -15,22 +15,22 @@ from typing import Iterator
 THEME_ENV = "OPLAGUE_UI_THEME"
 PALETTES: dict[str, dict[str, str]] = {
     "light": {
-        "bg": "#F4F6FA", "surface": "#FFFFFF", "elevated": "#F4F6FA",
-        "fg": "#0A1E46", "secondary": "#0039A6", "muted": "#0039A6",
-        "heading": "#0039A6", "blue": "#0039A6", "blue_hover": "#0A1E46", "on_blue": "#FFFFFF",
-        "red": "#B51A10", "red_hover": "#D52B1E", "on_red": "#FFFFFF",
-        "border": "#0039A6", "focus": "#D52B1E",
-        "selection": "#0039A6", "selection_fg": "#FFFFFF", "disabled": "#0039A6",
+        "bg": "#F4F8FD", "surface": "#FFFFFF", "elevated": "#EAF1FA",
+        "fg": "#122C45", "secondary": "#314B66", "muted": "#4D6177",
+        "heading": "#004E98", "blue": "#004E98", "blue_hover": "#1A5FDB", "on_blue": "#FFFFFF",
+        "red": "#B5122D", "red_hover": "#9C1026", "on_red": "#FFFFFF",
+        "border": "#CAD8E8", "focus": "#1A5FDB",
+        "selection": "#D9E8FF", "selection_fg": "#122C45", "disabled": "#6B7C90",
         "log": "#0A1E46", "log_text": "#FFFFFF", "mode": "light",
     },
     "dark": {
-        "bg": "#0A1E46", "surface": "#0039A6", "elevated": "#0039A6",
-        "fg": "#FFFFFF", "secondary": "#FFFFFF", "muted": "#FFFFFF",
-        "heading": "#FFFFFF", "blue": "#0039A6", "blue_hover": "#0A1E46", "on_blue": "#FFFFFF",
-        "red": "#B51A10", "red_hover": "#D52B1E", "on_red": "#FFFFFF",
-        "border": "#FFFFFF", "focus": "#D52B1E",
-        "selection": "#0A1E46", "selection_fg": "#FFFFFF", "disabled": "#FFFFFF",
-        "log": "#0A1E46", "log_text": "#FFFFFF", "mode": "dark",
+        "bg": "#071A2D", "surface": "#0F2A45", "elevated": "#173A5E",
+        "fg": "#E8EDF2", "secondary": "#D0DCE8", "muted": "#B3C4D6",
+        "heading": "#FFFFFF", "blue": "#70A5FF", "blue_hover": "#8AB6FF", "on_blue": "#071A2D",
+        "red": "#FF7B86", "red_hover": "#FF9AA2", "on_red": "#071A2D",
+        "border": "#31516F", "focus": "#8AB6FF",
+        "selection": "#244F82", "selection_fg": "#FFFFFF", "disabled": "#9BAFC4",
+        "log": "#071A2D", "log_text": "#E8EDF2", "mode": "dark",
     },
 }
 
@@ -52,6 +52,38 @@ def contrast_ratio(foreground: str, background: str) -> float:
     first, second = sorted((luminance(foreground), luminance(background)), reverse=True)
     return (first + 0.05) / (second + 0.05)
 
+
+
+def _install_semantic_status_tokens() -> None:
+    """Expose brand-compliant status roles; text and icons disambiguate meaning."""
+    for theme_name, palette in PALETTES.items():
+        dark = theme_name == "dark"
+        palette.update({
+            "success": "#FFFFFF" if dark else "#0039A6",
+            "warning": "#FFFFFF" if dark else "#B51A10",
+            "error": "#FFFFFF" if dark else "#B51A10",
+            "info": "#FFFFFF" if dark else "#0A1E46",
+        })
+
+
+def palette_contrast_issues(palette: dict[str, str]) -> list[str]:
+    """Return WCAG AA violations for semantic text on its actual base surface."""
+    pairs = (
+        ("fg", "bg"), ("fg", "surface"), ("muted", "bg"),
+        ("heading", "bg"), ("on_blue", "blue"), ("on_red", "red"),
+        ("selection_fg", "selection"), ("success", "bg"),
+        ("warning", "bg"), ("error", "bg"), ("info", "bg"),
+    )
+    issues = []
+    for foreground, background in pairs:
+        if foreground not in palette or background not in palette:
+            issues.append(f"missing token: {foreground}/{background}")
+        elif contrast_ratio(palette[foreground], palette[background]) < 4.5:
+            issues.append(f"{foreground}/{background} below 4.5:1")
+    return issues
+
+
+_install_semantic_status_tokens()
 
 def set_dpi_awareness() -> None:
     """Request Per-Monitor V2 DPI awareness before creating the Tk root."""
@@ -172,11 +204,14 @@ def palette_for(mode: str = "system", *, system_dark: bool | None = None) -> dic
         "accent": result["blue"],
         "accent_hover": result["blue_hover"],
         "danger": result["red"],
-        "success": result["blue"],
+        "success": result["success"],
         "editor": result["surface"],
         "editor_text": result["fg"],
         "log_text": result["log_text"],
     })
+    issues = palette_contrast_issues(result)
+    if issues:
+        raise ValueError("Theme palette fails UI/UX 40026: " + "; ".join(issues))
     return result
 
 
@@ -216,6 +251,12 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
     style.configure("Title.TLabel", background=colors["bg"], foreground=colors["heading"], font=("Georgia", 18, "bold"))
     style.configure("Section.TLabel", background=colors["bg"], foreground=colors["heading"], font=("Georgia", 11, "bold"), padding=(4, 5))
     style.configure("Muted.TLabel", background=colors["bg"], foreground=colors["muted"])
+    for status_name in ("Success", "Warning", "Error", "Info"):
+        token = status_name.lower()
+        style.configure(
+            f"Status.{status_name}.TLabel",
+            background=colors["bg"], foreground=colors[token], padding=(6, 3),
+        )
     style.configure(
         "TButton", padding=(14, 13), focuscolor=colors["focus"],
         foreground=colors["fg"], background=colors["surface"],
