@@ -39,7 +39,7 @@ Components consume semantic tokens, not hard-coded colors:
 
 The concrete light/dark token table is maintained in [ANATIDAE_DESKTOP_DESIGN_SYSTEM.md](ANATIDAE_DESKTOP_DESIGN_SYSTEM.md); older palette preset examples below are historical proposals, not the shipped product palette.
 
-Presets: **Morning Pond** (pearl/graphite-blue/teal/amber), **Twilight Water** (slate/soft white/mint/coral), **Northern Ice 8K** (high contrast and strong borders), **Warm Vibe** (cream/sand or chocolate/amber). Provide normal, high and extra-high contrast. Status must also use labels/icons/patterns, never color alone. Theme changes update tabs, tables, text widgets, graphs, labels and dialogs atomically.
+Do not expose alternate accent presets. The production identity uses the single white-blue-red semantic token set in [ANATIDAE_DESKTOP_DESIGN_SYSTEM.md](ANATIDAE_DESKTOP_DESIGN_SYSTEM.md), with light/dark surfaces and normal/high/extra-high contrast modes. Status uses labels/icons/patterns, never color alone. Theme changes update tabs, tables, text widgets, graphs, labels and dialogs atomically.
 
 Include `uiScale` 80–250%, typography, spacing density and border strength. On 8K, focus outlines and separators scale to about 1.5–3 physical px. Motion is 120–220 ms where useful; reduced-motion disables it.
 
