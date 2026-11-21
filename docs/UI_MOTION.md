@@ -35,3 +35,12 @@ This application has no audio transport, so BPM sync remains unavailable. Animat
 The shared duration tokens are `instant=0`, `micro=100`, `fast=140`, `standard=180`, `spatial=220` and `emphasis=320` milliseconds. Expressive Motion scales the selected token by 1.35, with a hard ceiling of 380 ms. Reduce Motion or Eco caps any retained transition at 80 ms and takes precedence over Expressive.
 
 The Tk spring solver uses semi-implicit Euler integration, two substeps and a maximum 32 ms frame delta. It is presentation-only and snaps to its destination when settled or when its bounded duration is reached. Preferences live in `ui-motion.json` under the user's application configuration directory; old settings load with Expressive disabled by default.
+
+
+## Anatidae / Pond Motion integration
+
+OPlague reuses the existing bounded Tk spring controller for the duck-inspired paddle response. The shared tokens are `PADDLE_EASING = cubic-bezier(0.22, 1.18, 0.36, 1)` and `WATER_EASING = cubic-bezier(0.37, 0, 0.63, 1)`; the second is reserved for optional showcase artwork. Expressive Motion remains a stronger spring preset with a duration multiplier capped at 380 ms. Reduce Motion and Eco take precedence and cap retained motion at 80 ms.
+
+Duck, feather, ripple and parallax effects are optional landing/showcase motifs only. They do not appear behind the inventory, hash, INF, archive, device graph or compatibility evidence surfaces. Animation is presentation-only on the Tk UI thread; it never delays package inspection or changes driver state.
+
+See the [shared Anatidae motion constitution](ANATIDAE_MOTION_CONSTITUTION.md).
