@@ -72,6 +72,12 @@ Mainline includes PnP inventory, bounded INF/ZIP inspection, architecture analys
 
 **Federation:** [Reaper](https://github.com/Ivan-VHS/Reaper) · [Pytyliki](https://github.com/Ivan-VHS/Pytyliki) · [3×3 matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md).
 
+## Desktop design: Duck Sovereign Canon
+
+The Tk workbench uses a top-down workflow: device inventory, package evidence, compatibility dry-run, comparison and explicit export. White surfaces and deep blue carry information; red is reserved for signal and priority. Local serif headings, readable local sans-serif controls, compact rectangular panels, keyboard focus and reduced-motion behavior form the shared visual contract.
+
+Read [the complete design doctrine](docs/DUCK_SOVEREIGN_CANON.md), [desktop design system](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) and [UI/UX architecture](docs/UI_UX_ARCHITECTURE.md). The design specification distinguishes illustrative layouts from screenshots of a running application.
+
 ## Anatidae doctrine and safety contract
 
 - **Operator intent first:** inventory and inspection are read-only; snapshot export requires explicit operator confirmation. Native interop is opt-in and requires an explicitly supplied trusted library path.
@@ -109,9 +115,9 @@ The shared [OCTA-8 project matrix](https://github.com/Ivan-VHS/Reaper/blob/main/
 ## Improvement and conflict resolution
 
 The [20-control improvement, dissonance, and conflict standard](docs/IMPROVEMENT_CONFLICT_STANDARD.md) turns inconsistencies into evidence-led, testable changes while preserving OPlague's read-only device and driver diagnostics boundary. Run `python tools/improvement_conflict.py` to validate the machine-readable register. This validates the governance contract; it is not a source-code scanner and does not claim unassessed controls are resolved.
+
 ## Correction and defect coverage
 
 The **20 × 3 correction / coverage / defect matrix** preserves all supplied terms and maps them to project-specific targets, acceptance criteria and repository-local evidence. Run `python tools/quality_remediation.py` or add `--format json`; the focused regression suite runs in CI. Evidence-path presence is a traceability check, not proof that behavior is correct or that all defects are gone. See [the remediation standard](docs/QUALITY_REMEDIATION_STANDARD.md).
 
 The repeated term «Исчерпывающесть» is intentionally retained in rows 5 and 18 as supplied; the matrix preserves the original vocabulary rather than silently normalizing it.
-

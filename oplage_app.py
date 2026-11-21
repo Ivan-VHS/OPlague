@@ -189,32 +189,32 @@ class OPlagueApp(tk.Tk):
     def __init__(self) -> None:
         set_dpi_awareness()
         super().__init__()
-        self.title("OPlague — Driver Workbench")
+        self.title("OPlague — мастерская оборудования и драйверов")
         self.geometry("1120x720")
         self.minsize(820, 540)
         self._theme_mode = load_preferred_theme()
         self._theme_cycle = ("system", "light", "dark")
         header = ttk.Frame(self, padding=(16, 12)); header.pack(fill="x")
         ttk.Label(header, text="OPLAGUE", style="Title.TLabel").pack(side="left")
-        ttk.Label(header, text="Hardware inventory  /  Driver package inspection", style="Muted.TLabel").pack(side="left", padx=16)
-        self.theme_button = ttk.Button(header, text="Theme: System", command=self.cycle_theme)
+        ttk.Label(header, text="Инвентаризация оборудования  /  Проверка пакетов драйверов", style="Muted.TLabel").pack(side="left", padx=16)
+        self.theme_button = ttk.Button(header, text="Тема: системная", command=self.cycle_theme)
         self.theme_button.pack(side="right")
         self.tabs = ttk.Notebook(self); self.tabs.pack(fill="both", expand=True, padx=14, pady=(0, 10))
         inventory = ttk.Frame(self.tabs, padding=12); packages = ttk.Frame(self.tabs, padding=12)
-        self.tabs.add(inventory, text="Device inventory"); self.tabs.add(packages, text="Package inspector")
+        self.tabs.add(inventory, text="Устройства"); self.tabs.add(packages, text="Проверка пакетов")
         self.device_rows: list[dict[str, str]] = []
         self.inspected_drivers: list[dict[str, Any]] = []
         metrics = ttk.Frame(self.tabs, padding=12)
-        self.tabs.add(metrics, text="Metric Lab")
+        self.tabs.add(metrics, text="Лаборатория метрик")
         compatibility = ttk.Frame(self.tabs, padding=12)
-        self.tabs.add(compatibility, text="Compatibility & dry-run")
+        self.tabs.add(compatibility, text="Проверка совместимости")
         ttk.Label(
             compatibility,
-            text="Exact INF hardware-ID matching only. A candidate is not a compatibility or safety verdict; no driver operation is performed.",
+            text="Сопоставление выполняется только по точным аппаратным идентификаторам INF. Кандидат не является заключением о совместимости или безопасности; операции с драйверами не выполняются.",
             style="Muted.TLabel", wraplength=1000,
         ).pack(anchor="w", pady=(0, 8))
         ttk.Button(
-            compatibility, text="Build dry-run plan from current inventory",
+            compatibility, text="Сформировать пробный план по текущему списку устройств",
             command=self.build_compatibility_plan, style="Primary.TButton",
         ).pack(anchor="w", pady=(0, 8))
         self.compatibility_result = ScrolledText(
@@ -223,15 +223,15 @@ class OPlagueApp(tk.Tk):
         self.compatibility_result.pack(fill="both", expand=True)
         ttk.Label(
             metrics,
-            text="Compare normalized hardware / benchmark profiles using n-D metrics and weighted quadratic distance.",
+            text="Сравнение нормализованных аппаратных и тестовых профилей по многомерным метрикам и взвешенному квадратичному расстоянию.",
             style="Muted.TLabel",
         ).pack(anchor="w", pady=(0, 8))
         metric_inputs = ttk.Frame(metrics)
         metric_inputs.pack(fill="x", expand=False)
         profile_defaults = (
-            ("reference", "Reference profile", '{"cpu_score": 0.82, "memory_score": 0.71, "thermal_headroom": 0.68}'),
-            ("candidate", "Candidate profile", '{"cpu_score": 0.88, "memory_score": 0.66, "thermal_headroom": 0.74}'),
-            ("weights", "Metric weights (optional)", '{"cpu_score": 1.0, "memory_score": 1.5, "thermal_headroom": 1.0}'),
+            ("reference", "Эталонный профиль", '{"cpu_score": 0.82, "memory_score": 0.71, "thermal_headroom": 0.68}'),
+            ("candidate", "Проверяемый профиль", '{"cpu_score": 0.88, "memory_score": 0.66, "thermal_headroom": 0.74}'),
+            ("weights", "Веса метрик (необязательно)", '{"cpu_score": 1.0, "memory_score": 1.5, "thermal_headroom": 1.0}'),
         )
         self.metric_input_panels: list[ttk.LabelFrame] = []
         for column, (key, label, default_value) in enumerate(profile_defaults):
@@ -246,31 +246,31 @@ class OPlagueApp(tk.Tk):
         metric_inputs.bind("<Configure>", self._layout_metric_inputs, add="+")
         metric_actions = ttk.Frame(metrics)
         metric_actions.pack(fill="x", pady=8)
-        ttk.Button(metric_actions, text="Compare profiles", command=self.compare_profiles, style="Primary.TButton").pack(side="left")
+        ttk.Button(metric_actions, text="Сравнить профили", command=self.compare_profiles, style="Primary.TButton").pack(side="left")
         ttk.Label(
             metric_actions,
-            text="JSON only · values must be normalized to [0, 1] · higher means better",
+            text="Только JSON · значения должны быть нормированы к диапазону [0, 1] · большее значение означает лучший результат",
             style="Muted.TLabel",
         ).pack(side="left", padx=12)
         self.metric_result = ScrolledText(metrics, wrap="word", font=("Consolas", 10), height=14, state="disabled")
         self.metric_result.pack(fill="both", expand=True)
         bar = ttk.Frame(inventory); bar.pack(fill="x", pady=(0, 10))
-        ttk.Button(bar, text="Refresh hardware", command=self.refresh_devices, style="Primary.TButton").pack(side="left")
-        ttk.Label(bar, text="Read-only Windows Plug and Play inventory", style="Muted.TLabel").pack(side="left", padx=12)
+        ttk.Button(bar, text="Обновить список устройств", command=self.refresh_devices, style="Primary.TButton").pack(side="left")
+        ttk.Label(bar, text="Список устройств Windows Plug and Play — только чтение", style="Muted.TLabel").pack(side="left", padx=12)
         columns = ("name", "status", "manufacturer", "pnp_id")
         self.devices = ttk.Treeview(inventory, columns=columns, show="headings")
-        for col, label, width in (("name","Device",280),("status","Status",90),("manufacturer","Manufacturer",170),("pnp_id","Hardware ID",410)):
+        for col, label, width in (("name","Устройство",280),("status","Состояние",90),("manufacturer","Производитель",170),("pnp_id","Аппаратный ID",410)):
             self.devices.heading(col, text=label); self.devices.column(col, width=width, minwidth=90, stretch=True)
         ybar = ttk.Scrollbar(inventory, orient="vertical", command=self.devices.yview)
         self.devices.configure(yscrollcommand=ybar.set); self.devices.pack(fill="both", expand=True); ybar.pack(side="right", fill="y")
         tools = ttk.Frame(packages); tools.pack(fill="x", pady=(0, 10))
-        ttk.Button(tools, text="Inspect INF / ZIP…", command=self.choose_package, style="Primary.TButton").pack(side="left")
-        ttk.Button(tools, text="Batch inspect…", command=self.choose_packages).pack(side="left", padx=(8, 0))
-        ttk.Label(tools, text="Metadata and hashes only — no extraction or execution", style="Muted.TLabel").pack(side="left", padx=12)
+        ttk.Button(tools, text="Проверить INF / ZIP…", command=self.choose_package, style="Primary.TButton").pack(side="left")
+        ttk.Button(tools, text="Пакетная проверка…", command=self.choose_packages).pack(side="left", padx=(8, 0))
+        ttk.Label(tools, text="Только метаданные и хеши — без распаковки и запуска содержимого", style="Muted.TLabel").pack(side="left", padx=12)
         self.report = ScrolledText(packages, wrap="word", font=("Consolas", 10), state="disabled")
         self.report.pack(fill="both", expand=True)
         footer = ttk.Frame(self, padding=(14, 4, 14, 10)); footer.pack(fill="x")
-        self.status = tk.StringVar(value="Local inspection only — no driver installation or deployment")
+        self.status = tk.StringVar(value="Только локальная проверка — установка и развёртывание драйверов не выполняются")
         ttk.Label(footer, textvariable=self.status, style="Muted.TLabel").pack(side="left")
         self.apply_visual_theme()
         self._motion = MotionController(self)
@@ -279,7 +279,8 @@ class OPlagueApp(tk.Tk):
     def apply_visual_theme(self) -> None:
         """Apply the selected appearance to tabs, tables and report editors."""
         apply_ui_theme(self, self._theme_mode)
-        self.theme_button.configure(text=f"Theme: {self._theme_mode.title()}")
+        theme_title = {"system": "системная", "light": "светлая", "dark": "тёмная"}.get(self._theme_mode, "системная")
+        self.theme_button.configure(text=f"Тема: {theme_title}")
 
     def cycle_theme(self) -> None:
         index = self._theme_cycle.index(self._theme_mode)
@@ -301,17 +302,17 @@ class OPlagueApp(tk.Tk):
                 container.columnconfigure(column, weight=1 if column < columns else 0)
 
     def refresh_devices(self) -> None:
-        self.status.set("Querying local Windows device inventory…"); self.update_idletasks()
+        self.status.set("Получение локального списка устройств Windows…"); self.update_idletasks()
         self.devices.delete(*self.devices.get_children())
         try:
             devices = list_pnp_devices()
         except Exception as error:
-            self.status.set("Device inventory query failed")
-            messagebox.showerror("Device inventory", str(error), parent=self); return
+            self.status.set("Не удалось получить список устройств")
+            messagebox.showerror("Список устройств", str(error), parent=self); return
         self.device_rows = devices
         for row in devices:
             self.devices.insert("", "end", values=(row["name"], row["status"], row["manufacturer"], row["pnp_id"]))
-        self.status.set(f"Found {len(devices)} Plug and Play devices")
+        self.status.set(f"Найдено устройств Plug and Play: {len(devices)}")
 
     def compare_profiles(self) -> None:
         try:
@@ -321,8 +322,8 @@ class OPlagueApp(tk.Tk):
             weights = json.loads(raw_weights) if raw_weights else None
             result = analyze_device_profiles(reference, candidate, weights)
         except (ValueError, TypeError, OverflowError, json.JSONDecodeError) as error:
-            self.status.set("Metric profile comparison failed")
-            messagebox.showerror("Metric analysis", str(error), parent=self)
+            self.status.set("Не удалось сравнить профили метрик")
+            messagebox.showerror("Анализ метрик", str(error), parent=self)
             return
         self.metric_result.configure(state="normal")
         self.metric_result.delete("1.0", "end")
@@ -335,20 +336,20 @@ class OPlagueApp(tk.Tk):
         )
 
     def choose_package(self) -> None:
-        filename = filedialog.askopenfilename(parent=self, title="Select a driver package",
-          filetypes=[("Supported packages", "*.inf *.zip"), ("INF files", "*.inf"), ("ZIP files", "*.zip"), ("All files", "*.*")])
+        filename = filedialog.askopenfilename(parent=self, title="Выберите пакет драйвера",
+          filetypes=[("Поддерживаемые пакеты", "*.inf *.zip"), ("Файлы INF", "*.inf"), ("Архивы ZIP", "*.zip"), ("Все файлы", "*.*")])
         if not filename:
             return
         try:
             data = inspect_package(filename)
         except Exception as error:
-            self.status.set("Package inspection failed")
-            messagebox.showerror("Package inspection failed", str(error), parent=self); return
+            self.status.set("Не удалось проверить пакет")
+            messagebox.showerror("Не удалось проверить пакет", str(error), parent=self); return
         self._remember_driver_records(data)
         self.report.configure(state="normal"); self.report.delete("1.0", "end")
         self.report.insert("1.0", json.dumps(data, indent=2, ensure_ascii=False))
         self.report.configure(state="disabled"); self.tabs.select(1)
-        self.status.set(f"Inspected {data['file_name']} — SHA-256 calculated locally")
+        self.status.set(f"Проверен файл {data['file_name']} — SHA-256 рассчитан локально")
 
 
 
@@ -361,10 +362,10 @@ class OPlagueApp(tk.Tk):
 
     def build_compatibility_plan(self) -> None:
         if not self.device_rows:
-            messagebox.showinfo("Compatibility planner", "Refresh the read-only device inventory first.", parent=self)
+            messagebox.showinfo("План совместимости", "Сначала обновите список устройств в режиме чтения.", parent=self)
             return
         if not self.inspected_drivers:
-            messagebox.showinfo("Compatibility planner", "Inspect at least one INF or ZIP package containing a Models section first.", parent=self)
+            messagebox.showinfo("План совместимости", "Сначала проверьте хотя бы один пакет INF или ZIP с разделом Models.", parent=self)
             return
         try:
             plan = build_dry_run_plan(
@@ -372,8 +373,8 @@ class OPlagueApp(tk.Tk):
                 host_architecture=platform.machine(),
             )
         except (TypeError, ValueError, OverflowError) as error:
-            self.status.set("Compatibility planning failed")
-            messagebox.showerror("Compatibility planner", str(error), parent=self)
+            self.status.set("Не удалось сформировать план совместимости")
+            messagebox.showerror("План совместимости", str(error), parent=self)
             return
         self.compatibility_result.configure(state="normal")
         self.compatibility_result.delete("1.0", "end")
@@ -382,12 +383,12 @@ class OPlagueApp(tk.Tk):
         summary = plan["summary"]
         self.tabs.select(3)
         self.status.set(
-            f"Dry-run only: {summary['candidate_edges']} exact-ID candidate edge(s); system unchanged"
+            f"Пробный расчёт: кандидатов с точным ID — {summary['candidate_edges']}; система не изменена"
         )
 
     def choose_packages(self) -> None:
         filenames = filedialog.askopenfilenames(
-            parent=self, title="Select driver packages",
+            parent=self, title="Выберите пакеты драйверов",
             filetypes=[("Supported packages", "*.inf *.zip"), ("INF files", "*.inf"),
                        ("ZIP files", "*.zip"), ("All files", "*.*")])
         if not filenames:
@@ -396,8 +397,8 @@ class OPlagueApp(tk.Tk):
             reports = inspect_batch(filenames, inspect_package)
             data = compose_inspection_reports(reports)
         except Exception as error:
-            self.status.set("Batch package inspection failed")
-            messagebox.showerror("Batch package inspection failed", str(error), parent=self)
+            self.status.set("Не удалось выполнить пакетную проверку")
+            messagebox.showerror("Не удалось выполнить пакетную проверку", str(error), parent=self)
             return
         for report in reports:
             self._remember_driver_records(report)
@@ -408,7 +409,7 @@ class OPlagueApp(tk.Tk):
         self.tabs.select(1)
         totals = data["totals"]
         self.status.set(
-            f"Composed {totals['packages']} package reports — bundle SHA-256 {data['bundle_sha256'][:16]}…"
+            f"Сформировано отчётов о пакетах: {totals['packages']} — SHA-256 набора {data['bundle_sha256'][:16]}…"
         )
 
 def main() -> int:
