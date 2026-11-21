@@ -15,22 +15,22 @@ from typing import Iterator
 THEME_ENV = "OPLAGUE_UI_THEME"
 PALETTES: dict[str, dict[str, str]] = {
     "light": {
-        "bg": "#F4F8FD", "surface": "#FFFFFF", "elevated": "#EAF1FA",
-        "fg": "#122C45", "secondary": "#314B66", "muted": "#4D6177",
-        "blue": "#004E98", "blue_hover": "#1A5FDB", "on_blue": "#FFFFFF",
-        "red": "#B5122D", "red_hover": "#9C1026", "on_red": "#FFFFFF",
-        "border": "#CAD8E8", "focus": "#1A5FDB",
-        "selection": "#D9E8FF", "selection_fg": "#003366", "disabled": "#71849A",
-        "log": "#0F2A45", "log_text": "#E8EDF2", "mode": "light",
+        "bg": "#F4F6FA", "surface": "#FFFFFF", "elevated": "#F4F6FA",
+        "fg": "#0A1E46", "secondary": "#0039A6", "muted": "#0039A6",
+        "heading": "#0039A6", "blue": "#0039A6", "blue_hover": "#0A1E46", "on_blue": "#FFFFFF",
+        "red": "#B51A10", "red_hover": "#D52B1E", "on_red": "#FFFFFF",
+        "border": "#0039A6", "focus": "#D52B1E",
+        "selection": "#0039A6", "selection_fg": "#FFFFFF", "disabled": "#0039A6",
+        "log": "#0A1E46", "log_text": "#FFFFFF", "mode": "light",
     },
     "dark": {
-        "bg": "#071A2D", "surface": "#0F2A45", "elevated": "#173A5E",
-        "fg": "#E8EDF2", "secondary": "#D0DCE8", "muted": "#B3C4D6",
-        "blue": "#70A5FF", "blue_hover": "#8AB6FF", "on_blue": "#061A30",
-        "red": "#FF7B86", "red_hover": "#FF9AA2", "on_red": "#2B0610",
-        "border": "#31516F", "focus": "#8AB6FF",
-        "selection": "#244F82", "selection_fg": "#FFFFFF", "disabled": "#8096AC",
-        "log": "#071A2D", "log_text": "#E8EDF2", "mode": "dark",
+        "bg": "#0A1E46", "surface": "#0039A6", "elevated": "#0039A6",
+        "fg": "#FFFFFF", "secondary": "#FFFFFF", "muted": "#FFFFFF",
+        "heading": "#FFFFFF", "blue": "#0039A6", "blue_hover": "#0A1E46", "on_blue": "#FFFFFF",
+        "red": "#B51A10", "red_hover": "#D52B1E", "on_red": "#FFFFFF",
+        "border": "#FFFFFF", "focus": "#D52B1E",
+        "selection": "#B51A10", "selection_fg": "#FFFFFF", "disabled": "#FFFFFF",
+        "log": "#0A1E46", "log_text": "#FFFFFF", "mode": "dark",
     },
 }
 
@@ -199,7 +199,7 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
 
     try:
         root.configure(background=colors["bg"])
-        root.option_add("*Font", ("Segoe UI", 11))
+        root.option_add("*Font", ("Segoe UI", 10))
         root.option_add("*Text.background", colors["surface"])
         root.option_add("*Text.foreground", colors["fg"])
         root.option_add("*Text.insertBackground", colors["fg"])
@@ -208,17 +208,17 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
     except tk.TclError:
         pass
 
-    style.configure(".", font=("Segoe UI", 11), background=colors["bg"], foreground=colors["fg"])
+    style.configure(".", font=("Segoe UI", 10), background=colors["bg"], foreground=colors["fg"])
     style.configure("TFrame", background=colors["bg"])
     style.configure("Panel.TFrame", background=colors["surface"])
     style.configure("Card.TFrame", background=colors["elevated"])
     style.configure("TLabel", background=colors["bg"], foreground=colors["fg"])
-    style.configure("Title.TLabel", background=colors["bg"], foreground=colors["blue"], font=("Segoe UI Semibold", 19))
-    style.configure("Section.TLabel", background=colors["bg"], foreground=colors["blue"], font=("Segoe UI Semibold", 11), padding=(4, 5))
+    style.configure("Title.TLabel", background=colors["bg"], foreground=colors["blue"], font=("Georgia", 18, "bold"))
+    style.configure("Section.TLabel", background=colors["bg"], foreground=colors["blue"], font=("Georgia", 11, "bold"), padding=(4, 5))
     style.configure("Muted.TLabel", background=colors["bg"], foreground=colors["muted"])
     style.configure(
         "TButton", padding=(14, 13), focuscolor=colors["focus"],
-        foreground=colors["blue"], background=colors["surface"],
+        foreground=colors["fg"], background=colors["surface"],
         bordercolor=colors["border"], lightcolor=colors["surface"],
         darkcolor=colors["border"], borderwidth=1, relief="flat", focusthickness=2,
     )
@@ -264,7 +264,7 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
         foreground=[("selected", colors["blue"]), ("active", colors["blue"])],
     )
     style.configure("TLabelframe", background=colors["surface"], bordercolor=colors["border"])
-    style.configure("TLabelframe.Label", background=colors["surface"], foreground=colors["blue"], font=("Segoe UI Semibold", 10))
+    style.configure("TLabelframe.Label", background=colors["surface"], foreground=colors["heading"], font=("Georgia", 10, "bold"))
     style.configure(
         "Treeview", rowheight=42, background=colors["surface"],
         fieldbackground=colors["surface"], foreground=colors["fg"],
