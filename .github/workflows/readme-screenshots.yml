@@ -28,7 +28,7 @@ jobs:
       - name: Capture running OPlague workbench
         shell: pwsh
         run: .github/scripts/capture_desktop_screenshot.ps1 -FilePath "python" -Arguments @("oplague_app.py") -OutputPath "assets/screenshots/oplague-workbench.png" -StartupSeconds 12
-      - uses: actions/upload-artifact@ea165f8f65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: readme-screenshot-oplage
           path: assets/screenshots/oplague-workbench.png
