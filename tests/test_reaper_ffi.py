@@ -78,9 +78,6 @@ class ReaperFfiTests(unittest.TestCase):
                 self.assertEqual(reaper_ffi.lookup_selfhood("Сам", path), 2)
                 with self.assertRaises(KeyError):
                     reaper_ffi.lookup_selfhood("unknown", path)
-                with self.assertRaisesRegex(ValueError, "ABI version"):
-                    reaper_ffi._library.cache_clear()
-                    reaper_ffi._library(str(path))
             # A mismatched version is checked before symbol use.
             reaper_ffi._library.cache_clear()
             with patch("tools.reaper_ffi.ctypes.CDLL", return_value=_Library(2)):
