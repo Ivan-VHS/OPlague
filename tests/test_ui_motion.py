@@ -49,6 +49,17 @@ class MotionTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             spring.set_target(float("nan"))
 
+    def test_spring_caps_large_frame_delta(self):
+        large_step = Spring1D(0.0, 240.0, 22.0, 1.0)
+        bounded_step = Spring1D(0.0, 240.0, 22.0, 1.0)
+        large_step.set_target(1.0)
+        bounded_step.set_target(1.0)
+        self.assertAlmostEqual(
+            large_step.step(1.0),
+            bounded_step.step(MAX_FRAME_DT_SECONDS),
+            places=12,
+        )
+
     def test_explicit_reduced_motion_override(self):
         previous = os.environ.get("UI_REDUCED_MOTION")
         try:
