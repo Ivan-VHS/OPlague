@@ -30,7 +30,7 @@
 
 ## Motion and accessibility
 
-The **Движение** control in the workbench header opens persisted **Reduce Motion** and **Eco / Low-CPU Visuals** preferences. Reduced/eco modes cap retained transitions at 80 ms and suppress spatial or nonessential effects. **Sync to Transport / BPM** is disabled because OPlague has no audio transport. See the [UI motion contract](docs/UI_MOTION.md).
+The **Движение** control in the workbench header opens persisted **Reduce Motion** and **Eco / Low-CPU Visuals** preferences. Reduced/eco modes cap retained transitions at 80 ms and suppress spatial or nonessential effects. **Sync to Transport / BPM** is disabled because OPlague has no audio transport. Preferences are stored at `%APPDATA%\\oplague\\ui-motion.json` on Windows (or under the user's XDG configuration directory on non-Windows systems). See the [UI motion contract](docs/UI_MOTION.md).
 
 ## Run and test
 
