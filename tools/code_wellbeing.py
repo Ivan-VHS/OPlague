@@ -66,6 +66,8 @@ def scan_project(root: str | Path = ".") -> dict[str, Any]:
         dirs[:] = sorted(name for name in dirs
                          if name.casefold() not in SKIP_DIRS and not (here / name).is_symlink())
         if depth >= MAX_DEPTH:
+            if dirs:
+                truncated = True
             dirs[:] = []
         for filename in sorted(filenames):
             path = here / filename
