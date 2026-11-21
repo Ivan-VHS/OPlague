@@ -12,6 +12,37 @@
 
 <p align="center"><img src="assets/screenshots/oplague-workbench.png" alt="OPlague workbench running on Windows" width="100%"></p>
 
+<sub>Actual application capture · 1920×1080 source image · original pixels retained; no artificial upscaling.</sub>
+
+## Functional data flow
+
+The diagram summarizes implemented data movement between Windows device records, package inspection and report generation.
+
+```mermaid
+flowchart TD
+    A[Windows Plug and Play records] --> B[Read-only device inventory]
+    B --> C[Normalized hardware IDs]
+    D[INF / ZIP package] --> E[Metadata, path and hash inspection]
+    E --> F[Target architecture evidence]
+    C --> G[Candidate compatibility links]
+    F --> G
+    G --> H[Batch comparison report]
+    H --> I[Totals and report fingerprint]
+```
+
+## Package and metric processing
+
+The second flow describes package integrity inspection and numeric analysis of supplied vectors.
+
+```mermaid
+flowchart LR
+    A[UDRV v1 package] --> B[Manifest and size checks]
+    B --> C[SHA-256 inspection]
+    C --> D[Integrity evidence]
+    E[Supplied metric vectors] --> F[Normalize and compare]
+    F --> G[Weighted distance and variance report]
+```
+
 ## Workbench modules
 
 | Module | Evidence / output | Boundary |
@@ -64,3 +95,5 @@ The Windows desktop workflow validates the visual canon and tests, builds the st
 UDRV v1 limits: manifest ≤4 MiB · entries ≤10,000 · file ≤512 MiB · total payload ≤2 GiB · SHA-256 buffer 1 MiB.
 
 Exact ID or hash matches do not prove publisher trust, OS compatibility, device suitability or safe installation. HMAC pseudonyms and report fingerprints aid consistency and provenance; they do not establish authenticity by themselves.
+
+[Documentation index](docs/README.md) · [Apache-2.0 License](LICENSE)
