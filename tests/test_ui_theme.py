@@ -74,6 +74,7 @@ class OPlagueThemeTests(unittest.TestCase):
         for palette in PALETTES.values():
             self.assertGreaterEqual(contrast_ratio(palette["focus"], palette["bg"]), 3.0)
             self.assertGreaterEqual(contrast_ratio(palette["muted"], palette["bg"]), 4.5)
+            self.assertNotEqual(palette["blue"], palette["red"])
 
 
 
