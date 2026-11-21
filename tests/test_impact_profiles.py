@@ -5,7 +5,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from oplague.impact import (DIMENSIONS, PROFILES, get_profile, rank_profiles,\n                            rank_profiles_by_total_native, search_profiles, load_profiles)
+from oplague.impact import (
+    DIMENSIONS, PROFILES, get_profile, rank_profiles,
+    rank_profiles_by_total_native, search_profiles, load_profiles,
+)
 
 
 class ImpactProfileTests(unittest.TestCase):
