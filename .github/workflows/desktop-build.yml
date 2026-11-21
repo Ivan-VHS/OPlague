@@ -5,7 +5,7 @@ on:
     tags: ["v*"]
     paths-ignore: ["README*", "docs/**"]
   pull_request:
-    paths: ["oplague_app.py", "oplage_app.py", "tests/**", ".github/workflows/desktop-build.yml"]
+    paths: ["oplague_app.py", "oplage_app.py", "tests/**", ".github/workflows/desktop-build.yml", ".github/scripts/capture_desktop_screenshot.ps1"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -27,6 +27,16 @@ jobs:
           python -m unittest discover -s tests -v
       - name: Build standalone executable
         run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name OPlague oplague_app.py
+      - name: Capture live Windows workstation
+        shell: pwsh
+        run: .github/scripts/capture_desktop_screenshot.ps1 -FilePath "dist/OPlague.exe" -OutputPath "assets/screenshots/oplague-workbench.png" -StartupSeconds 15
+      - name: Upload live desktop screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: oplague-live-windows-screenshot
+          path: assets/screenshots/oplague-workbench.png
+          if-no-files-found: error
+          retention-days: 30
       - name: Prepare distributable archive
         shell: pwsh
         run: |
