@@ -29,7 +29,7 @@ PALETTES: dict[str, dict[str, str]] = {
         "heading": "#FFFFFF", "blue": "#0039A6", "blue_hover": "#0A1E46", "on_blue": "#FFFFFF",
         "red": "#B51A10", "red_hover": "#D52B1E", "on_red": "#FFFFFF",
         "border": "#FFFFFF", "focus": "#D52B1E",
-        "selection": "#B51A10", "selection_fg": "#FFFFFF", "disabled": "#FFFFFF",
+        "selection": "#0039A6", "selection_fg": "#FFFFFF", "disabled": "#FFFFFF",
         "log": "#0A1E46", "log_text": "#FFFFFF", "mode": "dark",
     },
 }
@@ -213,8 +213,8 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
     style.configure("Panel.TFrame", background=colors["surface"])
     style.configure("Card.TFrame", background=colors["elevated"])
     style.configure("TLabel", background=colors["bg"], foreground=colors["fg"])
-    style.configure("Title.TLabel", background=colors["bg"], foreground=colors["blue"], font=("Georgia", 18, "bold"))
-    style.configure("Section.TLabel", background=colors["bg"], foreground=colors["blue"], font=("Georgia", 11, "bold"), padding=(4, 5))
+    style.configure("Title.TLabel", background=colors["bg"], foreground=colors["heading"], font=("Georgia", 18, "bold"))
+    style.configure("Section.TLabel", background=colors["bg"], foreground=colors["heading"], font=("Georgia", 11, "bold"), padding=(4, 5))
     style.configure("Muted.TLabel", background=colors["bg"], foreground=colors["muted"])
     style.configure(
         "TButton", padding=(14, 13), focuscolor=colors["focus"],
@@ -224,7 +224,7 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
     )
     style.map(
         "TButton",
-        foreground=[("disabled", colors["disabled"]), ("pressed", colors["selection_fg"]), ("active", colors["blue"])],
+        foreground=[("disabled", colors["disabled"]), ("pressed", colors["selection_fg"]), ("active", colors["fg"])],
         background=[("disabled", colors["elevated"]), ("pressed", colors["selection"]), ("active", colors["elevated"])],
     )
     style.configure(
@@ -238,14 +238,14 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
         background=[("disabled", colors["elevated"]), ("pressed", colors["blue"]), ("active", colors["blue_hover"])],
     )
     style.configure(
-        "Danger.TButton", padding=(14, 13), foreground=colors["on_red"],
-        background=colors["red"], bordercolor=colors["red"],
-        lightcolor=colors["red"], darkcolor=colors["red"],
+        "Danger.TButton", padding=(14, 13), foreground=colors["fg"],
+        background=colors["surface"], bordercolor=colors["red"],
+        lightcolor=colors["surface"], darkcolor=colors["red"],
     )
     style.map(
         "Danger.TButton",
-        foreground=[("disabled", colors["disabled"]), ("!disabled", colors["on_red"])],
-        background=[("disabled", colors["elevated"]), ("pressed", colors["red"]), ("active", colors["red_hover"])],
+        foreground=[("disabled", colors["disabled"]), ("!disabled", colors["fg"])],
+        background=[("disabled", colors["elevated"]), ("pressed", colors["selection"]), ("active", colors["surface"])],
     )
     style.configure(
         "TEntry", fieldbackground=colors["surface"], foreground=colors["fg"],
@@ -261,7 +261,7 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
     style.map(
         "TNotebook.Tab",
         background=[("selected", colors["surface"]), ("active", colors["selection"])],
-        foreground=[("selected", colors["blue"]), ("active", colors["blue"])],
+        foreground=[("selected", colors["fg"]), ("active", colors["fg"])],
     )
     style.configure("TLabelframe", background=colors["surface"], bordercolor=colors["border"])
     style.configure("TLabelframe.Label", background=colors["surface"], foreground=colors["heading"], font=("Georgia", 10, "bold"))
