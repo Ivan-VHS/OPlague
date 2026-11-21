@@ -258,8 +258,8 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
         token = status_name.lower()
         style.configure(
             f"Status.{status_name}.TLabel",
-            background=palette["surface"],
-            foreground=palette[token],
+            background=colors["surface"],
+            foreground=colors[token],
             padding=(6, 3),
         )
     style.configure(
