@@ -73,7 +73,7 @@ def _safe_archive_name(name: str) -> None:
     if not _APP_GUARD.check_relative_path(
         normalized, level_id=163, rule_id="A-12", object_id="archive-entry"
     ):
-        raise ValueError("AppGuard rejected an unsafe archive path")
+        raise ValueError(f"Unsafe archive path rejected by AppGuard: {name}")
     parsed = PurePosixPath(normalized)
     if parsed.is_absolute() or ".." in parsed.parts or "\x00" in normalized or re.match(r"^[A-Za-z]:", normalized):
         raise ValueError(f"Unsafe archive path detected: {name}")
