@@ -107,6 +107,19 @@ Exact ID or hash matches do not prove publisher trust, OS compatibility, device 
 [Documentation index](docs/README.md) · [Apache-2.0 License](LICENSE)
 
 
+## Code Mental Health / Codebase Wellbeing
+
+OPlague includes an offline, read-only repository inventory, separate from device inspection, driver analytics and hardware telemetry.
+
+```sh
+python -m tools.code_wellbeing .
+python -m tools.code_wellbeing . --json
+```
+
+Signals describe visible project evidence only; maintenance markers and missing files are prompts for human review, not automatic defect labels.
+
+[Engineering charter and measurement limits](docs/CODE_MENTAL_HEALTH.md) · [Versioned contract](data/code-wellbeing/codebase-wellbeing.v1.json)
+
 ## Bounded resource-allocation reference
 An illustrative 500 UAH budget model with a versioned JSON contract and an offline simulator. This is a documentation example, not a feature of the host runtime.
 
