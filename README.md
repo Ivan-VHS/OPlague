@@ -96,6 +96,12 @@ Package hashes establish byte-level integrity only; they do not establish publis
 
 [Documentation control](docs/DOCUMENTATION_CONTROL.md) defines the normative rules for public claims, evidence, privacy and integrations.
 
+## CSR-120 reliability telemetry
+
+The optional CSR-120 tool contains **120 traceable engineering-principle records across eight domains** and **36 executable telemetry checks** for service capacity, queues, latency, retries, resource reserve, configuration drift, integrity and recovery readiness. It accepts JSON metrics, supports per-metric threshold overrides and produces severity-ranked findings.
+
+CSR-120 is an advisory software-reliability aid — **not** a medical product, clinical diagnostic system or medical advice. Catalogue entries without matching executable checks remain design references, and findings never trigger automatic or irreversible remediation. See [the full contract](docs/CLINICAL_SYSTEMS_CSR120.md).
+
 ## License
 
 [Apache License 2.0](LICENSE)
