@@ -174,7 +174,7 @@ def format_report(report: dict[str, Any]) -> str:
             lines.append(f"    {finding['severity']}[{finding['code']}]: {finding['message']}")
     lines.append("  verdict: syntax valid" if report.get("valid") else "  verdict: syntax issues found")
     lines.append("  " + report["semantics"])
-    return "\\n".join(lines)
+    return "\n".join(lines)
 
 
 def main(argv: list[str] | None = None) -> int:
