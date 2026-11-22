@@ -32,7 +32,7 @@ class UsbTreeDumpTests(unittest.TestCase):
         ])
         rendered = str(report)
         self.assertNotIn("SERIAL-SECRET", rendered)
-        self.assertNotIn("instance_id", rendered)
+        self.assertNotIn("instance_id", report["roots"][0])
         self.assertFalse(report["includes_instance_ids"])
 
     def test_instance_ids_require_explicit_opt_in(self):
