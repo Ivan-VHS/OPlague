@@ -21,3 +21,7 @@ python tools/validate_project_contract.py
 ## Pull request expectations
 
 Describe evidence sources, resource limits, privacy handling and the exact scope of each conclusion. Do not include live machine serials, private inventory exports or proprietary driver payloads. Avoid issue-closing keywords in PR descriptions; maintainers close issues after review.
+
+## Shared report format
+
+To wrap an existing JSON result in the common report metadata contract, run python tools/report_envelope.py --tool oplague --version VERSION < result.json. Keep the tool-specific payload unchanged. The optional input-file flag records a SHA-256 digest without disclosing the local path. Tests live in tests/test_report_envelope.py.

@@ -225,3 +225,11 @@ The web-stand checklist is mapped to the actual desktop workbench rather than co
 | 56–66 · operations and support | documents artifact/release publication, rollback, logs, troubleshooting, limitations, contribution channel and license |
 
 **No public OPlague web-demo URL exists.** The Windows screenshot and release archive are not an online device-management service.
+
+## Unified report envelope
+
+Wrap a JSON evidence report using the shared ivan-vhs.report.v1 format:
+
+    python tools/report_envelope.py --tool oplague --version VERSION --input-file driver.zip < evidence.json
+
+Only the input SHA-256 is recorded, not the local path. See docs/REPORT_ENVELOPE.md and schemas/ivan-vhs.report.v1.schema.json.
