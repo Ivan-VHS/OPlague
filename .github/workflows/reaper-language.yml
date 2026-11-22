@@ -1,0 +1,54 @@
+name: Reaper language / OPlague federation
+
+on:
+  pull_request:
+    paths:
+      - "automation/reaper/**"
+      - "tools/federation.py"
+      - "tools/reaper_report.py"
+      - "oplague/impact.py"
+      - ".github/workflows/reaper-language.yml"
+  push:
+    branches: [main, "feat/**"]
+    paths:
+      - "automation/reaper/**"
+      - "tools/federation.py"
+      - "tools/reaper_report.py"
+      - "oplague/impact.py"
+      - ".github/workflows/reaper-language.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reaper-oplage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Ivan-VHS/Reaper
+          ref: 0903c60e8831477d98583ab1d2927c5f318f8038
+          path: _deps/Reaper
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Generate synthetic read-only snapshot fixtures
+        run: python automation/reaper/create_fixtures.py
+      - name: Parse Reaper source
+        env:
+          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
+        run: python -m reaper --check automation/reaper/device_audit.rpr
+      - name: Run with reference tree-walk interpreter
+        env:
+          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
+        run: python -m reaper automation/reaper/device_audit.rpr
+      - name: Validate the Reaper report in OPlague
+        run: python -m tools.reaper_report build/reaper-oplage-report.json --json
+      - name: Run the same program through Reaper bytecode VM
+        env:
+          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
+        run: python -m reaper --engine vm automation/reaper/device_audit.rpr
+      - name: Re-validate VM report
+        run: python -m tools.reaper_report build/reaper-oplage-report.json --json

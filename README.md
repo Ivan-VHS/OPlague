@@ -90,7 +90,13 @@ The Windows desktop workflow validates the visual canon and tests, builds the st
 
 OPlague can optionally delegate ordinal impact-profile total calculations to Reaper's native C17 expression ABI. This requires an explicit trusted library path; no runtime library discovery or download occurs. See [Reaper runtime integration](docs/REAPER_RUNTIME_INTEGRATION.md).
 
-## Numeric reference
+## Reaper 0.2 script automation
+
+ Reaper 0.2 can orchestrate OPlague's versioned, read-only snapshots and compare their normalized metrics. The `.rpr` example uses synthetic CI snapshots, validates the generated comparison report with OPlague's existing report importer, and runs under both Reaper reference engines. It does not query actual host devices or install/change drivers.
+
+ See [Reaper language integration](docs/REAPER_LANGUAGE_INTEGRATION.md).
+
+ ## Numeric reference
 
 | INF target | PE machine |
 |---|---:|
