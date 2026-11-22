@@ -26,14 +26,24 @@ $results = @(
         $signature = Get-AuthenticodeSignature -FilePath $file.FullName
         $signer = $signature.SignerCertificate
         $timestamp = $signature.TimeStamperCertificate
+        $signerSubject = $null
+        $signerIssuer = $null
+        $signerThumbprint = $null
+        $timestampSubject = $null
+        if ($signer) {
+            $signerSubject = [string]$signer.Subject
+            $signerIssuer = [string]$signer.Issuer
+            $signerThumbprint = [string]$signer.Thumbprint
+        }
+        if ($timestamp) { $timestampSubject = [string]$timestamp.Subject }
         [pscustomobject]@{
             path = $file.FullName
             status = [string]$signature.Status
             status_message = [string]$signature.StatusMessage
-            signer_subject = if ($signer) { [string]$signer.Subject } else { $null }
-            signer_issuer = if ($signer) { [string]$signer.Issuer } else { $null }
-            signer_thumbprint = if ($signer) { [string]$signer.Thumbprint } else { $null }
-            timestamp_subject = if ($timestamp) { [string]$timestamp.Subject } else { $null }
+            signer_subject = $signerSubject
+            signer_issuer = $signerIssuer
+            signer_thumbprint = $signerThumbprint
+            timestamp_subject = $timestampSubject
         }
     }
 )
