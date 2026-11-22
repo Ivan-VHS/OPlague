@@ -38,6 +38,8 @@ The result is an evidence record and candidate comparison, not a final safety or
 | Device inventory | reads Windows Plug and Play identity, status, manufacturer and PNPDeviceID | live collection is Windows-only and read-only |
 | INF inspection | reads selected metadata, hardware-ID declarations and target architecture | does not run INF directives |
 | ZIP inspection | checks paths, sizes, compression ratios, hashes and INF metadata | does not extract or execute package payloads |
+| PE/COFF inspection | reads machine type, optional header, sections, entry point and certificate-table location | header parsing only; no image loading or signature verdict |
+| SPDX file inventory | creates deterministic SPDX 2.3 file/hash reports | no dependency graph or inferred license conclusions |
 | Compatibility graph | forms candidate relationships from exact normalized hardware IDs | candidate links only; manual review remains required |
 | Metric Lab | compares user-supplied normalized profiles with weighted distance/variance | advisory analysis, not a device verdict |
 | UDRV v1 | validates manifest, sizes and SHA-256 evidence | integrity check, not publisher authentication |
@@ -46,6 +48,15 @@ The result is an evidence record and candidate comparison, not a final safety or
 The application has four principal tabs: **Devices**, **Package Inspection**, **Metric Lab** and **Compatibility Review**. The theme can cycle through system/light/dark modes; motion preferences include Reduce Motion and Eco Visuals.
 
 The screenshot is a captured desktop application, not a browser preview.
+
+The binary and supply-chain helpers can also be used locally:
+
+```sh
+python tools/pe_inspector.py driver.sys --output driver-pe-report.json
+python tools/sbom_inventory.py ./staging --output staging.spdx.json
+```
+
+PE inspection reads headers only. The SPDX export records hashes and leaves unverified licence information as `NOASSERTION`.
 
 
 ## Quick Start
