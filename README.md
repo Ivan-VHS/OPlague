@@ -104,7 +104,7 @@ UDRV v1 limits: manifest ≤4 MiB · entries ≤10,000 · file ≤512 MiB · tot
 
 Exact ID or hash matches do not prove publisher trust, OS compatibility, device suitability or safe installation. HMAC pseudonyms and report fingerprints aid consistency and provenance; they do not establish authenticity by themselves.
 
-[Documentation index](docs/README.md) · [Apache-2.0 License](LICENSE)
+[OCTA-8 + CLife](docs/OCTA8_CLIFE.md) · [Documentation index](docs/README.md) · [Apache-2.0 License](LICENSE)
 
 
 ## Bounded resource-allocation reference
