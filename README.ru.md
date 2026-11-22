@@ -6,6 +6,23 @@
 
 [Исходный код](https://github.com/Ivan-VHS/OPlague) · [Windows desktop workflow](.github/workflows/desktop-build.yml) · [Индекс документации](docs/README.md) · [Apache-2.0](LICENSE)
 
+## Реальный снимок Windows-рабочей станции
+
+<p align="center"><a href="assets/screenshots/oplague-workbench.png"><img src="assets/screenshots/oplague-workbench.png" alt="Реальный снимок OPlague в Windows" width="100%"></a></p>
+<p align="center"><sub>1920×1080 · Нажмите на изображение, чтобы открыть исходный PNG.</sub></p>
+
+Настоящий скриншот запущенного desktop-приложения OPlague, созданный Windows packaging workflow. Баннер и схема процесса — авторские SVG-иллюстрации; изображение интерфейса не генерировалось и не компоновалось.
+
+### Архитектура с первого взгляда
+
+<p align="center"><img src="assets/readme/workflow.svg" alt="OPlague implemented data flow" width="100%"></p>
+
+Реальный путь: Windows PnP и выбранные пользователем файлы → ограниченная проверка INF/ZIP → нормализованные ID и хеши → отчёт с кандидатными доказательствами.
+
+
+[![Windows build](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&label=Windows%20build)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)  [![Docs checks](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/docs.yml?branch=main&label=Docs%20checks)](https://github.com/Ivan-VHS/OPlague/actions/workflows/docs.yml)  [![License](https://img.shields.io/github/license/Ivan-VHS/OPlague)](LICENSE)
+
+
 > **Назначение:** OPlague — локальная read-only рабочая станция для инвентаризации Windows Plug and Play, просмотра метаданных INF/ZIP-пакетов драйверов и сравнения доказательств совместимости. Она **не устанавливает, не загружает, не распаковывает и не изменяет** содержимое драйверов. Репозиторий не публикует hosted web demo, удалённый API или production-сервис управления устройствами. Документация сверена с `main` **22.11.2026**.
 
 ## Назначение и границы
@@ -30,8 +47,6 @@ OPlague помогает оператору просматривать запи�
 
 Скриншот ниже — снимок desktop-приложения, а не браузерное превью.
 
-<p align="center"><img src="assets/screenshots/oplague-workbench.png" alt="Рабочая станция OPlague в Windows" width="100%"></p>
-<sub>Снимок desktop-программы · исходное изображение 1920×1080. Это не hosted web stand.</sub>
 
 ## Быстрый старт
 
