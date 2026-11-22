@@ -11,8 +11,10 @@ import zipfile
 from pathlib import Path, PurePosixPath
 from tkinter import filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
+from tools.authenticode_inspector import inspect_signatures
 from ui_theme import apply_ui_theme, load_preferred_theme, set_dpi_awareness
-from ui_motion import MotionController
+from ui_motion import MotionController, MotionPreferences, fade_in_window
+from budget_planner import open_budget_planner
 from typing import Any
 
 from tools.report_composer import compose_inspection_reports
@@ -20,6 +22,7 @@ from tools.inspection_batch import inspect_batch
 from tools.metric_analysis import analyze_device_profiles
 from tools.architecture_profiles import current_host_architecture, detect_inf_target_architectures, evaluate_driver_targets
 from tools.device_graph import extract_inf_compatibility, build_dry_run_plan
+from tools.report_export import render_report
 
 MAX_PACKAGE_BYTES = 512 * 1024 * 1024
 MAX_ARCHIVE_ENTRIES = 10_000
@@ -189,7 +192,7 @@ class OPlagueApp(tk.Tk):
     def __init__(self) -> None:
         set_dpi_awareness()
         super().__init__()
-        self.title("OPlague — мастерская оборудования и драйверов")
+        self.title("OPlague — мастерская оборудования и драйверов · Ivan-VHS")
         self.geometry("1120x720")
         self.minsize(820, 540)
         self._theme_mode = load_preferred_theme()
@@ -199,10 +202,15 @@ class OPlagueApp(tk.Tk):
         ttk.Label(header, text="Инвентаризация оборудования  /  Проверка пакетов драйверов", style="Muted.TLabel").pack(side="left", padx=16)
         self.theme_button = ttk.Button(header, text="Тема: системная", command=self.cycle_theme)
         self.theme_button.pack(side="right")
+        self.motion_button = ttk.Button(header, text="Движение", command=self.show_motion_settings)
+        self.motion_button.pack(side="right", padx=(0, 8))
+        self.budget_button = ttk.Button(header, text="Бюджет 500 грн", command=lambda: open_budget_planner(self))
+        self.budget_button.pack(side="right", padx=(0, 8))
         self.tabs = ttk.Notebook(self); self.tabs.pack(fill="both", expand=True, padx=14, pady=(0, 10))
         inventory = ttk.Frame(self.tabs, padding=12); packages = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(inventory, text="Устройства"); self.tabs.add(packages, text="Проверка пакетов")
         self.device_rows: list[dict[str, str]] = []
+        self.current_report: dict[str, Any] | None = None
         self.inspected_drivers: list[dict[str, Any]] = []
         metrics = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(metrics, text="Лаборатория метрик")
@@ -266,15 +274,50 @@ class OPlagueApp(tk.Tk):
         tools = ttk.Frame(packages); tools.pack(fill="x", pady=(0, 10))
         ttk.Button(tools, text="Проверить INF / ZIP…", command=self.choose_package, style="Primary.TButton").pack(side="left")
         ttk.Button(tools, text="Пакетная проверка…", command=self.choose_packages).pack(side="left", padx=(8, 0))
+        ttk.Button(tools, text="Экспорт отчёта…", command=self.export_report).pack(side="left", padx=(8, 0))
+        ttk.Button(tools, text="Проверить подписи…", command=self.choose_signatures).pack(side="left", padx=(8, 0))
         ttk.Label(tools, text="Только метаданные и хеши — без распаковки и запуска содержимого", style="Muted.TLabel").pack(side="left", padx=12)
         self.report = ScrolledText(packages, wrap="word", font=("Consolas", 10), state="disabled")
         self.report.pack(fill="both", expand=True)
         footer = ttk.Frame(self, padding=(14, 4, 14, 10)); footer.pack(fill="x")
         self.status = tk.StringVar(value="Только локальная проверка — установка и развёртывание драйверов не выполняются")
         ttk.Label(footer, textvariable=self.status, style="Muted.TLabel").pack(side="left")
+        ttk.Label(footer, text="Разработчик: Ivan-VHS", style="Muted.TLabel").pack(side="right")
         self.apply_visual_theme()
-        self._motion = MotionController(self)
+        self._motion = MotionController(self, app_key="oplague")
         self._motion.fade_in()
+
+    def show_motion_settings(self) -> None:
+        """Configure persisted motion and visual-performance preferences."""
+        window = tk.Toplevel(self)
+        window.title("Настройки движения интерфейса")
+        window.resizable(False, False)
+        window.transient(self)
+        current = self._motion.preferences
+        fade_in_window(window, current, app_key="oplague")
+        reduce_var = tk.BooleanVar(value=current.reduce_motion)
+        eco_var = tk.BooleanVar(value=current.eco_visuals)
+        expressive_var = tk.BooleanVar(value=current.expressive_motion)
+        frame = ttk.Frame(window, padding=16)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(frame, text="Кинетика интерфейса", style="Title.TLabel").pack(anchor="w", pady=(0, 8))
+        ttk.Checkbutton(frame, text="Reduce Motion — убрать пространственное движение", variable=reduce_var).pack(anchor="w", pady=4)
+        ttk.Checkbutton(frame, text="Eco / Low-CPU Visuals — отключить необязательные эффекты", variable=eco_var).pack(anchor="w", pady=4)
+        ttk.Checkbutton(frame, text="Expressive Motion — усиленная пружинная кинетика", variable=expressive_var).pack(anchor="w", pady=4)
+        buttons = ttk.Frame(frame)
+        buttons.pack(fill="x")
+        def apply() -> None:
+            self._motion.update_preferences(MotionPreferences(
+                reduce_motion=reduce_var.get(),
+                eco_visuals=eco_var.get(),
+                expressive_motion=expressive_var.get(),
+            ))
+            window.destroy()
+        ttk.Button(buttons, text="Сохранить", style="Primary.TButton", command=apply).pack(side="right")
+        ttk.Button(buttons, text="Отмена", command=window.destroy).pack(side="right", padx=(0, 8))
+        window.grab_set()
+        window.update_idletasks()
+        window.geometry(f"+{self.winfo_rootx() + 120}+{self.winfo_rooty() + 100}")
 
     def apply_visual_theme(self) -> None:
         """Apply the selected appearance to tabs, tables and report editors."""
@@ -335,6 +378,38 @@ class OPlagueApp(tk.Tk):
             f"distance {result['euclidean_distance']:.6f}"
         )
 
+    def choose_signatures(self) -> None:
+        """Inspect Windows Authenticode metadata without loading or installing files."""
+        filenames = filedialog.askopenfilenames(
+            parent=self,
+            title="Проверить цифровые подписи",
+            filetypes=[
+                ("Файлы для проверки подписи", "*.cat *.sys *.dll *.exe"),
+                ("Каталоги безопасности", "*.cat"),
+                ("Драйверы", "*.sys"),
+                ("Библиотеки", "*.dll"),
+                ("Приложения", "*.exe"),
+            ],
+        )
+        if not filenames:
+            return
+        try:
+            report = inspect_signatures(filenames)
+        except (OSError, ValueError, NotImplementedError, RuntimeError) as error:
+            self.status.set("Не удалось проверить цифровые подписи")
+            messagebox.showerror("Проверка Authenticode", str(error), parent=self)
+            return
+        self.report.configure(state="normal")
+        self.report.delete("1.0", "end")
+        self.report.insert("1.0", json.dumps(report, indent=2, ensure_ascii=False))
+        self.report.configure(state="disabled")
+        self.tabs.select(1)
+        valid = sum(1 for item in report["results"] if item["status"] == "Valid")
+        self.status.set(
+            f"Authenticode: Valid — {valid} из {report['files_inspected']}; "
+            "вердикт безопасности драйвера не выносится"
+        )
+
     def choose_package(self) -> None:
         filename = filedialog.askopenfilename(parent=self, title="Выберите пакет драйвера",
           filetypes=[("Поддерживаемые пакеты", "*.inf *.zip"), ("Файлы INF", "*.inf"), ("Архивы ZIP", "*.zip"), ("Все файлы", "*.*")])
@@ -345,6 +420,7 @@ class OPlagueApp(tk.Tk):
         except Exception as error:
             self.status.set("Не удалось проверить пакет")
             messagebox.showerror("Не удалось проверить пакет", str(error), parent=self); return
+        self.current_report = data
         self._remember_driver_records(data)
         self.report.configure(state="normal"); self.report.delete("1.0", "end")
         self.report.insert("1.0", json.dumps(data, indent=2, ensure_ascii=False))
@@ -386,6 +462,45 @@ class OPlagueApp(tk.Tk):
             f"Пробный расчёт: кандидатов с точным ID — {summary['candidate_edges']}; система не изменена"
         )
 
+    def export_report(self) -> None:
+        if self.current_report is None:
+            messagebox.showinfo("Экспорт отчёта", "Сначала проверьте INF или ZIP-пакет.", parent=self)
+            return
+        destination = filedialog.asksaveasfilename(
+            parent=self,
+            title="Экспортировать отчёт OPlague",
+            defaultextension=".json",
+            filetypes=[
+                ("JSON report", "*.json"),
+                ("CSV table", "*.csv"),
+                ("Markdown report", "*.md"),
+            ],
+        )
+        if not destination:
+            return
+        suffix = Path(destination).suffix.casefold()
+        format_name = {".json": "json", ".csv": "csv", ".md": "markdown"}.get(suffix)
+        if format_name is None:
+            messagebox.showerror(
+                "Экспорт отчёта",
+                "Используйте расширение .json, .csv или .md.",
+                parent=self,
+            )
+            return
+        anonymize = messagebox.askyesno(
+            "Конфиденциальность отчёта",
+            "Обезличить PnP и аппаратные идентификаторы перед экспортом?",
+            parent=self,
+        )
+        try:
+            content = render_report(self.current_report, format_name, anonymize=anonymize)
+            Path(destination).write_text(content, encoding="utf-8")
+        except (OSError, TypeError, ValueError) as error:
+            self.status.set("Не удалось экспортировать отчёт")
+            messagebox.showerror("Экспорт отчёта", str(error), parent=self)
+            return
+        self.status.set(f"Отчёт OPlague экспортирован: {Path(destination).name}")
+
     def choose_packages(self) -> None:
         filenames = filedialog.askopenfilenames(
             parent=self, title="Выберите пакеты драйверов",
@@ -400,6 +515,7 @@ class OPlagueApp(tk.Tk):
             self.status.set("Не удалось выполнить пакетную проверку")
             messagebox.showerror("Не удалось выполнить пакетную проверку", str(error), parent=self)
             return
+        self.current_report = data
         for report in reports:
             self._remember_driver_records(report)
         self.report.configure(state="normal")

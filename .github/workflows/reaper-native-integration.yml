@@ -1,0 +1,35 @@
+name: Reaper native C17 integration
+on:
+  pull_request:
+    paths:
+      - "oplague/impact.py"
+      - "tools/reaper_ffi.py"
+      - "tests/test_reaper_ffi.py"
+      - "tests/test_impact_profiles.py"
+      - ".github/workflows/reaper-native-integration.yml"
+  push:
+    branches: [main, "feat/native-reaper-self-hosting"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reaper-abi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: Ivan-VHS/Reaper
+          ref: 8c84fd6c4213dddd174689d36f22bd7717eaccd3
+          path: _deps/Reaper
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Build Reaper native ABI without Python dependency
+        run: |
+          cmake -S _deps/Reaper -B _deps/Reaper/build -DREAPER_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
+          cmake --build _deps/Reaper/build --parallel --target reaper_ffi
+      - name: Test the real shared ABI and OPlague integration
+        run: |
+          python -c "from tools.reaper_ffi import evaluate_i64, lookup_selfhood; p='$GITHUB_WORKSPACE/_deps/Reaper/build/libreaper_ffi.so'; assert evaluate_i64('6 * 7', p) == 42; assert lookup_selfhood('Сам', p) == 2"
+          python -m oplague --rank-total-native --reaper-library "$GITHUB_WORKSPACE/_deps/Reaper/build/libreaper_ffi.so"

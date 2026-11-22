@@ -11,6 +11,7 @@ on:
       - ".github/workflows/docs.yml"
       - ".github/scripts/check_readme_links.py"
       - ".github/workflows/verified-auto-merge.yml"
+      - "assets/screenshots/**"
   push:
     branches: ['**']
     paths:
@@ -22,6 +23,7 @@ on:
       - ".github/workflows/docs.yml"
       - ".github/scripts/check_readme_links.py"
       - ".github/workflows/verified-auto-merge.yml"
+      - "assets/screenshots/**"
 
 permissions:
   contents: read
@@ -32,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Validate language editions and navigation
         shell: bash
         run: |
@@ -52,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Validate license file
         shell: bash
         run: |
