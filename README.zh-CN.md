@@ -43,7 +43,7 @@ OPlague 帮助操作者查看当前机器的设备记录、读取驱动包元数
 | UDRV v1 | 验证 manifest、大小和 SHA-256 证据 | 完整性检查，不验证发布者身份 |
 | 报告 | 生成结构化证据、汇总和指纹 | 不写入系统，也不安装驱动 |
 
-应用包含四个主要标签页：**Devices**、**Package Inspection**、**Metric Lab** 和 **Compatibility Review**。主题可在 system/light/dark 之间切换；动态效果设置包括 Reduce Motion 和 Eco Visuals。Sync-to-Transport 选项被禁用是有意设计：OPlague 没有音频传输或 master BPM。
+应用包含四个主要标签页：**Devices**、**Package Inspection**、**Metric Lab** 和 **Compatibility Review**。主题可在 system/light/dark 之间切换；动态效果设置包括 Reduce Motion 和 Eco Visuals。
 
 下图是桌面应用的实际截屏，不是浏览器预览。
 
@@ -151,7 +151,7 @@ UDRV v1 检查器有独立合同：manifest 最大 4 MiB，最多 10,000 个条�
 
 仓库根目录没有 `.env.example`、Docker Compose Web Stack、API Key、OAuth 账号、测试登录、CORS 策略、HTTP Proxy 或本地 HTTPS 证书配置。常规本地检查不需要秘密信息。当前应用没有文档化的运行时 ENV 合同；不要自行编造变量。
 
-实际的 UI 开关包括主题循环（system/light/dark）和动态效果设置（Reduce Motion、Eco Visuals、Expressive Motion）。Sync to Transport/BPM 按设计禁用，不应描述成可用功能。
+实际的 UI 开关包括主题循环（system/light/dark）和动态效果设置（Reduce Motion、Eco Visuals、Expressive Motion）。
 
 实时 PnP 查询需要 Windows PowerShell 和本地 CIM Provider。如果该命令被阻止或执行失败，驱动包检查和已保存数据检查仍可独立进行；应用会显示清单错误，而不会生成虚假的设备列表。
 
