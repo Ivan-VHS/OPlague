@@ -24,13 +24,11 @@ class AuthenticodeInspectorTests(unittest.TestCase):
             inspector.inspect_signatures([other])
 
     @patch.object(inspector.platform, "system", return_value="Linux")
-    @patch.object(inspector.os, "name", "posix")
     def test_non_windows_platform_is_explicitly_unsupported(self, *_):
         with self.assertRaises(NotImplementedError):
             inspector.inspect_signatures([self.file])
 
     @patch.object(inspector.platform, "system", return_value="Windows")
-    @patch.object(inspector.os, "name", "nt")
     @patch.object(inspector.subprocess, "run")
     def test_paths_are_sent_as_json_stdin_not_script_text(self, run, *_):
         expected = {
