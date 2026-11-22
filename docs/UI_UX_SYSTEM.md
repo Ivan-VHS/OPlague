@@ -18,3 +18,7 @@ The normative six-cycle / 666-rule contract is maintained in [UI/UX Codex 40026]
 ## UI/UX 2026 convergence
 
 See [UI_UX_2026_CONVERGENCE.md](UI_UX_2026_CONVERGENCE.md) for shared tokens, accessibility targets, responsive behavior and motion budgets. The read-only product boundary remains authoritative.
+
+## Anatidae desktop visual refinement
+
+The workbench uses the shared 5 px white-blue-red identity band and theme-aware data surfaces. Device inventory rows may use subtle alternating surfaces for scanability, but selected rows and status text must remain readable. The visual layer must not imply installation, modification or certification: inspection stays read-only.
