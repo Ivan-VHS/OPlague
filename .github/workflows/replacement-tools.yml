@@ -1,0 +1,21 @@
+name: Original replacement tools
+on:
+  push:
+    branches: ["feat/original-replacement-tools"]
+  pull_request:
+    paths:
+      - "tools/pe_driver_probe.py"
+      - "tests/test_pe_driver_probe.py"
+      - ".github/workflows/replacement-tools.yml"
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Run read-only PE inspection tests
+        run: python -m unittest discover -s tests -p "test_pe_driver_probe.py" -v
