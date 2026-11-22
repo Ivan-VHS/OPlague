@@ -50,7 +50,7 @@ class AuthenticodeInspectionTests(unittest.TestCase):
         self.assertFalse(report["system_modified"])
         self.assertIn("Get-AuthenticodeSignature", observed["command"][-1])
         self.assertNotIn(str(self.catalog), observed["command"][-1])
-        self.assertIn(str(self.catalog.resolve()), observed["input"])
+        self.assertEqual(json.loads(observed["input"])["paths"], [str(self.catalog.resolve())])
 
     def test_rejects_non_windows_before_invoking_runner(self):
         called = []
