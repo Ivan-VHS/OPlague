@@ -46,7 +46,7 @@ The result is an evidence record and candidate comparison, not a final safety or
 
 The application has five principal tabs: **Devices**, **Package Inspection**, **Metric Lab**, **Compatibility Review** and **Signature Audit**. The theme can cycle through system/light/dark modes; motion preferences include Reduce Motion and Eco Visuals. The disabled Sync-to-Transport option is intentionally unavailable because OPlague has no audio transport or master BPM.
 
-The screenshot is a captured desktop application, not a browser preview.
+The screenshot is a captured desktop application, not a browser preview. Signature Audit uses the local Windows trust provider and does not change the driver store.
 
 
 ## Quick Start
