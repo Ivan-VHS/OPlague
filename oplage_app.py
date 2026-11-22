@@ -6,6 +6,7 @@ import os
 import platform
 import re
 import subprocess
+import stat
 import tkinter as tk
 import zipfile
 from pathlib import Path, PurePosixPath
@@ -74,6 +75,77 @@ def _safe_archive_name(name: str) -> None:
     if parsed.is_absolute() or ".." in parsed.parts or "\x00" in normalized or re.match(r"^[A-Za-z]:", normalized):
         raise ValueError(f"Unsafe archive path detected: {name}")
 
+
+def _archive_risk_report(entries: list[zipfile.ZipInfo]) -> dict[str, Any]:
+    """Summarize suspicious archive metadata without extracting any entry."""
+    seen: set[str] = set()
+    duplicates: list[str] = []
+    symlinks: list[str] = []
+    encrypted: list[str] = []
+    loadable: list[dict[str, str]] = []
+    nested_archives: list[str] = []
+    script_candidates: list[str] = []
+    samples: list[dict[str, str]] = []
+
+    loadable_suffixes = {".exe", ".dll", ".sys", ".drv", ".ocx", ".cpl", ".scr", ".com"}
+    script_suffixes = {".bat", ".cmd", ".ps1", ".vbs", ".js", ".hta", ".wsf"}
+    archive_suffixes = {".zip", ".cab", ".7z", ".rar", ".msi"}
+
+    def add_sample(code: str, name: str, detail: str) -> None:
+        if len(samples) < 40:
+            samples.append({"code": code, "entry": name[:260], "detail": detail})
+
+    for entry in entries:
+        if entry.is_dir():
+            continue
+        normalized = entry.filename.replace("\\", "/")
+        key = normalized.casefold()
+        if key in seen:
+            duplicates.append(entry.filename)
+            add_sample("duplicate_path", entry.filename, "Another archive entry has the same path when compared case-insensitively.")
+        else:
+            seen.add(key)
+
+        mode = (entry.external_attr >> 16) & 0xFFFF
+        if entry.create_system == 3 and stat.S_ISLNK(mode):
+            symlinks.append(entry.filename)
+            add_sample("symbolic_link", entry.filename, "The ZIP metadata marks this entry as a symbolic link.")
+
+        if entry.flag_bits & 0x1:
+            encrypted.append(entry.filename)
+            add_sample("encrypted_entry", entry.filename, "The entry is encrypted; its contents cannot be inspected by this metadata-only pass.")
+
+        suffix = Path(normalized).suffix.casefold()
+        if suffix in loadable_suffixes:
+            loadable.append({"entry": entry.filename, "kind": suffix.lstrip(".")})
+        elif suffix in script_suffixes:
+            script_candidates.append(entry.filename)
+            add_sample("script_candidate", entry.filename, "An executable script-like file is present in the package.")
+
+        if suffix in archive_suffixes:
+            nested_archives.append(entry.filename)
+            add_sample("nested_archive", entry.filename, "A nested package/archive is present and was not opened.")
+
+    warning_count = len(duplicates) + len(symlinks) + len(encrypted) + len(script_candidates)
+    return {
+        "schema": "oplage.archive-risk.v1",
+        "metadata_only": True,
+        "scanned_file_entries": sum(not entry.is_dir() for entry in entries),
+        "duplicate_paths": duplicates[:40],
+        "symbolic_links": symlinks[:40],
+        "encrypted_entries": encrypted[:40],
+        "loadable_binary_candidates": loadable[:80],
+        "script_candidates": script_candidates[:40],
+        "nested_archives": nested_archives[:40],
+        "warning_count": warning_count,
+        "warning_samples": samples,
+        "disposition": "manual_review" if warning_count else "no_metadata_warnings",
+        "limitations": (
+            "This is archive-structure triage only. It is not malware detection, "
+            "signature verification, publisher validation, or an installation decision."
+        ),
+    }
+
 def inspect_package(filename: str | Path) -> dict[str, Any]:
     """Inspect INF or ZIP metadata without extracting or executing driver content."""
     path = Path(filename).expanduser()
@@ -127,6 +199,7 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
                 "entry_count": len(entries), "expanded_size_bytes": expanded,
                 "inf_files": inf_files,
                 "catalog_files": [item.filename for item in entries if not item.is_dir() and item.filename.casefold().endswith(".cat")],
+                "archive_security": _archive_risk_report(entries),
                 "inspection": "Metadata-only; contents were not extracted or executed",
             })
             return report

@@ -1,5 +1,5 @@
 from __future__ import annotations
-import hashlib, tempfile, unittest, zipfile
+import hashlib, stat, tempfile, unittest, zipfile
 from pathlib import Path
 from oplague_app import inspect_package, parse_inf_text
 
@@ -52,6 +52,33 @@ class InspectorTests(unittest.TestCase):
             path = Path(folder) / "payload.bin"; path.write_bytes(b"x")
             with self.assertRaisesRegex(ValueError, "Supported package formats"):
                 inspect_package(path)
+
+    def test_archive_security_report_flags_metadata_without_extracting(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "driver-bundle.zip"
+            with zipfile.ZipFile(path, "w") as archive:
+                archive.writestr("driver.sys", b"binary")
+                archive.writestr("DRIVER.SYS", b"duplicate on Windows filesystems")
+                archive.writestr("install.ps1", b"Write-Host 'review'")
+                archive.writestr("nested.cab", b"nested package")
+                link = zipfile.ZipInfo("linked.sys")
+                link.create_system = 3
+                link.external_attr = (stat.S_IFLNK | 0o777) << 16
+                archive.writestr(link, "driver.sys")
+
+            report = inspect_package(path)
+            risk = report["archive_security"]
+            self.assertEqual(risk["schema"], "oplage.archive-risk.v1")
+            self.assertTrue(risk["metadata_only"])
+            self.assertEqual(risk["disposition"], "manual_review")
+            self.assertEqual(risk["duplicate_paths"], ["DRIVER.SYS"])
+            self.assertEqual(risk["symbolic_links"], ["linked.sys"])
+            self.assertEqual(risk["script_candidates"], ["install.ps1"])
+            self.assertEqual(risk["nested_archives"], ["nested.cab"])
+            self.assertGreaterEqual(risk["warning_count"], 3)
+            self.assertIn("not malware detection", risk["limitations"])
+            self.assertFalse((Path(folder) / "driver.sys").exists())
+
 
     def test_inf_and_zip_reports_include_model_id_evidence(self):
         model_inf = SAMPLE + """

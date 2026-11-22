@@ -3,7 +3,7 @@
 | Module | Output | Boundary |
 |---|---|---|
 | Inventory | PnP IDs, status, manufacturer | read-only |
-| INF/ZIP | metadata, paths, SHA-256 | no extraction/execution |
+| INF/ZIP | metadata, paths, SHA-256 and archive-risk triage | no extraction/execution; risk indicators are not malware verdicts |
 | Authenticode | Windows signature status, signer and timestamp metadata | selected files only; no install/load or safety verdict |
 | Architecture | x86/amd64/arm/arm64/ia64 mapping | target evidence |
 | Compatibility | exact normalized hardware-ID edges | candidate only |
