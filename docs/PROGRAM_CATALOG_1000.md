@@ -15,6 +15,7 @@ This repository owns the read-only device, driver-package, binary-header and sup
 
 - **PE/COFF header inspection** — `tools/pe_inspector.py` reads the DOS header, PE signature, COFF machine, PE32/PE32+ optional header, sections and certificate-table directory. It never maps or executes the image. A certificate-table directory is reported as metadata, not as a verified signature.
 - **SPDX 2.3 file inventory** — `tools/sbom_inventory.py` creates a reproducible local file inventory with SHA-256 checksums, stable SPDX identifiers and explicit `NOASSERTION` licence fields. It is not a dependency resolver and does not infer licences from filenames.
+- **Provenance boundary** — the inventory namespace is derived from both canonical relative paths and file hashes. A hash establishes the observed bytes, not author identity, legal ownership or permission to redistribute.
 
 ## Adoption rules
 
