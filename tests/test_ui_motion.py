@@ -38,7 +38,7 @@ class MotionTests(unittest.TestCase):
         with patch("ui_motion.reduced_motion_enabled", return_value=False):
             normal = duration_for("spatial", MotionPreferences())
             expressive = duration_for("spatial", MotionPreferences(expressive_motion=True))
-            reduced = duration_for("spatial", MotionPreferences(True, False, False, True))
+            reduced = duration_for("spatial", MotionPreferences(True, False, True))
             self.assertGreater(expressive, normal)
             self.assertLessEqual(expressive, 380)
             self.assertLessEqual(reduced, 80)
@@ -82,7 +82,7 @@ class MotionTests(unittest.TestCase):
             old_appdata = os.environ.get("APPDATA")
             os.environ["APPDATA"] = folder
             try:
-                expected = MotionPreferences(True, True, False, True)
+                expected = MotionPreferences(True, True, True)
                 save_preferences("motion-tests", expected)
                 self.assertEqual(load_preferences("motion-tests"), expected)
             finally:

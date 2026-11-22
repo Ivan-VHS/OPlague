@@ -24,7 +24,6 @@ SPRING_SUBSTEPS = 2
 class MotionPreferences:
     reduce_motion: bool = False
     eco_visuals: bool = False
-    sync_to_bpm: bool = False
     expressive_motion: bool = False
 
 
@@ -117,7 +116,6 @@ def load_preferences(app_key: str) -> MotionPreferences:
         return MotionPreferences(
             reduce_motion=bool(payload.get("reduce_motion", False)),
             eco_visuals=bool(payload.get("eco_visuals", False)),
-            sync_to_bpm=bool(payload.get("sync_to_bpm", False)),
             expressive_motion=bool(payload.get("expressive_motion", False)),
         )
     except (OSError, ValueError, TypeError):

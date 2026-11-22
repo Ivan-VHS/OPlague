@@ -43,7 +43,7 @@ The result is an evidence record and candidate comparison, not a final safety or
 | UDRV v1 | validates manifest, sizes and SHA-256 evidence | integrity check, not publisher authentication |
 | Reports | produces structured evidence, totals and fingerprints | no system write and no driver installation |
 
-The application has four principal tabs: **Devices**, **Package Inspection**, **Metric Lab** and **Compatibility Review**. The theme can cycle through system/light/dark modes; motion preferences include Reduce Motion and Eco Visuals. The disabled Sync-to-Transport option is intentionally unavailable because OPlague has no audio transport or master BPM.
+The application has four principal tabs: **Devices**, **Package Inspection**, **Metric Lab** and **Compatibility Review**. The theme can cycle through system/light/dark modes; motion preferences include Reduce Motion and Eco Visuals.
 
 The screenshot is a captured desktop application, not a browser preview.
 
@@ -152,7 +152,7 @@ The current device list and inspection results live in the desktop process. Clos
 
 There is no root `.env.example`, Docker Compose web stack, API key, OAuth account, test login, CORS policy, HTTP proxy or local HTTPS certificate setup. No secrets are needed for normal local inspection. The current app does not document a runtime ENV variable contract; do not invent one.
 
-Relevant in-app controls are the theme cycle (system/light/dark) and motion settings (Reduce Motion, Eco Visuals and Expressive Motion). Sync to Transport/BPM is disabled by design and must not be presented as a working option.
+Relevant in-app controls are the theme cycle (system/light/dark) and motion settings (Reduce Motion, Eco Visuals and Expressive Motion).
 
 The live PnP query requires Windows PowerShell and the local CIM provider. If that command is blocked or fails, package-file inspection and saved-data review remain separate workflows; the app shows the inventory error instead of substituting a fake device list.
 

@@ -43,7 +43,7 @@ OPlague допомагає оператору переглянути запис�
 | UDRV v1 | перевіряє manifest, розміри та SHA-256 | перевірка цілісності, не автентифікація видавця |
 | Звіти | формує структуровані докази, підсумки та fingerprints | без запису в систему й без встановлення драйверів |
 
-У застосунку є чотири основні вкладки: **Devices**, **Package Inspection**, **Metric Lab** і **Compatibility Review**. Тема перемикається між system/light/dark; налаштування руху містять Reduce Motion та Eco Visuals. Вимкнений пункт Sync-to-Transport недоступний навмисно: OPlague не має аудіотранспорту або master BPM.
+У застосунку є чотири основні вкладки: **Devices**, **Package Inspection**, **Metric Lab** і **Compatibility Review**. Тема перемикається між system/light/dark; налаштування руху містять Reduce Motion та Eco Visuals.
 
 Скріншот нижче — знімок desktop-застосунку, а не браузерне прев’ю.
 
@@ -151,7 +151,7 @@ UDRV v1 inspector має власний контракт: manifest до 4 MiB, �
 
 Кореневого `.env.example`, Docker Compose web stack, API key, OAuth-акаунта, тестового login, CORS policy, HTTP proxy або локального HTTPS-сертифіката немає. Для звичайної локальної перевірки секрети не потрібні. Поточний застосунок не документує runtime ENV contract; не вигадуйте його.
 
-Реальні UI-перемикачі: цикл теми (system/light/dark) і налаштування руху (Reduce Motion, Eco Visuals та Expressive Motion). Sync to Transport/BPM вимкнений за дизайном і не має подаватися як робоча опція.
+Реальні UI-перемикачі: цикл теми (system/light/dark) і налаштування руху (Reduce Motion, Eco Visuals та Expressive Motion).
 
 Живий PnP-запит потребує Windows PowerShell і локального CIM provider. Якщо команду заблоковано або вона завершується помилкою, перевірка файлів пакетів і перегляд збережених даних залишаються окремими сценаріями; замість помилкового списку пристроїв застосунок показує помилку інвентаризації.
 

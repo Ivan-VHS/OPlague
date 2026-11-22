@@ -43,7 +43,7 @@ OPlague помогает оператору просматривать запи�
 | UDRV v1 | проверяет manifest, размеры и SHA-256 | проверка целостности, не аутентификация издателя |
 | Отчёты | формирует структурированные доказательства, итоги и fingerprints | без записи в систему и установки драйверов |
 
-В приложении четыре основные вкладки: **Devices**, **Package Inspection**, **Metric Lab** и **Compatibility Review**. Тему можно переключать между system/light/dark; настройки движения включают Reduce Motion и Eco Visuals. Отключённый пункт Sync-to-Transport намеренно недоступен: в OPlague нет аудиотранспорта или master BPM.
+В приложении четыре основные вкладки: **Devices**, **Package Inspection**, **Metric Lab** и **Compatibility Review**. Тему можно переключать между system/light/dark; настройки движения включают Reduce Motion и Eco Visuals.
 
 Скриншот ниже — снимок desktop-приложения, а не браузерное превью.
 
@@ -151,7 +151,7 @@ Desktop inspector применяет следующие лимиты:
 
 Корневого `.env.example`, Docker Compose web stack, API key, OAuth-аккаунта, тестового login, CORS policy, HTTP proxy или локального HTTPS-сертификата нет. Для обычной локальной проверки секреты не нужны. Приложение не документирует runtime ENV contract; не придумывайте его.
 
-Реальные переключатели UI: цикл темы (system/light/dark) и настройки движения (Reduce Motion, Eco Visuals и Expressive Motion). Sync to Transport/BPM отключён по дизайну и не должен представляться как рабочая опция.
+Реальные переключатели UI: цикл темы (system/light/dark) и настройки движения (Reduce Motion, Eco Visuals и Expressive Motion).
 
 Live PnP-запрос требует Windows PowerShell и локальный CIM provider. Если команда заблокирована или завершается ошибкой, проверка файлов пакетов и просмотр сохранённых данных остаются отдельными сценариями; вместо фиктивного списка устройств приложение показывает ошибку инвентаризации.
 
