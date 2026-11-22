@@ -49,6 +49,15 @@ OPlague допомагає оператору переглянути запис�
 
 Скріншот нижче — знімок desktop-застосунку, а не браузерне прев’ю.
 
+Локальний аналіз бінарних файлів та експорт інвентарю:
+
+```sh
+python tools/pe_inspector.py driver.sys --output driver-pe-report.json
+python tools/sbom_inventory.py ./staging --output staging.spdx.json
+```
+
+PE-перевірка читає лише заголовки. SPDX-звіт зберігає хеші, а неперевірені відомості про ліцензії позначає `NOASSERTION`.
+
 
 ## Швидкий старт
 
