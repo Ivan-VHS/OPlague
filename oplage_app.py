@@ -21,6 +21,7 @@ from tools.inspection_batch import inspect_batch
 from tools.metric_analysis import analyze_device_profiles
 from tools.architecture_profiles import current_host_architecture, detect_inf_target_architectures, evaluate_driver_targets
 from tools.device_graph import extract_inf_compatibility, build_dry_run_plan
+from tools.report_export import render_report
 
 MAX_PACKAGE_BYTES = 512 * 1024 * 1024
 MAX_ARCHIVE_ENTRIES = 10_000
@@ -208,6 +209,7 @@ class OPlagueApp(tk.Tk):
         inventory = ttk.Frame(self.tabs, padding=12); packages = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(inventory, text="Устройства"); self.tabs.add(packages, text="Проверка пакетов")
         self.device_rows: list[dict[str, str]] = []
+        self.current_report: dict[str, Any] | None = None
         self.inspected_drivers: list[dict[str, Any]] = []
         metrics = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(metrics, text="Лаборатория метрик")
@@ -271,6 +273,7 @@ class OPlagueApp(tk.Tk):
         tools = ttk.Frame(packages); tools.pack(fill="x", pady=(0, 10))
         ttk.Button(tools, text="Проверить INF / ZIP…", command=self.choose_package, style="Primary.TButton").pack(side="left")
         ttk.Button(tools, text="Пакетная проверка…", command=self.choose_packages).pack(side="left", padx=(8, 0))
+        ttk.Button(tools, text="Экспорт отчёта…", command=self.export_report).pack(side="left", padx=(8, 0))
         ttk.Label(tools, text="Только метаданные и хеши — без распаковки и запуска содержимого", style="Muted.TLabel").pack(side="left", padx=12)
         self.report = ScrolledText(packages, wrap="word", font=("Consolas", 10), state="disabled")
         self.report.pack(fill="both", expand=True)
@@ -381,6 +384,7 @@ class OPlagueApp(tk.Tk):
         except Exception as error:
             self.status.set("Не удалось проверить пакет")
             messagebox.showerror("Не удалось проверить пакет", str(error), parent=self); return
+        self.current_report = data
         self._remember_driver_records(data)
         self.report.configure(state="normal"); self.report.delete("1.0", "end")
         self.report.insert("1.0", json.dumps(data, indent=2, ensure_ascii=False))
@@ -422,6 +426,45 @@ class OPlagueApp(tk.Tk):
             f"Пробный расчёт: кандидатов с точным ID — {summary['candidate_edges']}; система не изменена"
         )
 
+    def export_report(self) -> None:
+        if self.current_report is None:
+            messagebox.showinfo("Экспорт отчёта", "Сначала проверьте INF или ZIP-пакет.", parent=self)
+            return
+        destination = filedialog.asksaveasfilename(
+            parent=self,
+            title="Экспортировать отчёт OPlague",
+            defaultextension=".json",
+            filetypes=[
+                ("JSON report", "*.json"),
+                ("CSV table", "*.csv"),
+                ("Markdown report", "*.md"),
+            ],
+        )
+        if not destination:
+            return
+        suffix = Path(destination).suffix.casefold()
+        format_name = {".json": "json", ".csv": "csv", ".md": "markdown"}.get(suffix)
+        if format_name is None:
+            messagebox.showerror(
+                "Экспорт отчёта",
+                "Используйте расширение .json, .csv или .md.",
+                parent=self,
+            )
+            return
+        anonymize = messagebox.askyesno(
+            "Конфиденциальность отчёта",
+            "Обезличить PnP и аппаратные идентификаторы перед экспортом?",
+            parent=self,
+        )
+        try:
+            content = render_report(self.current_report, format_name, anonymize=anonymize)
+            Path(destination).write_text(content, encoding="utf-8")
+        except (OSError, TypeError, ValueError) as error:
+            self.status.set("Не удалось экспортировать отчёт")
+            messagebox.showerror("Экспорт отчёта", str(error), parent=self)
+            return
+        self.status.set(f"Отчёт OPlague экспортирован: {Path(destination).name}")
+
     def choose_packages(self) -> None:
         filenames = filedialog.askopenfilenames(
             parent=self, title="Выберите пакеты драйверов",
@@ -436,6 +479,7 @@ class OPlagueApp(tk.Tk):
             self.status.set("Не удалось выполнить пакетную проверку")
             messagebox.showerror("Не удалось выполнить пакетную проверку", str(error), parent=self)
             return
+        self.current_report = data
         for report in reports:
             self._remember_driver_records(report)
         self.report.configure(state="normal")
