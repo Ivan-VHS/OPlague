@@ -37,7 +37,7 @@ The result is an evidence record and candidate comparison, not a final safety or
 |---|---|---|
 | Device inventory | reads Windows Plug and Play identity, status, manufacturer and PNPDeviceID | live collection is Windows-only and read-only |
 | INF inspection | reads selected metadata, hardware-ID declarations and target architecture | does not run INF directives |
-| ZIP inspection | checks paths, sizes, compression ratios, hashes and INF metadata | does not extract or execute package payloads |
+| ZIP inspection | checks paths, sizes, compression ratios, hashes, INF metadata and archive-risk indicators | does not extract or execute package payloads; findings are not malware verdicts |
 | Compatibility graph | forms candidate relationships from exact normalized hardware IDs | candidate links only; manual review remains required |
 | Metric Lab | compares user-supplied normalized profiles with weighted distance/variance | advisory analysis, not a device verdict |
 | UDRV v1 | validates manifest, sizes and SHA-256 evidence | integrity check, not publisher authentication |
