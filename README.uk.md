@@ -74,7 +74,7 @@ python oplague_app.py
 ### Тести та CLI-перевірки
 
 ```sh
-python -m compileall -q oplague_app.py oplage_app.py tests
+python -m compileall -q oplague_app.py oplage_app.py tests tools
 python tools/validate_visual_canon.py ui_theme.py
 python -m unittest discover -s tests -v
 ```
@@ -89,6 +89,13 @@ python -m oplague --profile 5
 python -m oplague --rank reach
 python tools/udrv_inspector.py path/to/package.udrv --json
 python tools/clinical_systems.py --catalog --pretty
+```
+
+Для перевірки лише формату Hardware ID запустіть локальний лінтер. Він пояснює підтримувані поля PCI та USB без опитування комп’ютера:
+
+```sh
+python -m tools.hardware_id_linter "PCI\\VEN_8086&DEV_15F3&SUBSYS_00008086&REV_03"
+python -m tools.hardware_id_linter --json "USB\\VID_046D&PID_C52B&REV_1201"
 ```
 
 Необов’язковий розрахунок через Reaper C17 потребує явного шляху до довіреної бібліотеки:

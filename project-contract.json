@@ -120,6 +120,16 @@
         "tests/test_octa_pyramid.py",
         "docs/OCTA_PYRAMID_FEDERATION.md"
       ]
+    },
+    {
+      "id": "device-id.format-linter",
+      "status": "implemented",
+      "summary": "Provides offline, format-only PnP identifier diagnostics for PCI and USB fields while preserving opaque supported bus identifiers; it does not query hardware or determine compatibility.",
+      "evidence": [
+        "tools/hardware_id_linter.py",
+        "tests/test_hardware_id_linter.py",
+        "docs/HARDWARE_ID_LINTER.md"
+      ]
     }
   ],
   "interfaces": [

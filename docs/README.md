@@ -12,6 +12,7 @@
 | [UI_MOTION.md](UI_MOTION.md) | accessible motion preferences, reduced-motion limits and UI performance |
 | [UI_UX_SYSTEM.md](UI_UX_SYSTEM.md) | desktop interaction contract |
 | [DEVICE_COMPATIBILITY_GRAPH.md](DEVICE_COMPATIBILITY_GRAPH.md) | exact-ID candidate graph; not an automatic verdict |
+| [HARDWARE_ID_LINTER.md](HARDWARE_ID_LINTER.md) | offline, format-only PCI/USB/ACPI Plug and Play identifier inspection |
 | [DRIVER_TARGET_ARCHITECTURE.md](DRIVER_TARGET_ARCHITECTURE.md) | INF and PE machine codes |
 | [UDRV_FORMAT_V1.md](UDRV_FORMAT_V1.md) | package manifest, hashing and size limits |
 | [DRIVE_LENS_EVIDENCE_LEDGER.md](DRIVE_LENS_EVIDENCE_LEDGER.md) | evidence provenance |
