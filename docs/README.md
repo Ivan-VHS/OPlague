@@ -15,6 +15,8 @@
 | [DEVICE_COMPATIBILITY_GRAPH.md](DEVICE_COMPATIBILITY_GRAPH.md) | exact-ID candidate graph; not an automatic verdict |
 | [DRIVER_TARGET_ARCHITECTURE.md](DRIVER_TARGET_ARCHITECTURE.md) | INF and PE machine codes |
 | [UDRV_FORMAT_V1.md](UDRV_FORMAT_V1.md) | package manifest, hashing and size limits |
+| [ARCHIVE_RISK_TRIAGE.md](ARCHIVE_RISK_TRIAGE.md) | read-only ZIP structure and package-risk metadata |
+| [PROGRAM_CATALOG_1000.md](PROGRAM_CATALOG_1000.md) | adoption map and project ownership for the 1,000-item catalogue |
 | [DRIVE_LENS_EVIDENCE_LEDGER.md](DRIVE_LENS_EVIDENCE_LEDGER.md) | evidence provenance |
 | [CLINICAL_SYSTEMS_CSR120.md](CLINICAL_SYSTEMS_CSR120.md) | 120 principles and 36 advisory telemetry checks |
 
