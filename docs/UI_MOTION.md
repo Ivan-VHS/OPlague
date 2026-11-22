@@ -28,7 +28,7 @@ The blue/white/red theme remains semantic: blue for navigation and calm state, r
 
 Preferences are stored independently of theme settings. The previous preference format remains readable; Expressive Motion defaults to off. Native OS reduced-motion preference and `UI_REDUCED_MOTION` are respected.
 
-This application has no audio transport, so BPM sync remains unavailable. Animation runs only on the UI thread. It must never delay hardware inventory, package hashing, archive-bound checks, report composition or driver inspection. Animation never installs, enables, disables or modifies drivers; all existing read-only and dry-run boundaries remain unchanged.
+Animation runs only on the UI thread. It must never delay hardware inventory, package hashing, archive-bound checks, report composition or driver inspection. Animation never installs, enables, disables or modifies drivers; all existing read-only and dry-run boundaries remain unchanged.
 
 ## Motion implementation profile
 
