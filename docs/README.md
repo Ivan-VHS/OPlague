@@ -4,6 +4,7 @@
 |---|---|
 | [VISUAL_DOCUMENTATION.md](VISUAL_DOCUMENTATION.md) | README graphics, evidence diagrams, SVG/raster formats, typography, MDX and rendering rules |
 | [FEATURES.md](FEATURES.md) | supported inspection tools and safety boundaries |
+| [AUTHENTICODE.md](AUTHENTICODE.md) | local Windows signature inspection and trust boundaries |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | device and package inspection flow |
 | [ENGINEERING.md](ENGINEERING.md) | release and safety gates |
 | [PROJECT_STEWARDSHIP_STANDARD.md](PROJECT_STEWARDSHIP_STANDARD.md) | operator, privacy and communication policy |
