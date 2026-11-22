@@ -89,6 +89,7 @@ python -m oplague --profile 5
 python -m oplague --rank reach
 python tools/udrv_inspector.py path/to/package.udrv --json
 python tools/clinical_systems.py --catalog --pretty
+python tools/hardware_id_lint.py "PCI\VEN_8086&DEV_15F3&SUBSYS_00008086&REV_03" --json
 ```
 
 The optional native Reaper C17 calculation requires an explicit trusted library path:

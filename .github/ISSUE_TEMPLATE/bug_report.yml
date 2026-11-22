@@ -1,0 +1,30 @@
+name: Bug report
+description: Report a reproducible OPlague inspection or UI issue.
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: textarea
+    id: input
+    attributes:
+      label: Sanitized input or synthetic reproduction
+      description: Never attach a private device inventory or serial number.
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed result and diagnostic
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Windows version and Python version
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
