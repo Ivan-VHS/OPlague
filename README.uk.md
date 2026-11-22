@@ -34,9 +34,9 @@ flowchart TD
     F --> G
     G --> H[Пакетний звіт порівняння]
     H --> I[Підсумки та fingerprint звіту]
-  classDef readmeNode fill:#122B3D,stroke:#65BFFF,color:#F4FAFF,stroke-width:1.5px;
+  classDef readmeNode fill:#EDF5FE,stroke:#0D5CB8,color:#173653,stroke-width:1.5px;
   class A,B,C,D,E,F,G,H,I readmeNode;
-  linkStyle default stroke:#65BFFF,stroke-width:1.8px;
+  linkStyle default stroke:#0D5CB8,stroke-width:1.8px;
 ```
 
 ## Перевірка пакетів та аналіз метрик
@@ -50,9 +50,9 @@ flowchart LR
     C --> D[Дані про цілісність]
     E[Надані числові вектори] --> F[Нормалізація та порівняння]
     F --> G[Звіт про зважену відстань і дисперсію]
-  classDef readmeNode fill:#122B3D,stroke:#65BFFF,color:#F4FAFF,stroke-width:1.5px;
+  classDef readmeNode fill:#EDF5FE,stroke:#0D5CB8,color:#173653,stroke-width:1.5px;
   class A,B,C,D,E,F,G readmeNode;
-  linkStyle default stroke:#65BFFF,stroke-width:1.8px;
+  linkStyle default stroke:#0D5CB8,stroke-width:1.8px;
 ```
 
 ## Модулі робочої станції
