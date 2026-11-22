@@ -120,6 +120,16 @@
         "tests/test_octa_pyramid.py",
         "docs/OCTA_PYRAMID_FEDERATION.md"
       ]
+    },
+    {
+      "id": "authenticode.read-only-audit",
+      "status": "implemented",
+      "summary": "Reports local Windows Authenticode signature status for selected driver-related files without installing, extracting, loading or executing them.",
+      "evidence": [
+        "tools/authenticode.py",
+        "oplage_app.py",
+        "tests/test_authenticode.py"
+      ]
     }
   ],
   "interfaces": [
