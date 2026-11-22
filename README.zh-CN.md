@@ -94,8 +94,8 @@ python tools/clinical_systems.py --catalog --pretty
 如需仅检查 Hardware ID 格式，请运行本地检查器。它会解释受支持的 PCI 和 USB 字段，不会查询计算机：
 
 ```sh
-python -m tools.hardware_id_linter "PCI\\VEN_8086&DEV_15F3&SUBSYS_00008086&REV_03"
-python -m tools.hardware_id_linter --json "USB\\VID_046D&PID_C52B&REV_1201"
+python -m tools.hardware_id_linter "PCI\VEN_8086&DEV_15F3&SUBSYS_00008086&REV_03"
+python -m tools.hardware_id_linter --json "USB\VID_046D&PID_C52B&REV_1201"
 ```
 
 可选的 Reaper C17 计算需要显式指定可信库路径：

@@ -94,8 +94,8 @@ python tools/clinical_systems.py --catalog --pretty
 For a format-only Hardware ID check, use the local linter. It explains supported PCI and USB fields without querying the machine:
 
 ```sh
-python -m tools.hardware_id_linter "PCI\\VEN_8086&DEV_15F3&SUBSYS_00008086&REV_03"
-python -m tools.hardware_id_linter --json "USB\\VID_046D&PID_C52B&REV_1201"
+python -m tools.hardware_id_linter "PCI\VEN_8086&DEV_15F3&SUBSYS_00008086&REV_03"
+python -m tools.hardware_id_linter --json "USB\VID_046D&PID_C52B&REV_1201"
 ```
 
 The optional native Reaper C17 calculation requires an explicit trusted library path:
