@@ -38,17 +38,17 @@ jobs:
         run: python automation/reaper/create_fixtures.py
       - name: Parse Reaper source
         env:
-          PYTHONPATH: \${{ github.workspace }}/_deps/Reaper
+          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
         run: python -m reaper --check automation/reaper/device_audit.rpr
       - name: Run with reference tree-walk interpreter
         env:
-          PYTHONPATH: \${{ github.workspace }}/_deps/Reaper
+          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
         run: python -m reaper automation/reaper/device_audit.rpr
       - name: Validate the Reaper report in OPlague
         run: python -m tools.reaper_report build/reaper-oplage-report.json --json
       - name: Run the same program through Reaper bytecode VM
         env:
-          PYTHONPATH: \${{ github.workspace }}/_deps/Reaper
+          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
         run: python -m reaper --engine vm automation/reaper/device_audit.rpr
       - name: Re-validate VM report
         run: python -m tools.reaper_report build/reaper-oplage-report.json --json
