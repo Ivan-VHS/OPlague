@@ -49,6 +49,8 @@ class AuthenticodeInspectorTests(unittest.TestCase):
         args, kwargs = run.call_args
         self.assertEqual(json.loads(kwargs["input"]), [str(self.file.resolve())])
         self.assertNotIn(str(self.file.resolve()), args[0][-1])
+        self.assertIn("[Console]::InputEncoding", args[0][-1])
+        self.assertIn("[Console]::OutputEncoding", args[0][-1])
         self.assertEqual(report["schema"], inspector.SCHEMA)
         self.assertEqual(report["results"][0]["status"], "Valid")
         self.assertTrue(report["read_only"])
