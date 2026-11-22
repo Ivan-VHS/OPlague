@@ -1,0 +1,37 @@
+# OPlague read-only audit orchestrated with Reaper 0.2.
+# CI supplies two deterministic synthetic snapshots. This script never queries
+# Windows PnP and never performs driver installation or device changes.
+
+let baseline_path = absolute_path(path_join("..", "..", "build", "reaper-fixtures", "oplage-baseline.json"))
+let candidate_path = absolute_path(path_join("..", "..", "build", "reaper-fixtures", "oplage-candidate.json"))
+
+let baseline = read_json(baseline_path)
+let candidate = read_json(candidate_path)
+
+let baseline_metrics = oplage_metrics(baseline)
+let candidate_metrics = oplage_metrics(candidate)
+let report = oplage_compare(baseline, candidate)
+
+assert(report.schema == "reaper.oplage-comparison.v1", "unexpected Reaper/OPlague report schema")
+assert(report.mode == "read_only", "OPlague federation must remain read-only")
+assert(report.dimension_count == size(report.dimensions), "report dimension count mismatch")
+assert(report.euclidean_distance >= 0, "distance cannot be negative")
+assert(baseline.schema == "oplage.device-snapshot.v1", "baseline snapshot schema mismatch")
+assert(candidate.schema == "oplage.device-snapshot.v1", "candidate snapshot schema mismatch")
+
+let profiles = impact_catalog()
+let matched_profiles = impact_search("Гул")
+let reach_ranked = impact_rank(profiles, "reach")
+assert(size(profiles) == 20, "impact profile catalogue size changed")
+assert(size(matched_profiles) >= 1, "impact search did not find the known synthetic term")
+assert(size(reach_ranked) == 20, "impact ranking lost catalogue records")
+
+let output_path = absolute_path(path_join("..", "..", "build", "reaper-oplage-report.json"))
+write_json(output_path, report)
+
+emit "OPlague / Reaper language integration: PASS"
+emit "Baseline devices: " ++ text(baseline.summary.total_devices)
+emit "Candidate devices: " ++ text(candidate.summary.total_devices)
+emit "Metric dimensions: " ++ text(report.dimension_count)
+emit "Read-only Euclidean distance: " ++ text(report.euclidean_distance)
+emit "Impact profiles: " ++ text(size(profiles))
