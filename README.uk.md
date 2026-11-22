@@ -1,11 +1,16 @@
 # OPlague — робоча станція драйверів
 
+[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
+
+<p align="center"><img src="assets/readme/dashboard.svg" alt="Візуальний огляд OPlague 2026" width="100%"></p>
+<sub>Візуальний огляд проєкту · README оновлено 22.11.2026 · палітра проєкту · читабельні схеми даних</sub>
+
+
 [Збирання Windows](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml) · [CI](https://github.com/Ivan-VHS/OPlague/actions) · Python 3.10+ · Windows · Apache-2.0
 **Розробник:** [Ivan-VHS](https://github.com/Ivan-VHS)
 
 **OPlague — інструмент лише для читання: інвентаризація пристроїв Windows, аналіз пакетів драйверів і зіставлення доказів. Він не встановлює, не завантажує та не змінює драйвери.**
 
-[English](README.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [简体中文](README.zh-CN.md)
 
 ## Реальний знімок Windows-застосунку
 
@@ -29,6 +34,9 @@ flowchart TD
     F --> G
     G --> H[Пакетний звіт порівняння]
     H --> I[Підсумки та fingerprint звіту]
+  classDef readmeNode fill:#122B3D,stroke:#65BFFF,color:#F4FAFF,stroke-width:1.5px;
+  class A,B,C,D,E,F,G,H,I readmeNode;
+  linkStyle default stroke:#65BFFF,stroke-width:1.8px;
 ```
 
 ## Перевірка пакетів та аналіз метрик
@@ -42,6 +50,9 @@ flowchart LR
     C --> D[Дані про цілісність]
     E[Надані числові вектори] --> F[Нормалізація та порівняння]
     F --> G[Звіт про зважену відстань і дисперсію]
+  classDef readmeNode fill:#122B3D,stroke:#65BFFF,color:#F4FAFF,stroke-width:1.5px;
+  class A,B,C,D,E,F,G readmeNode;
+  linkStyle default stroke:#65BFFF,stroke-width:1.8px;
 ```
 
 ## Модулі робочої станції
