@@ -47,7 +47,10 @@ def _files(root: Path, max_files: int):
     if root.is_symlink() or not root.is_dir():
         raise SBOMError("source root must be a regular directory, not a symlink")
     collected: list[Path] = []
-    for folder, dirs, names in os.walk(root, topdown=True, followlinks=False):
+    def raise_walk_error(error: OSError) -> None:
+        raise SBOMError(f"cannot enumerate source tree: {error}") from error
+
+    for folder, dirs, names in os.walk(root, topdown=True, followlinks=False, onerror=raise_walk_error):
         current = Path(folder)
         dirs[:] = sorted(
             name for name in dirs
@@ -95,7 +98,13 @@ def build_sbom(root: str | Path, *, created: str | None = None,
                max_files: int = MAX_FILES) -> dict[str, Any]:
     if isinstance(max_files, bool) or not isinstance(max_files, int) or not 1 <= max_files <= MAX_FILES:
         raise SBOMError(f"max_files must be between 1 and {MAX_FILES}")
-    source = Path(root).expanduser().resolve(strict=True)
+    supplied_root = Path(root).expanduser()
+    if supplied_root.is_symlink():
+        raise SBOMError("source root must not be a symlink")
+    try:
+        source = supplied_root.resolve(strict=True)
+    except OSError as error:
+        raise SBOMError(f"cannot open source root: {error}") from error
     created_at = _created_time(created)
     paths = _files(source, max_files)
     files = []
