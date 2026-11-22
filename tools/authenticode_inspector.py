@@ -19,6 +19,9 @@ MAX_PATH_LENGTH = 4096
 # Paths are supplied as JSON on stdin. They are never interpolated into script
 # source or shell arguments, which avoids quoting and command-injection issues.
 _POWERSHELL_SCRIPT = r"""
+$utf8 = New-Object System.Text.UTF8Encoding($false)
+[Console]::InputEncoding = $utf8
+[Console]::OutputEncoding = $utf8
 $ErrorActionPreference = 'Stop'
 $paths = [Console]::In.ReadToEnd() | ConvertFrom-Json
 $results = @(
