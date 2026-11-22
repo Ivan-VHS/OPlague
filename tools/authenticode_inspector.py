@@ -95,7 +95,7 @@ def inspect_signatures(paths: Iterable[str | Path], timeout_seconds: int = 45) -
     validated = _validated_paths(paths)
     if isinstance(timeout_seconds, bool) or not isinstance(timeout_seconds, int) or not 1 <= timeout_seconds <= 300:
         raise AuthenticodeError("timeout must be an integer between 1 and 300 seconds")
-    if os.name != "nt" and platform.system() != "Windows":
+    if platform.system() != "Windows":
         raise NotImplementedError("Authenticode inspection is available only on Windows")
 
     try:
