@@ -34,9 +34,9 @@ flowchart TD
     F --> G
     G --> H[批量比较报告]
     H --> I[汇总与报告指纹]
-  classDef readmeNode fill:#122B3D,stroke:#65BFFF,color:#F4FAFF,stroke-width:1.5px;
+  classDef readmeNode fill:#EDF5FE,stroke:#0D5CB8,color:#173653,stroke-width:1.5px;
   class A,B,C,D,E,F,G,H,I readmeNode;
-  linkStyle default stroke:#65BFFF,stroke-width:1.8px;
+  linkStyle default stroke:#0D5CB8,stroke-width:1.8px;
 ```
 
 ## 软件包检查与指标处理
@@ -50,9 +50,9 @@ flowchart LR
     C --> D[完整性证据]
     E[用户提供的数值向量] --> F[归一化与比较]
     F --> G[加权距离和方差报告]
-  classDef readmeNode fill:#122B3D,stroke:#65BFFF,color:#F4FAFF,stroke-width:1.5px;
+  classDef readmeNode fill:#EDF5FE,stroke:#0D5CB8,color:#173653,stroke-width:1.5px;
   class A,B,C,D,E,F,G readmeNode;
-  linkStyle default stroke:#65BFFF,stroke-width:1.8px;
+  linkStyle default stroke:#0D5CB8,stroke-width:1.8px;
 ```
 
 ## 工作台模块
