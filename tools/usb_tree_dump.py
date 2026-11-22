@@ -80,6 +80,7 @@ def build_usb_tree(
             trail.append(current)
             parent = records[current]["parent"]
             if parent not in records:
+                current = parent
                 break
             current = parent
         if current in records and state.get(current) == 1:
