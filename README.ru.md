@@ -206,7 +206,7 @@ Desktop status и dialog messages описывают непосредствен�
 
 OPlague намеренно не изменяет систему. Он не устанавливает, не загружает, не распаковывает и не изменяет драйверы; сопоставление является кандидатным доказательством, а не сертификацией. Живая инвентаризация оборудования доступна только в Windows. Metric profiles носят рекомендательный характер. Хеши доказывают идентичность байтов, но не подлинность издателя или право собственности. UDRV inspector не выполняет payload.
 
-Отдельного `CONTRIBUTING.md` не найдено. Сообщайте о проблемах или предлагайте изменения через [GitHub Issues](https://github.com/Ivan-VHS/OPlague/issues) или Pull Request. Укажите ОС, версию Python, безопасный тип тестового файла, точную команду и ожидаемый/фактический результат. Не прикрепляйте приватные driver packages или чувствительные device identifiers без удаления идентифицирующих данных.
+Правила разработки, проверки изменений и оформления Pull Request описаны в [CONTRIBUTING.md](CONTRIBUTING.md). Сообщайте о проблемах или предлагайте изменения через [GitHub Issues](https://github.com/Ivan-VHS/OPlague/issues) или Pull Request. Укажите ОС, версию Python, безопасный тип тестового файла, точную команду и ожидаемый/фактический результат. Не прикрепляйте приватные driver packages или чувствительные device identifiers без удаления идентифицирующих данных.
 
 Лицензия: [Apache-2.0](LICENSE).
 
@@ -224,3 +224,11 @@ OPlague намеренно не изменяет систему. Он не ус�
 | 56–66 · эксплуатация и поддержка | описаны публикация artifacts/release, rollback, логи, troubleshooting, ограничения, вклад и лицензия |
 
 **Публичного URL OPlague web demo нет.** Windows-скриншот и release archive не являются онлайн-сервисом управления устройствами.
+
+## Единый формат оболочки отчёта
+
+JSON-отчёт с доказательствами можно обернуть в общий формат метаданных ivan-vhs.report.v1:
+
+    python tools/report_envelope.py --tool oplague --version VERSION --input-file driver.zip < evidence.json
+
+В оболочку записывается только SHA-256 входного файла, а не локальный путь. См. docs/REPORT_ENVELOPE.md и schemas/ivan-vhs.report.v1.schema.json.

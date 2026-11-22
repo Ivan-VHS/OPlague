@@ -206,7 +206,7 @@ Desktop status і dialog messages описують безпосередню по
 
 OPlague навмисно не змінює систему. Він не встановлює, не завантажує, не розпаковує та не змінює драйвери; зіставлення є кандидатним доказом, а не сертифікацією. Жива інвентаризація апаратури доступна лише у Windows. Metric profiles мають рекомендаційний характер. Хеші доводять ідентичність байтів, але не автентичність видавця чи право власності. UDRV inspector не виконує payload.
 
-Окремого `CONTRIBUTING.md` не знайдено. Повідомляйте про проблеми або пропонуйте зміни через [GitHub Issues](https://github.com/Ivan-VHS/OPlague/issues) чи Pull Request. Додавайте ОС, версію Python, безпечний тип тестового файла, точну команду та очікуваний/фактичний результат. Не прикріплюйте приватні driver packages або чутливі device identifiers без видалення ідентифікаційних даних.
+Правила розробки, перевірки змін і оформлення Pull Request описані в [CONTRIBUTING.md](CONTRIBUTING.md). Повідомляйте про проблеми або пропонуйте зміни через [GitHub Issues](https://github.com/Ivan-VHS/OPlague/issues) чи Pull Request. Додавайте ОС, версію Python, безпечний тип тестового файла, точну команду та очікуваний/фактичний результат. Не прикріплюйте приватні driver packages або чутливі device identifiers без видалення ідентифікаційних даних.
 
 Ліцензія: [Apache-2.0](LICENSE).
 
@@ -224,3 +224,11 @@ OPlague навмисно не змінює систему. Він не вста�
 | 56–66 · експлуатація та підтримка | описано публікацію artifacts/release, rollback, логи, troubleshooting, обмеження, внесок і ліцензію |
 
 **Публічного URL OPlague web demo немає.** Windows-скріншот і release archive не є онлайн-сервісом керування пристроями.
+
+## Єдиний формат оболонки звіту
+
+JSON-звіт із доказами можна обгорнути в загальний формат метаданих ivan-vhs.report.v1:
+
+    python tools/report_envelope.py --tool oplague --version VERSION --input-file driver.zip < evidence.json
+
+В оболонку записується лише SHA-256 вхідного файла, а не локальний шлях. Див. docs/REPORT_ENVELOPE.md і schemas/ivan-vhs.report.v1.schema.json.
