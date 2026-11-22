@@ -22,7 +22,7 @@ jobs:
           repository: Ivan-VHS/Reaper
           ref: 8c84fd6c4213dddd174689d36f22bd7717eaccd3
           path: _deps/Reaper
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Build Reaper native ABI without Python dependency
