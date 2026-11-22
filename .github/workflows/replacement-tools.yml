@@ -1,7 +1,7 @@
 name: Original replacement tools
 on:
   push:
-    branches: ["feat/original-replacement-tools"]
+    branches: ["feat/**"]
   pull_request:
     paths:
       - "tools/pe_driver_probe.py"
@@ -17,5 +17,5 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - name: Run read-only PE inspection tests
+      - name: Run PE Workbench tests
         run: python -m unittest discover -s tests -p "test_pe_driver_probe.py" -v
