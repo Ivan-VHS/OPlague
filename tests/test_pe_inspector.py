@@ -26,7 +26,7 @@ def make_pe() -> bytes:
     header[section:section + 8] = b".text\0\0\0"
     struct.pack_into("<IIII", header, section + 8, 0x100, 0x1000, 0x100, 0x200)
     struct.pack_into("<I", header, section + 36, 0x60000020)
-    return bytes(header)
+    return bytes(header) + bytes(0x500 - len(header))
 
 
 class PEInspectorTests(unittest.TestCase):
