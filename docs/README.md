@@ -3,7 +3,7 @@
 | File | Purpose |
 |---|---|
 | [VISUAL_DOCUMENTATION.md](VISUAL_DOCUMENTATION.md) | README graphics, evidence diagrams, SVG/raster formats, typography, MDX and rendering rules |
-| [FEATURES.md](FEATURES.md) | supported inspection tools and safety boundaries |
+| [FEATURES.md](FEATURES.md) | supported inspection tools and safety boundaries |\n| [REAPER_LANGUAGE_INTEGRATION.md](REAPER_LANGUAGE_INTEGRATION.md) | Reaper 0.2 snapshot validation, report generation and synthetic CI federation |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | device and package inspection flow |
 | [ENGINEERING.md](ENGINEERING.md) | release and safety gates |
 | [PROJECT_STEWARDSHIP_STANDARD.md](PROJECT_STEWARDSHIP_STANDARD.md) | operator, privacy and communication policy |
