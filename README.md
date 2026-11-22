@@ -49,6 +49,15 @@ The application has four principal tabs: **Devices**, **Package Inspection**, **
 
 The screenshot is a captured desktop application, not a browser preview.
 
+The binary and supply-chain helpers can also be used locally:
+
+```sh
+python tools/pe_inspector.py driver.sys --output driver-pe-report.json
+python tools/sbom_inventory.py ./staging --output staging.spdx.json
+```
+
+PE inspection reads headers only. The SPDX export records hashes and leaves unverified licence information as `NOASSERTION`.
+
 
 ## Quick Start
 
