@@ -206,7 +206,7 @@ UDRV v1 检查器有独立合同：manifest 最大 4 MiB，最多 10,000 个条�
 
 OPlague 有意保持非破坏性。它不会安装、加载、解压或修改驱动；匹配结果是候选证据，不是认证。实时硬件清单仅支持 Windows。Metric Profile 仅供参考。哈希只能证明字节一致，不能证明发布者真实性或所有权。UDRV Inspector 不执行载荷。
 
-仓库中未找到单独的 `CONTRIBUTING.md`。请通过 [GitHub Issues](https://github.com/Ivan-VHS/OPlague/issues) 或 Pull Request 报告问题或提出改进。请提供操作系统、Python 版本、安全的示例文件类型、准确命令以及预期/实际结果。不要在未去除标识信息的情况下附上私有驱动包或敏感设备标识符。
+仓库的贡献流程、变更验证和 Pull Request 要求见 [CONTRIBUTING.md](CONTRIBUTING.md)。请通过 [GitHub Issues](https://github.com/Ivan-VHS/OPlague/issues) 或 Pull Request 报告问题或提出改进。请提供操作系统、Python 版本、安全的示例文件类型、准确命令以及预期/实际结果。不要在未去除标识信息的情况下附上私有驱动包或敏感设备标识符。
 
 许可证：[Apache-2.0](LICENSE)。
 
@@ -224,3 +224,11 @@ Web Stand 检查清单按实际桌面工作台进行映射，而不是复制为�
 | 56–66 · 运维与支持 | 说明 Artifact/Release 发布、回滚、日志、故障排查、限制、贡献渠道和许可证 |
 
 **OPlague 没有公开的 Web Demo URL。** Windows 截图和 Release Archive 不等于在线设备管理服务。
+
+## 统一报告封装格式
+
+可以将 JSON 证据报告包装为通用的 ivan-vhs.report.v1 元数据格式：
+
+    python tools/report_envelope.py --tool oplague --version VERSION --input-file driver.zip < evidence.json
+
+封装中只记录输入文件的 SHA-256，不记录本地路径。请参阅 docs/REPORT_ENVELOPE.md 和 schemas/ivan-vhs.report.v1.schema.json。

@@ -207,7 +207,7 @@ The desktop status and dialog messages describe the immediate failure. For CI fa
 
 OPlague is deliberately non-destructive. It does not install, load, extract or modify drivers; matching is candidate evidence rather than certification. Live hardware enumeration is Windows-only. The metric profiles are advisory. Hashes establish byte identity, not publisher authenticity or ownership. The UDRV inspector does not execute payloads.
 
-No separate `CONTRIBUTING.md` was found. Report a problem or propose a change through [GitHub Issues](https://github.com/Ivan-VHS/OPlague/issues) or a Pull Request. Include the OS, Python version, safe sample file type, exact command and expected/actual result. Do not attach private driver packages or sensitive device identifiers without removing identifying data.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the repository's contribution workflow and validation requirements. Report a problem or propose a change through [GitHub Issues](https://github.com/Ivan-VHS/OPlague/issues) or a Pull Request. Include the OS, Python version, safe sample file type, exact command and expected/actual result. Do not attach private driver packages or sensitive device identifiers without removing identifying data.
 
 License: [Apache-2.0](LICENSE).
 
