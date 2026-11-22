@@ -115,9 +115,10 @@ def build_sbom(root: str | Path, *, created: str | None = None,
         if total > MAX_TOTAL_BYTES:
             raise SBOMError("source tree exceeds the 2 GiB aggregate limit")
         files.append(record)
-    inventory_hash = hashlib.sha256(
-        "".join(item["checksums"][0]["checksumValue"] for item in files).encode("ascii")
-    ).hexdigest()
+    inventory_identity = "\n".join(
+        item["fileName"] + ":" + item["checksums"][0]["checksumValue"] for item in files
+    )
+    inventory_hash = hashlib.sha256(inventory_identity.encode("utf-8")).hexdigest()
     namespace = f"https://spdx.org/spdxdocs/oplague-inventory-{inventory_hash}"
     return {
         "spdxVersion": "SPDX-2.3",
