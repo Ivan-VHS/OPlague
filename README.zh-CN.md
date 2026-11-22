@@ -1,11 +1,16 @@
 # OPlague — 驱动工作台
 
+[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
+
+<p align="center"><img src="assets/readme/dashboard.svg" alt="OPlague 2026 项目视觉概览" width="100%"></p>
+<sub>项目视觉概览 · README 更新于 2026-11-22 · 项目配色 · 清晰的数据图表</sub>
+
+
 [Windows 桌面构建](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml) · [CI](https://github.com/Ivan-VHS/OPlague/actions) · Python 3.10+ · Windows · Apache-2.0
 **开发者：** [Ivan-VHS](https://github.com/Ivan-VHS)
 
 **OPlague 是只读工作台：用于 Windows 设备盘点、驱动包检查和基于证据的比较。它不会安装、加载或修改驱动。**
 
-[English](README.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [简体中文](README.zh-CN.md)
 
 ## Windows 实际运行截图
 
@@ -29,6 +34,9 @@ flowchart TD
     F --> G
     G --> H[批量比较报告]
     H --> I[汇总与报告指纹]
+  classDef readmeNode fill:#122B3D,stroke:#65BFFF,color:#F4FAFF,stroke-width:1.5px;
+  class A,B,C,D,E,F,G,H,I readmeNode;
+  linkStyle default stroke:#65BFFF,stroke-width:1.8px;
 ```
 
 ## 软件包检查与指标处理
@@ -42,6 +50,9 @@ flowchart LR
     C --> D[完整性证据]
     E[用户提供的数值向量] --> F[归一化与比较]
     F --> G[加权距离和方差报告]
+  classDef readmeNode fill:#122B3D,stroke:#65BFFF,color:#F4FAFF,stroke-width:1.5px;
+  class A,B,C,D,E,F,G readmeNode;
+  linkStyle default stroke:#65BFFF,stroke-width:1.8px;
 ```
 
 ## 工作台模块
