@@ -22,6 +22,7 @@ from tools.metric_analysis import analyze_device_profiles
 from tools.architecture_profiles import current_host_architecture, detect_inf_target_architectures, evaluate_driver_targets
 from tools.device_graph import extract_inf_compatibility, build_dry_run_plan
 from tools.report_export import render_report
+from tools.authenticode import inspect_authenticode_files
 
 MAX_PACKAGE_BYTES = 512 * 1024 * 1024
 MAX_ARCHIVE_ENTRIES = 10_000
@@ -215,6 +216,21 @@ class OPlagueApp(tk.Tk):
         self.tabs.add(metrics, text="Лаборатория метрик")
         compatibility = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(compatibility, text="Проверка совместимости")
+        signatures = ttk.Frame(self.tabs, padding=12)
+        self.tabs.add(signatures, text="Проверка подписей")
+        ttk.Label(
+            signatures,
+            text="Локальная проверка Authenticode для файлов CAT, SYS, DLL, EXE и EFI через Windows. Проверка не устанавливает драйверы, не распаковывает пакеты и не меняет систему.",
+            style="Muted.TLabel", wraplength=1000,
+        ).pack(anchor="w", pady=(0, 8))
+        ttk.Button(
+            signatures, text="Проверить цифровые подписи…",
+            command=self.choose_signature_files, style="Primary.TButton",
+        ).pack(anchor="w", pady=(0, 8))
+        self.signature_result = ScrolledText(
+            signatures, wrap="word", font=("Consolas", 10), height=20, state="disabled"
+        )
+        self.signature_result.pack(fill="both", expand=True)
         ttk.Label(
             compatibility,
             text="Сопоставление выполняется только по точным аппаратным идентификаторам INF. Кандидат не является заключением о совместимости или безопасности; операции с драйверами не выполняются.",
@@ -424,6 +440,38 @@ class OPlagueApp(tk.Tk):
         self.tabs.select(3)
         self.status.set(
             f"Пробный расчёт: кандидатов с точным ID — {summary['candidate_edges']}; система не изменена"
+        )
+
+    def choose_signature_files(self) -> None:
+        filenames = filedialog.askopenfilenames(
+            parent=self,
+            title="Выберите файлы для проверки Authenticode",
+            filetypes=[
+                ("Подписываемые файлы драйверов", "*.cat *.sys *.dll *.exe *.efi"),
+                ("Каталоги подписей", "*.cat"),
+                ("Драйверы", "*.sys"),
+                ("Все файлы", "*.*"),
+            ],
+        )
+        if not filenames:
+            return
+        self.status.set("Проверка Authenticode в Windows…")
+        self.update_idletasks()
+        try:
+            report = inspect_authenticode_files(filenames)
+        except Exception as error:
+            self.status.set("Не удалось проверить цифровые подписи")
+            messagebox.showerror("Проверка Authenticode", str(error), parent=self)
+            return
+        self.signature_result.configure(state="normal")
+        self.signature_result.delete("1.0", "end")
+        self.signature_result.insert("1.0", json.dumps(report, indent=2, ensure_ascii=False))
+        self.signature_result.configure(state="disabled")
+        self.tabs.select(4)
+        statuses = report["summary"]["statuses"]
+        self.status.set(
+            f"Проверено подписей: {report['summary']['files']} — "
+            + ", ".join(f"{name}: {count}" for name, count in statuses.items())
         )
 
     def export_report(self) -> None:
