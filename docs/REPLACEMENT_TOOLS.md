@@ -1,16 +1,24 @@
-# Original replacement tools
+# OPlague PE Workbench — integrated package audit
 
-The new tools/pe_driver_probe.py utility is an independently written, read-only Portable Executable (PE) inspector for driver-package triage. It reads bounded PE headers and computes SHA-256 fingerprints for .sys, .dll and .exe files. It reports machine architecture, subsystem, optional-header format and a cautious driver-candidate hint.
+The PE Workbench is the read-only executable and driver-candidate analysis subsystem of OPlague. Its workflow is integrated end to end:
 
-Run:
+1. Enumerate PE candidates in a selected folder with deterministic ordering and a configurable file ceiling.
+2. Validate DOS, PE, COFF and optional headers, then inspect section boundaries and bounded entropy samples.
+3. Compute SHA-256 fingerprints, group duplicate files, and summarize architecture and candidate classifications.
+4. Emit a versioned JSON audit, an operator table or a Markdown review artifact.
 
-    python tools/pe_driver_probe.py C:\DriverPackage --json
+Examples:
 
-The scanner does not extract archives, load drivers, install devices, execute binaries or modify the inspected package. A .sys extension or native subsystem is only a candidate signal. Signature verification, publisher trust, OS compatibility and hardware compatibility are deliberately not inferred; use the existing OPlague evidence and Authenticode components for those separate checks.
+    python tools/pe_driver_probe.py C:\DriverPackage
+    python tools/pe_driver_probe.py C:\DriverPackage --format json --output reports/driver-audit.json
+    python tools/pe_driver_probe.py driver.sys --format markdown
+    python tools/pe_driver_probe.py C:\DriverPackage --max-files 12000 --strict
 
-This is not a clone of DriverStore Explorer, DriverView or another driver utility. It is an original PE-header reader and does not reuse third-party source code, product artwork, interface layouts or trademarks.
+The report schema is oplague.pe-inventory.v1. The scanner is bounded to 512 MiB per file and 50,000 entries per scan by default policy. It skips symbolic-link files and directories. Section entropy is sampled up to 1 MiB per section; a high value is only a review hint, never a malware verdict.
 
-The new source and tests are original OPlague contributions, copyright (c) 2026 Ivan-VHS, under Apache License 2.0. The repository LICENSE remains authoritative.
+The Authenticode certificate-table directory is located and range-checked, but the signature is not cryptographically verified. A .sys extension or native subsystem is only a driver-candidate hint. The tool never extracts archives, loads, installs, executes or modifies driver payloads. It does not infer publisher trust, OS support or device compatibility.
+
+This is an original OPlague subsystem, not a clone of a driver product. No third-party source, product artwork, interface layouts or copied trademarks are included. Copyright (c) 2026 Ivan-VHS. The repository Apache-2.0 LICENSE remains authoritative.
 
 Test:
 
