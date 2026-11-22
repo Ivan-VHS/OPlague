@@ -16,7 +16,7 @@ jobs:
     name: Windows x64 desktop app
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.head_ref || github.ref_name }}
       - uses: actions/setup-python@v5
