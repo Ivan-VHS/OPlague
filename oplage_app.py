@@ -11,6 +11,7 @@ import zipfile
 from pathlib import Path, PurePosixPath
 from tkinter import filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
+from tools.authenticode_inspector import inspect_signatures
 from ui_theme import apply_ui_theme, load_preferred_theme, set_dpi_awareness
 from ui_motion import MotionController, MotionPreferences, fade_in_window
 from budget_planner import open_budget_planner
@@ -274,6 +275,7 @@ class OPlagueApp(tk.Tk):
         ttk.Button(tools, text="Проверить INF / ZIP…", command=self.choose_package, style="Primary.TButton").pack(side="left")
         ttk.Button(tools, text="Пакетная проверка…", command=self.choose_packages).pack(side="left", padx=(8, 0))
         ttk.Button(tools, text="Экспорт отчёта…", command=self.export_report).pack(side="left", padx=(8, 0))
+        ttk.Button(tools, text="Проверить подписи…", command=self.choose_signatures).pack(side="left", padx=(8, 0))
         ttk.Label(tools, text="Только метаданные и хеши — без распаковки и запуска содержимого", style="Muted.TLabel").pack(side="left", padx=12)
         self.report = ScrolledText(packages, wrap="word", font=("Consolas", 10), state="disabled")
         self.report.pack(fill="both", expand=True)
@@ -372,6 +374,38 @@ class OPlagueApp(tk.Tk):
         self.status.set(
             f"Compared {result['dimension_count']} normalized metrics — "
             f"distance {result['euclidean_distance']:.6f}"
+        )
+
+    def choose_signatures(self) -> None:
+        """Inspect Windows Authenticode metadata without loading or installing files."""
+        filenames = filedialog.askopenfilenames(
+            parent=self,
+            title="Проверить цифровые подписи",
+            filetypes=[
+                ("Файлы для проверки подписи", "*.cat *.sys *.dll *.exe"),
+                ("Каталоги безопасности", "*.cat"),
+                ("Драйверы", "*.sys"),
+                ("Библиотеки", "*.dll"),
+                ("Приложения", "*.exe"),
+            ],
+        )
+        if not filenames:
+            return
+        try:
+            report = inspect_signatures(filenames)
+        except (OSError, ValueError, NotImplementedError, RuntimeError) as error:
+            self.status.set("Не удалось проверить цифровые подписи")
+            messagebox.showerror("Проверка Authenticode", str(error), parent=self)
+            return
+        self.report.configure(state="normal")
+        self.report.delete("1.0", "end")
+        self.report.insert("1.0", json.dumps(report, indent=2, ensure_ascii=False))
+        self.report.configure(state="disabled")
+        self.tabs.select(1)
+        valid = sum(1 for item in report["results"] if item["status"] == "Valid")
+        self.status.set(
+            f"Authenticode: Valid — {valid} из {report['files_inspected']}; "
+            "вердикт безопасности драйвера не выносится"
         )
 
     def choose_package(self) -> None:
