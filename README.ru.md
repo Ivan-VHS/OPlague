@@ -34,9 +34,9 @@ flowchart TD
     F --> G
     G --> H[Пакетный отчёт сравнения]
     H --> I[Итоги и fingerprint отчёта]
-  classDef readmeNode fill:#122B3D,stroke:#65BFFF,color:#F4FAFF,stroke-width:1.5px;
+  classDef readmeNode fill:#EDF5FE,stroke:#0D5CB8,color:#173653,stroke-width:1.5px;
   class A,B,C,D,E,F,G,H,I readmeNode;
-  linkStyle default stroke:#65BFFF,stroke-width:1.8px;
+  linkStyle default stroke:#0D5CB8,stroke-width:1.8px;
 ```
 
 ## Проверка пакетов и обработка метрик
@@ -50,9 +50,9 @@ flowchart LR
     C --> D[Данные о целостности]
     E[Предоставленные числовые векторы] --> F[Нормализация и сравнение]
     F --> G[Отчёт о взвешенном расстоянии и дисперсии]
-  classDef readmeNode fill:#122B3D,stroke:#65BFFF,color:#F4FAFF,stroke-width:1.5px;
+  classDef readmeNode fill:#EDF5FE,stroke:#0D5CB8,color:#173653,stroke-width:1.5px;
   class A,B,C,D,E,F,G readmeNode;
-  linkStyle default stroke:#65BFFF,stroke-width:1.8px;
+  linkStyle default stroke:#0D5CB8,stroke-width:1.8px;
 ```
 
 ## Модули рабочей станции
