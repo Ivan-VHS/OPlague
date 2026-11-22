@@ -302,12 +302,14 @@ class OPlagueApp(tk.Tk):
         ttk.Checkbutton(frame, text="Reduce Motion — убрать пространственное движение", variable=reduce_var).pack(anchor="w", pady=4)
         ttk.Checkbutton(frame, text="Eco / Low-CPU Visuals — отключить необязательные эффекты", variable=eco_var).pack(anchor="w", pady=4)
         ttk.Checkbutton(frame, text="Expressive Motion — усиленная пружинная кинетика", variable=expressive_var).pack(anchor="w", pady=4)
-        ttk.Checkbutton(frame, text="Sync to Transport / BPM", state="disabled").pack(anchor="w", pady=4)
-        ttk.Label(frame, text="OPlague не содержит аудиотранспорта или мастер-BPM. Синхронизация недоступна для этой программы.", wraplength=440).pack(anchor="w", pady=(4, 12))
         buttons = ttk.Frame(frame)
         buttons.pack(fill="x")
         def apply() -> None:
-            self._motion.update_preferences(MotionPreferences(reduce_var.get(), eco_var.get(), False, expressive_var.get()))
+            self._motion.update_preferences(MotionPreferences(
+                reduce_motion=reduce_var.get(),
+                eco_visuals=eco_var.get(),
+                expressive_motion=expressive_var.get(),
+            ))
             window.destroy()
         ttk.Button(buttons, text="Сохранить", style="Primary.TButton", command=apply).pack(side="right")
         ttk.Button(buttons, text="Отмена", command=window.destroy).pack(side="right", padx=(0, 8))
