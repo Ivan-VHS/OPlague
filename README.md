@@ -41,9 +41,10 @@ The result is an evidence record and candidate comparison, not a final safety or
 | Compatibility graph | forms candidate relationships from exact normalized hardware IDs | candidate links only; manual review remains required |
 | Metric Lab | compares user-supplied normalized profiles with weighted distance/variance | advisory analysis, not a device verdict |
 | UDRV v1 | validates manifest, sizes and SHA-256 evidence | integrity check, not publisher authentication |
+| Authenticode | checks signatures on selected CAT/SYS/DLL/EXE/EFI files through Windows | read-only; trust status does not prove compatibility or driver safety |
 | Reports | produces structured evidence, totals and fingerprints | no system write and no driver installation |
 
-The application has four principal tabs: **Devices**, **Package Inspection**, **Metric Lab** and **Compatibility Review**. The theme can cycle through system/light/dark modes; motion preferences include Reduce Motion and Eco Visuals. The disabled Sync-to-Transport option is intentionally unavailable because OPlague has no audio transport or master BPM.
+The application has five principal tabs: **Devices**, **Package Inspection**, **Metric Lab**, **Compatibility Review** and **Signature Audit**. The theme can cycle through system/light/dark modes; motion preferences include Reduce Motion and Eco Visuals. The disabled Sync-to-Transport option is intentionally unavailable because OPlague has no audio transport or master BPM.
 
 The screenshot is a captured desktop application, not a browser preview.
 
