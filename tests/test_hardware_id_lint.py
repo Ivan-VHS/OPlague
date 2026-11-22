@@ -41,7 +41,9 @@ class HardwareIdLintTests(unittest.TestCase):
         report = lint_hardware_id(r"PCI\VEN_ABCD&DEV_1234&VENDORNAME_FOO")
         self.assertTrue(report["valid"])
         self.assertTrue(any(item["code"] == "OPL-W0104" for item in report["findings"]))
-        self.assertNotIn("manufacturer", str(report).casefold())
+        self.assertEqual(fields["vendorname"], "FOO")
+        unknown = next(item for item in report["components"] if item["name"] == "vendorname")
+        self.assertIn("no meaning is assumed", unknown["meaning"].casefold())
 
     def test_input_bounds_and_non_string_values(self):
         self.assertFalse(lint_hardware_id(42)["valid"])
