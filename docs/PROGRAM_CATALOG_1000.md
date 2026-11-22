@@ -27,3 +27,6 @@ This repository owns the read-only device, driver-package, binary-header and sup
 6. Third-party code is not copied into this Apache-2.0 repository; formats and independently implemented parsers are used instead.
 
 Each feature is called implemented only after its parser and boundary tests pass in CI.
+
+
+The file inventory is intentionally offline. It does not query OSV, VirusTotal, LOLDrivers or any other remote feed. Network-backed vulnerability and reputation checks require a separate explicit integration, current signed data and a recorded source timestamp.
