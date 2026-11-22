@@ -7,7 +7,12 @@ insert_final_newline = true
 indent_style = space
 indent_size = 4
 
-[*.{json,jsonc,yaml,yml,toml}]
+[*.py]
+indent_style = space
+indent_size = 4
+
+[*.{json,jsonc,yml,yaml,toml}]
+indent_style = space
 indent_size = 2
 
 [*.md]
