@@ -6,6 +6,23 @@
 
 [Source](https://github.com/Ivan-VHS/OPlague) · [Windows desktop workflow](.github/workflows/desktop-build.yml) · [Documentation index](docs/README.md) · [Apache-2.0](LICENSE)
 
+## Live Windows workbench capture
+
+<p align="center"><a href="assets/screenshots/oplague-workbench.png"><img src="assets/screenshots/oplague-workbench.png" alt="Real Windows desktop capture of OPlague" width="100%"></a></p>
+<p align="center"><sub>1920×1080 · Click the image to open the original PNG.</sub></p>
+
+Genuine screenshot of the running OPlague desktop application, captured by the Windows packaging workflow. The banner and process diagram are original SVG illustrations; the UI image is not generated or composited.
+
+### Architecture at a glance
+
+<p align="center"><img src="assets/readme/workflow.svg" alt="OPlague implemented data flow" width="100%"></p>
+
+Implemented path: Windows PnP and user-selected files → bounded INF/ZIP inspection → normalized IDs and hashes → candidate evidence report.
+
+
+[![Windows build](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&label=Windows%20build)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)  [![Docs checks](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/docs.yml?branch=main&label=Docs%20checks)](https://github.com/Ivan-VHS/OPlague/actions/workflows/docs.yml)  [![License](https://img.shields.io/github/license/Ivan-VHS/OPlague)](LICENSE)
+
+
 > **Scope:** OPlague is a local read-only desktop workbench for Windows Plug and Play inventory, INF/ZIP driver-package metadata and evidence-based comparison. It does **not** install, load, extract or modify driver payloads. This repository does not publish a hosted web demo, remote API or production device-management service. Documentation was checked against `main` on **2026-11-22**.
 
 ## Purpose and boundaries
@@ -30,8 +47,6 @@ The application has four principal tabs: **Devices**, **Package Inspection**, **
 
 The screenshot is a captured desktop application, not a browser preview.
 
-<p align="center"><img src="assets/screenshots/oplague-workbench.png" alt="OPlague workbench running on Windows" width="100%"></p>
-<sub>Desktop capture · 1920×1080 source image. This is not a hosted web stand.</sub>
 
 ## Quick Start
 

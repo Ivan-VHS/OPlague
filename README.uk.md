@@ -6,6 +6,23 @@
 
 [Вихідний код](https://github.com/Ivan-VHS/OPlague) · [Windows desktop workflow](.github/workflows/desktop-build.yml) · [Індекс документації](docs/README.md) · [Apache-2.0](LICENSE)
 
+## Реальний знімок Windows-робочої станції
+
+<p align="center"><a href="assets/screenshots/oplague-workbench.png"><img src="assets/screenshots/oplague-workbench.png" alt="Реальний знімок OPlague у Windows" width="100%"></a></p>
+<p align="center"><sub>1920×1080 · Натисніть зображення, щоб відкрити оригінальний PNG.</sub></p>
+
+Справжній скріншот запущеного desktop-застосунку OPlague, створений Windows packaging workflow. Банер і схема процесу — авторські SVG-ілюстрації; зображення інтерфейсу не генерувалося і не монтувалося.
+
+### Архітектура одним поглядом
+
+<p align="center"><img src="assets/readme/workflow.svg" alt="OPlague implemented data flow" width="100%"></p>
+
+Реальний шлях: Windows PnP і вибрані користувачем файли → обмежена перевірка INF/ZIP → нормалізовані ID та хеші → звіт із кандидатними доказами.
+
+
+[![Windows build](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&label=Windows%20build)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)  [![Docs checks](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/docs.yml?branch=main&label=Docs%20checks)](https://github.com/Ivan-VHS/OPlague/actions/workflows/docs.yml)  [![License](https://img.shields.io/github/license/Ivan-VHS/OPlague)](LICENSE)
+
+
 > **Призначення:** OPlague — локальна read-only робоча станція для інвентаризації Windows Plug and Play, перегляду метаданих INF/ZIP-пакетів драйверів і порівняння доказів сумісності. Вона **не встановлює, не завантажує, не розпаковує та не змінює** вміст драйверів. Репозиторій не публікує hosted web demo, віддалений API чи production-сервіс керування пристроями. Документацію звірено з `main` **22.11.2026**.
 
 ## Призначення та межі
@@ -30,8 +47,6 @@ OPlague допомагає оператору переглянути запис�
 
 Скріншот нижче — знімок desktop-застосунку, а не браузерне прев’ю.
 
-<p align="center"><img src="assets/screenshots/oplague-workbench.png" alt="Робоча станція OPlague у Windows" width="100%"></p>
-<sub>Знімок desktop-програми · вихідне зображення 1920×1080. Це не hosted web stand.</sub>
 
 ## Швидкий старт
 

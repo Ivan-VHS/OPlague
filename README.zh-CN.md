@@ -6,6 +6,23 @@
 
 [源代码仓库](https://github.com/Ivan-VHS/OPlague) · [Windows 桌面工作流](.github/workflows/desktop-build.yml) · [文档索引](docs/README.md) · [Apache-2.0](LICENSE)
 
+## Windows 工作台实际截屏
+
+<p align="center"><a href="assets/screenshots/oplague-workbench.png"><img src="assets/screenshots/oplague-workbench.png" alt="OPlague 在 Windows 上运行的实际截屏" width="100%"></a></p>
+<p align="center"><sub>1920×1080 · 点击图片可打开原始 PNG 文件。</sub></p>
+
+这是由 Windows 打包工作流从真实运行的 OPlague 桌面应用截取的截图。横幅和流程图是原创 SVG 插图；界面图片没有通过生成或拼接制作。
+
+### 架构一览
+
+<p align="center"><img src="assets/readme/workflow.svg" alt="OPlague implemented data flow" width="100%"></p>
+
+实际流程：Windows PnP 与用户选择的文件 → 有界 INF/ZIP 检查 → 规范化 ID 与哈希 → 候选证据报告。
+
+
+[![Windows build](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&label=Windows%20build)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)  [![Docs checks](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/docs.yml?branch=main&label=Docs%20checks)](https://github.com/Ivan-VHS/OPlague/actions/workflows/docs.yml)  [![License](https://img.shields.io/github/license/Ivan-VHS/OPlague)](LICENSE)
+
+
 > **项目范围：** OPlague 是一款本地只读桌面工作台，用于 Windows Plug and Play 设备清单、INF/ZIP 驱动包元数据和基于证据的比较。它**不会安装、加载、解压或修改**驱动程序载荷。本仓库没有托管 Web Demo、远程 API 或生产设备管理服务。文档已于 **2026-11-22** 对照 `main` 分支核对。
 
 ## 项目用途与边界
@@ -30,8 +47,6 @@ OPlague 帮助操作者查看当前机器的设备记录、读取驱动包元数
 
 下图是桌面应用的实际截屏，不是浏览器预览。
 
-<p align="center"><img src="assets/screenshots/oplague-workbench.png" alt="在 Windows 上运行的 OPlague 工作台" width="100%"></p>
-<sub>桌面程序截屏 · 原始图像 1920×1080。这不是托管 Web Stand。</sub>
 
 ## 快速开始
 
