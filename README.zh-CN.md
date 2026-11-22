@@ -49,6 +49,15 @@ OPlague 帮助操作者查看当前机器的设备记录、读取驱动包元数
 
 下图是桌面应用的实际截屏，不是浏览器预览。
 
+本地二进制检查与清单导出：
+
+```sh
+python tools/pe_inspector.py driver.sys --output driver-pe-report.json
+python tools/sbom_inventory.py ./staging --output staging.spdx.json
+```
+
+PE 检查仅读取头部。SPDX 报告记录哈希；未经验证的许可证信息保留为 `NOASSERTION`。
+
 
 ## 快速开始
 
