@@ -1,116 +1,211 @@
-# OPlague — робоча станція драйверів
+# OPlague — робоча станція перевірки пристроїв і драйверів
 
 [English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
 
-<p align="center"><img src="assets/readme/dashboard.svg" alt="Візуальний огляд OPlague 2026" width="100%"></p>
-<sub>Візуальний огляд проєкту · README оновлено 22.11.2026 · палітра проєкту · читабельні схеми даних</sub>
+<p align="center"><img src="assets/readme/dashboard.svg" alt="Огляд проєкту OPlague" width="100%"></p>
 
+[Вихідний код](https://github.com/Ivan-VHS/OPlague) · [Windows desktop workflow](.github/workflows/desktop-build.yml) · [Індекс документації](docs/README.md) · [Apache-2.0](LICENSE)
 
-[Збирання Windows](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml) · [CI](https://github.com/Ivan-VHS/OPlague/actions) · Python 3.10+ · Windows · Apache-2.0
-**Розробник:** [Ivan-VHS](https://github.com/Ivan-VHS)
+> **Призначення:** OPlague — локальна read-only робоча станція для інвентаризації Windows Plug and Play, перегляду метаданих INF/ZIP-пакетів драйверів і порівняння доказів сумісності. Вона **не встановлює, не завантажує, не розпаковує та не змінює** вміст драйверів. Репозиторій не публікує hosted web demo, віддалений API чи production-сервіс керування пристроями. Документацію звірено з `main` **22.11.2026**.
 
-**OPlague — інструмент лише для читання: інвентаризація пристроїв Windows, аналіз пакетів драйверів і зіставлення доказів. Він не встановлює, не завантажує та не змінює драйвери.**
+## Призначення та межі
 
+OPlague допомагає оператору переглянути записи пристроїв поточної машини, прочитати метадані пакета драйвера та порівняти нормалізовані апаратні ідентифікатори. Цільова аудиторія — інженери підтримки Windows, рев’юери апаратного забезпечення, QA та розробники, які досліджують вміст пакетів або докази сумісності.
 
-## Реальний знімок Windows-застосунку
+Результат — запис доказів і список кандидатів, а не остаточний висновок щодо безпеки чи сумісності. Точний збіг hardware ID не доводить довіру до видавця, сумісність з ОС, придатність пристрою або безпечність встановлення. Розгортання драйверів не входить до функцій продукту.
+
+### Реальні можливості робочої станції
+
+| Напрям | Реалізована поведінка | Межа |
+|---|---|---|
+| Інвентаризація пристроїв | читає ідентичність Windows Plug and Play, статус, виробника та PNPDeviceID | збір живих даних доступний лише у Windows і лише для читання |
+| Перевірка INF | читає вибрані метадані, оголошення hardware ID та цільову архітектуру | не виконує директиви INF |
+| Перевірка ZIP | перевіряє шляхи, розмір, compression ratio, хеші та метадані INF | не розпаковує й не виконує payload |
+| Граф сумісності | формує кандидатні зв’язки за точними нормалізованими hardware ID | це лише кандидати; потрібна ручна перевірка |
+| Metric Lab | порівнює введені користувачем нормалізовані профілі через weighted distance/variance | рекомендаційний аналіз, не вердикт щодо пристрою |
+| UDRV v1 | перевіряє manifest, розміри та SHA-256 | перевірка цілісності, не автентифікація видавця |
+| Звіти | формує структуровані докази, підсумки та fingerprints | без запису в систему й без встановлення драйверів |
+
+У застосунку є чотири основні вкладки: **Devices**, **Package Inspection**, **Metric Lab** і **Compatibility Review**. Тема перемикається між system/light/dark; налаштування руху містять Reduce Motion та Eco Visuals. Вимкнений пункт Sync-to-Transport недоступний навмисно: OPlague не має аудіотранспорту або master BPM.
+
+Скріншот нижче — знімок desktop-застосунку, а не браузерне прев’ю.
 
 <p align="center"><img src="assets/screenshots/oplague-workbench.png" alt="Робоча станція OPlague у Windows" width="100%"></p>
+<sub>Знімок desktop-програми · вихідне зображення 1920×1080. Це не hosted web stand.</sub>
 
-<sub>Фактичний знімок програми · вихідне зображення 1920×1080 · початкові пікселі збережено, штучне збільшення не застосовується.</sub>
+## Швидкий старт
 
-Зв’язки пристроїв і пакетів наведено як докази для перевірки оператором; встановлення драйвера не запускається.
+### Вимоги
 
-## Потік функціональних даних
+- Python **3.10 або новіший**.
+- Tkinter для desktop UI.
+- Windows і `powershell.exe` для живої інвентаризації Plug and Play. Інвентаризація використовує фіксований локальний PowerShell/CIM-запит.
+- Git.
 
-Схема показує реалізований рух даних між записами пристроїв Windows, аналізом пакетів і формуванням звіту.
+Застосунок імпортує власні модулі репозиторію та засоби стандартної бібліотеки Python; сторонні runtime-пакети для запуску з вихідного коду не потрібні. PyInstaller потрібний лише для пакування автономного виконуваного файла.
 
-```mermaid
-flowchart TD
-    A[Записи Windows Plug and Play] --> B[Інвентаризація лише для читання]
-    B --> C[Нормалізовані hardware ID]
-    D[Пакет INF / ZIP] --> E[Перевірка метаданих, шляхів і хешів]
-    E --> F[Відомості про цільову архітектуру]
-    C --> G[Кандидатні зв’язки сумісності]
-    F --> G
-    G --> H[Пакетний звіт порівняння]
-    H --> I[Підсумки та fingerprint звіту]
-  classDef readmeNode fill:#EDF5FE,stroke:#0D5CB8,color:#173653,stroke-width:1.5px;
-  class A,B,C,D,E,F,G,H,I readmeNode;
-  linkStyle default stroke:#0D5CB8,stroke-width:1.8px;
-```
+У Linux та macOS можна перевіряти збережені дані, але жива інвентаризація Windows PnP недоступна.
 
-## Перевірка пакетів та аналіз метрик
+### Запуск desktop-застосунку
 
-Друга схема описує перевірку цілісності пакета та числовий аналіз наданих векторів.
-
-```mermaid
-flowchart LR
-    A[Пакет UDRV v1] --> B[Перевірка manifest і розмірів]
-    B --> C[Перевірка SHA-256]
-    C --> D[Дані про цілісність]
-    E[Надані числові вектори] --> F[Нормалізація та порівняння]
-    F --> G[Звіт про зважену відстань і дисперсію]
-  classDef readmeNode fill:#EDF5FE,stroke:#0D5CB8,color:#173653,stroke-width:1.5px;
-  class A,B,C,D,E,F,G readmeNode;
-  linkStyle default stroke:#0D5CB8,stroke-width:1.8px;
-```
-
-## Модулі робочої станції
-
-| Модуль | Дані та результат | Межа |
-|---|---|---|
-| Пристрої | Plug and Play, стан і hardware ID | виявлення лише для читання |
-| INF / ZIP | метадані, хеші, шляхи та ліміти ресурсів | без виконання пакета й інсталяції драйвера |
-| Архітектура | INF target та архітектура хоста | доказ, а не вердикт сумісності |
-| Граф сумісності | точні нормалізовані зв’язки hardware ID | лише кандидати |
-| UDRV v1 | manifest, розміри файлів і SHA-256 | перевірка цілісності; без інсталяції/завантаження |
-| DRIVE-LENS | походження, HMAC-псевдоніми та групування за атрибутами/часом | без автоматичного вердикту |
-| Batch reports | порядок результатів, підсумки й fingerprint звіту | без запису в систему |
-| Metric Lab | нормалізовані вектори, зважена відстань і дисперсія | аналіз наданих даних |
-| Clinical Systems | 120 принципів і 36 телеметричних перевірок | рекомендації, не медична чи апаратна сертифікація |
-| Impact Profiles | 20 семантичних профілів і п’ять порядкових вимірів | лише лексичний каталог; без висновків про обладнання |
-
-## Запуск і тести
-
-Запуск робочої станції Windows:
+З кореня репозиторію:
 
 ```sh
 python oplague_app.py
 ```
 
-Тести та каталог семантичних профілів:
+`oplague_app.py` — entry point із правильною назвою; він передає керування наявному модулю реалізації `oplage_app.py`.
+
+### Тести та CLI-перевірки
 
 ```sh
+python -m compileall -q oplague_app.py oplage_app.py tests
+python tools/validate_visual_canon.py ui_theme.py
 python -m unittest discover -s tests -v
+```
+
+Приклади команд CLI:
+
+```sh
 python -m oplague --verify
 python -m oplague --catalog
-python -m oplague --search "баллістичний"
+python -m oplague --search "ballistic"
 python -m oplague --profile 5
 python -m oplague --rank reach
 python tools/udrv_inspector.py path/to/package.udrv --json
 python tools/clinical_systems.py --catalog --pretty
 ```
 
-Windows workflow перевіряє візуальний канон і тести, збирає автономний `OPlague.exe`, створює реальний знімок запущеного застосунку та публікує архів Windows x64.
+Необов’язковий розрахунок через Reaper C17 потребує явного шляху до довіреної бібліотеки:
 
-## Довідник кодів
+```sh
+python -m oplague --rank-total-native --reaper-library /absolute/path/to/libreaper_ffi.so
+```
 
-| INF target | PE machine |
+Усе це локальне виконання. OPlague не запускає HTTP listener, web UI, API endpoint або localhost preview.
+
+### Збирання виконуваного файла Windows
+
+Desktop workflow використовує Python 3.12 та PyInstaller. Для локального пакування:
+
+```sh
+python -m pip install --upgrade pyinstaller
+python -m PyInstaller --noconfirm --clean --onefile --windowed --name OPlague oplague_app.py
+```
+
+Автономний файл створюється в `dist/OPlague.exe`. Перше пакування може тривати довше, поки PyInstaller збирає застосунок; фіксований час збірки не гарантується.
+
+## Дані, обмеження та сценарії перевірки
+
+OPlague не має спільної бази даних, входу, демоакаунта, віддаленого mock API чи hosted fixture service. Джерела даних розділені:
+
+- **Інвентаризація пристроїв:** реальні локальні записи Windows Plug and Play через `Get-CimInstance`.
+- **Перевірка пакетів:** файл, який оператор явно вибрав.
+- **Metric Lab:** JSON, введений оператором. Початкові reference/candidate JSON у UI — ілюстративні приклади, нормалізовані до `[0, 1]`, а не живі вимірювання.
+- **Автотести:** локальні fixture та синтетичні вхідні дані, а не встановлені драйвери чи реальний каталог драйверів.
+
+Перевірте такі сценарії:
+
+1. **Оновити пристрої у Windows:** натисніть **Refresh device list**. Застосунок читає локальні PnP-дані й показує назву, статус, виробника та hardware ID.
+2. **Перевірити пакет:** виберіть файл `.inf` або `.zip`. Перегляньте метадані, SHA-256, архітектурні підказки й обмеження пакета; payload не встановлюється й не виконується.
+3. **Пакетна перевірка:** виберіть кілька локальних пакетів та порівняйте їхні метадані.
+4. **Порівняти метрики:** відредагуйте JSON reference/candidate. Значення мають бути нормалізовані до `[0, 1]`; порівняйте weighted output і задані ваги.
+5. **План сумісності:** сформуйте кандидатні зв’язки з поточного списку пристроїв та hardware ID з INF; вручну перевірте кожного кандидата.
+6. **Перевірити UDRV:** запустіть `tools/udrv_inspector.py` для локального пакета й перегляньте JSON-звіт.
+7. **Regression suite:** запустіть `python -m unittest discover -s tests -v`.
+
+### Обмеження вхідних файлів та архівів
+
+Desktop inspector застосовує такі ліміти:
+
+| Вхідні дані | Ліміт |
 |---|---:|
-| NTx86 | `0x014C` |
-| NTamd64 | `0x8664` |
-| NTarm | `0x01C4` |
-| NTarm64 | `0xAA64` |
-| NTia64 (застарілий) | `0x0200` |
+| Файл пакета INF / ZIP | 512 MiB |
+| Кількість ZIP entries | 10 000 |
+| Загальний розмір розпакованого ZIP-вмісту | 2 GiB |
+| Окремий INF | 2 MiB |
+| Compression ratio | 200:1 |
 
-Ліміти UDRV v1: manifest ≤4 МіБ · ≤10 000 записів · файл ≤512 МіБ · загалом ≤2 ГіБ · буфер SHA-256 1 МіБ.
+UDRV v1 inspector має власний контракт: manifest до 4 MiB, до 10 000 entries, один файл до 512 MiB і загальний payload до 2 GiB. Inspector читає та хешує дані обмеженими блоками; він не розпаковує й не виконує payload.
 
-Збіг ID або хешу не доводить довіру до видавця, сумісність з ОС, придатність пристрою чи безпечність інсталяції. HMAC-псевдоніми та fingerprint звіту допомагають зберігати узгодженість і походження даних, але самі по собі не підтверджують справжність.
+Вбудованого симулятора затримки, перемикача HTTP 500, mock network service або браузерного upload немає. Помилки на кшталт пошкодженого ZIP, небезпечного archive path, завеликого INF чи недоступного PowerShell inventory відображаються локально.
 
-[Покажчик документації](docs/README.md) · [Ліцензія Apache-2.0](LICENSE)
+Поточний список пристроїв і результати перевірки існують у desktop-процесі. Закриття застосунку очищає цю робочу сесію, але не змінює оригінальні пакети чи драйвери Windows. Тема й motion preferences обробляються native preferences layer. Browser localStorage, sessionStorage, IndexedDB та cookies немає.
 
+## Конфігурація та доступ
 
-## Довідник розподілу бюджету
-Приклад моделі бюджету 500 грн із JSON-контрактом та автономним симулятором. Це документаційний приклад, а не функція runtime самого застосунку.
+Кореневого `.env.example`, Docker Compose web stack, API key, OAuth-акаунта, тестового login, CORS policy, HTTP proxy або локального HTTPS-сертифіката немає. Для звичайної локальної перевірки секрети не потрібні. Поточний застосунок не документує runtime ENV contract; не вигадуйте його.
 
-[Багатомовний довідник](docs/RESOURCE_ALLOCATION_500_UAH.md) · [Інтерактивний симулятор](docs/resource-allocation-500-uah.html) · [Приклад JSON](examples/resource-allocation-500-uah.json) · [JSON Schema](schemas/resource-allocation.v1.schema.json)
+Реальні UI-перемикачі: цикл теми (system/light/dark) і налаштування руху (Reduce Motion, Eco Visuals та Expressive Motion). Sync to Transport/BPM вимкнений за дизайном і не має подаватися як робоча опція.
+
+Живий PnP-запит потребує Windows PowerShell і локального CIM provider. Якщо команду заблоковано або вона завершується помилкою, перевірка файлів пакетів і перегляд збережених даних залишаються окремими сценаріями; замість помилкового списку пристроїв застосунок показує помилку інвентаризації.
+
+## Архітектура та структура репозиторію
+
+Потік даних: **локальний вхід → обмежений parser → запис доказів → dry-run comparison/report → необов’язковий явний експорт**.
+
+| Шлях | Вміст |
+|---|---|
+| `oplague_app.py` | публічний entry point desktop-застосунку з правильною назвою |
+| `oplage_app.py` | реалізація desktop UI, перевірка пакетів та PnP-запит |
+| `tools/` | CLI-утиліти, report composition, метрики та UDRV inspection |
+| `tests/` | unit і regression-тести з локальними fixtures |
+| `docs/` | архітектура, межі безпеки, схеми й інструкції оператору |
+| `schemas/` | версійовані контракти звітів і пакетів |
+| `assets/screenshots/` | знімок Windows desktop |
+| `security/` | машинозчитувана політика Beelzebul |
+| `.github/workflows/` | Windows-пакування й автоматизація релізів |
+
+Застосунок — Python/Tkinter desktop-програма. Шлях Windows inventory викликає локальний PowerShell; package inspector читає метадані локальних INF/ZIP. Немає frontend/backend deployment, mock server, web port, browser storage, CORS config чи публічного live preview. Тому browser compatibility та responsive viewport rules не застосовуються.
+
+## Пакування, CI та публікація релізів
+
+[Windows desktop workflow](.github/workflows/desktop-build.yml):
+
+1. використовує Python 3.12 у Windows;
+2. компілює Python sources і запускає unit tests;
+3. перевіряє visual canon;
+4. пакує `OPlague.exe` за допомогою PyInstaller;
+5. захоплює запущений desktop-застосунок і завантажує screenshot artifact;
+6. створює `OPlague-windows-x64.zip` з executable, README та license.
+
+Screenshot artifact зберігається 30 днів. Git-тег формату `v*` запускає публікацію GitHub Release. Workflow artifact — це файл для завантаження, а не hosted web demo.
+
+Для відкату розповсюдженої збірки виберіть попередній відомий робочий tagged release/archive. Серверного deployment для відкату немає. Логи workflow і тестів доступні в GitHub Actions.
+
+## Усунення проблем
+
+| Симптом | Що перевірити |
+|---|---|
+| Застосунок не запускається | використовуйте Python 3.10+ із Tkinter і запускайте з кореня репозиторію |
+| Не працює device inventory | перевірте Windows, `powershell.exe` і локальний CIM access; inventory не реалізовано для Linux/macOS |
+| ZIP відхиляється | перевірте archive validity, кількість entries, expanded size, compression ratio і шляхи |
+| INF відхиляється | перевірте, що файл не перевищує 2 MiB та має коректне кодування |
+| Пакет завеликий | desktop inspector обмежує розмір файлу пакета до 512 MiB |
+| Metric comparison не працює | введіть коректні JSON-об’єкти та нормалізуйте значення до `[0, 1]` |
+| Не працює native rank total | перевірте, що явно вказана Reaper library існує та є довіреною |
+
+Desktop status і dialog messages описують безпосередню помилку. Для CI-збоїв перегляньте відповідні GitHub Actions logs.
+
+## Відомі обмеження, внесок і ліцензія
+
+OPlague навмисно не змінює систему. Він не встановлює, не завантажує, не розпаковує та не змінює драйвери; зіставлення є кандидатним доказом, а не сертифікацією. Жива інвентаризація апаратури доступна лише у Windows. Metric profiles мають рекомендаційний характер. Хеші доводять ідентичність байтів, але не автентичність видавця чи право власності. UDRV inspector не виконує payload.
+
+Окремого `CONTRIBUTING.md` не знайдено. Повідомляйте про проблеми або пропонуйте зміни через [GitHub Issues](https://github.com/Ivan-VHS/OPlague/issues) чи Pull Request. Додавайте ОС, версію Python, безпечний тип тестового файла, точну команду та очікуваний/фактичний результат. Не прикріплюйте приватні driver packages або чутливі device identifiers без видалення ідентифікаційних даних.
+
+Ліцензія: [Apache-2.0](LICENSE).
+
+## Відповідність 66 правилам README
+
+Чекліст вебстенду зіставлений із реальною desktop-робочою станцією, а не скопійований як вигаданий web deployment:
+
+| Правила | Покриття в README |
+|---|---|
+| 1–11 · призначення та область | визначено read-only робочу станцію, користувачів, джерела даних, обмеження та відсутність hosted stand |
+| 12–22 · швидкий старт | точні вимоги Python/Tkinter, GUI entry point, команди тестів і пакування executable |
+| 23–33 · конфігурація та доступ | зазначено відсутність `.env`, test login, API secrets, CORS і HTTPS; описано реальну локальну PowerShell dependency |
+| 34–44 · дані й сценарії | розділено live local PnP data, пакети користувача, приклади JSON для метрик і test fixtures; задокументовано ліміти та тривалість стану |
+| 45–55 · архітектура та збірка | наведено реальні source, tools, tests, schemas, docs і Windows package workflow |
+| 56–66 · експлуатація та підтримка | описано публікацію artifacts/release, rollback, логи, troubleshooting, обмеження, внесок і ліцензію |
+
+**Публічного URL OPlague web demo немає.** Windows-скріншот і release archive не є онлайн-сервісом керування пристроями.
