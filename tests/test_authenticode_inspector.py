@@ -54,7 +54,6 @@ class AuthenticodeInspectorTests(unittest.TestCase):
         self.assertTrue(report["read_only"])
 
     @patch.object(inspector.platform, "system", return_value="Windows")
-    @patch.object(inspector.os, "name", "nt")
     @patch.object(inspector.subprocess, "run")
     def test_timeout_is_reported_without_retry(self, run, *_):
         run.side_effect = subprocess.TimeoutExpired("powershell.exe", 45)
