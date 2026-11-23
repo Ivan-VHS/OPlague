@@ -84,3 +84,8 @@ This is an illustrative personal-budgeting reference, not a claim that the host 
 ## Shared visual system
 
 - [DuckOS single-palette contract](DUCK_PALETTE.md) — black/white/yellow tokens, accessible contrast and legacy settings migration.
+
+
+## Capability completeness standard
+
+[Engineering Evolution and Capability Completeness Standard](ENGINEERING_EVOLUTION_FRAMEWORK.md) — canonical vocabulary, maturity states, measurable acceptance gates, architecture and extension rules, compatibility and release criteria.
