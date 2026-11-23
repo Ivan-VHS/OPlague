@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Ivan-VHS/OPlague/blob/main/schemas/oplage.hardware-game-stack.v1.schema.json",
+  "title": "OPlague Hardware and Game Performance Stack Report v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "generated_at",
+    "mode",
+    "subsystem_count",
+    "subsystems",
+    "safety"
+  ],
+  "properties": {
+    "schema": {
+      "const": "oplague.hardware-game-stack.v1"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_snapshot_time": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "mode": {
+      "const": "read_only_analysis"
+    },
+    "subsystem_count": {
+      "const": 15
+    },
+    "subsystems": {
+      "type": "object",
+      "required": [
+        "host_inventory",
+        "firmware_uefi",
+        "cpu_topology",
+        "memory_topology",
+        "gpu_inventory",
+        "pnp_bus_inventory",
+        "driver_store_inventory",
+        "device_health",
+        "windows_update_discovery",
+        "driver_compatibility",
+        "signature_evidence",
+        "thermal_watchdog",
+        "power_policy",
+        "game_runtime",
+        "game_performance_planner"
+      ],
+      "propertyNames": {
+        "enum": [
+          "host_inventory",
+          "firmware_uefi",
+          "cpu_topology",
+          "memory_topology",
+          "gpu_inventory",
+          "pnp_bus_inventory",
+          "driver_store_inventory",
+          "device_health",
+          "windows_update_discovery",
+          "driver_compatibility",
+          "signature_evidence",
+          "thermal_watchdog",
+          "power_policy",
+          "game_runtime",
+          "game_performance_planner"
+        ]
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "status",
+          "summary",
+          "data",
+          "findings"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "available",
+              "limited",
+              "warning",
+              "not_requested"
+            ]
+          },
+          "summary": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "safety": {
+      "type": "object",
+      "required": [
+        "firmware_written",
+        "drivers_downloaded",
+        "drivers_installed",
+        "drivers_loaded",
+        "registry_modified",
+        "power_policy_modified",
+        "device_state_modified",
+        "processes_modified",
+        "game_settings_modified",
+        "kernel_code_modified"
+      ],
+      "properties": {
+        "firmware_written": {
+          "const": false
+        },
+        "drivers_downloaded": {
+          "const": false
+        },
+        "drivers_installed": {
+          "const": false
+        },
+        "drivers_loaded": {
+          "const": false
+        },
+        "registry_modified": {
+          "const": false
+        },
+        "power_policy_modified": {
+          "const": false
+        },
+        "device_state_modified": {
+          "const": false
+        },
+        "processes_modified": {
+          "const": false
+        },
+        "game_settings_modified": {
+          "const": false
+        },
+        "kernel_code_modified": {
+          "const": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "privacy": {
+      "type": "object",
+      "properties": {
+        "hardware_ids_included": {
+          "type": "boolean"
+        },
+        "device_instance_ids_included": {
+          "type": "boolean"
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

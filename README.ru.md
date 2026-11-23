@@ -44,8 +44,9 @@ OPlague помогает оператору просматривать запи�
 | Metric Lab | сравнивает введённые пользователем нормализованные профили через weighted distance/variance | рекомендательный анализ, не вердикт по устройству |
 | UDRV v1 | проверяет manifest, размеры и SHA-256 | проверка целостности, не аутентификация издателя |
 | Отчёты | формирует структурированные доказательства, итоги и fingerprints | без записи в систему и установки драйверов |
+| Hardware & Game Performance Stack | 15 подсистем: UEFI/SMBIOS, CPU/RAM/GPU, PnP, драйверы, термоданные, игровой runtime и benchmark | только инвентаризация и рекомендации; нет прошивки BIOS, установки драйверов или разгона |
 
-В приложении четыре основные вкладки: **Devices**, **Package Inspection**, **Metric Lab** и **Compatibility Review**. Тему можно переключать между system/light/dark; настройки движения включают Reduce Motion и Eco Visuals.
+В приложении пять основных вкладок: **Devices**, **Package Inspection**, **Metric Lab**, **Compatibility Review** и **Hardware / Games**. Последняя использует пятнадцать подсистем сбора данных и анализа игрового benchmark. Тему можно переключать между system/light/dark; настройки движения включают Reduce Motion и Eco Visuals.
 
 Скриншот ниже — снимок desktop-приложения, а не браузерное превью.
 
@@ -58,6 +59,8 @@ python tools/sbom_inventory.py ./staging --output staging.spdx.json
 
 PE-проверка читает только заголовки. SPDX-отчёт сохраняет хеши, а непроверенные сведения о лицензии помечает `NOASSERTION`.
 
+
+Подробности и CLI-команды нового аппаратного стека: [HARDWARE_GAME_STACK.md](docs/HARDWARE_GAME_STACK.md). Сборщик использует Windows CIM/PnP и SMBIOS/UEFI сведения только для чтения; опциональный поиск Windows Update выключен по умолчанию и не загружает/не устанавливает найденные драйверы. Экспорт по умолчанию скрывает точные аппаратные идентификаторы.
 
 ## Связанный продукт ОС: DuckOS
 
