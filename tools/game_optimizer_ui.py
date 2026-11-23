@@ -118,13 +118,21 @@ def open_game_optimizer(parent: tk.Misc) -> None:
         except (OSError, ValueError, csv.Error) as error:
             messagebox.showerror("Анализ frametime", str(error), parent=window)
             return
-        show({"baseline": baseline, "candidate": candidate, "comparison": comparison})
+        rollback = None
         if comparison["regression_detected"]:
-            messagebox.showwarning(
-                "Обнаружено ухудшение",
-                "1%/0.1% low или p99 frametime вышли за порог. Завершите игровую сессию и восстановите план питания.",
-                parent=window,
-            )
+            try:
+                rollback = restore_game_session()
+            except FileNotFoundError:
+                rollback = {"restored": False, "reason": "no_active_session"}
+            except (OSError, RuntimeError, ValueError) as error:
+                rollback = {"restored": False, "reason": str(error)}
+        show({"baseline": baseline, "candidate": candidate, "comparison": comparison, "rollback": rollback})
+        if comparison["regression_detected"]:
+            if rollback and rollback.get("restored"):
+                notice = "Обнаружено ухудшение. OPlague восстановил прежний план питания игрового сеанса."
+            else:
+                notice = "Обнаружено ухудшение. Автооткат не выполнен: нет активной сессии или план менялся извне."
+            messagebox.showwarning("Обнаружено ухудшение", notice, parent=window)
 
     ttk.Button(actions, text="Снять состояние", command=snapshot, style="Primary.TButton").pack(side="left", padx=(0, 8))
     ttk.Button(actions, text="Игровой режим", command=start, style="Primary.TButton").pack(side="left", padx=(0, 8))
