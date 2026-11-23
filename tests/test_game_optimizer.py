@@ -93,11 +93,12 @@ class GameOptimizerTests(unittest.TestCase):
             def runner(command, **kwargs):
                 commands.append(command)
                 return Completed()
-            with patch.object(gaming.os, "name", "nt"):
-                result = gaming.restore_game_session(directory=Path(folder), runner=runner)
+            with patch.object(gaming, "active_power_scheme", return_value={"guid": external}):
+                with patch.object(gaming, "set_active_power_scheme") as set_active:
+                    result = gaming.restore_game_session(directory=Path(folder), runner=runner)
         self.assertFalse(result["restored"])
         self.assertEqual(result["reason"], "external_power_plan_change")
-        self.assertFalse(any("/setactive" in command for command in commands))
+        set_active.assert_not_called()
 
     def test_frametime_csv_reports_average_and_low_percentiles(self):
         with tempfile.TemporaryDirectory() as folder:
