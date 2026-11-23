@@ -313,7 +313,7 @@ def build_report(snapshot: Mapping[str, Any], *, benchmark: Mapping[str, Any] | 
                                                               "manufacturer": _text(u.get("manufacturer")), "model": _text(u.get("model")),
                                                               "version": _text(u.get("version")), "release_date": _text(u.get("release_date")),
                                                               "hardware_id_count": len(u.get("hardware_ids", [])) if isinstance(u.get("hardware_ids", []), (list, tuple)) else 0,
-                                                              "update_id": _text(u.get("update_id"), 80)} for u in updates[:1000]}),
+                                                              "update_id": _text(u.get("update_id"), 80)} for u in updates[:1000]]}),
         "driver_compatibility": _section("warning" if graph_data["exact_match_edges"] or graph_data["architecture_mismatch_edges"] else "available" if catalog else "not_requested",
                                          "Exact hardware-ID matches are candidates only, not Windows driver rank or install approval.",
                                          graph_data, ["Validate OS target, Windows driver rank, CAT signature, publisher and rollback before any future deployment."]),
