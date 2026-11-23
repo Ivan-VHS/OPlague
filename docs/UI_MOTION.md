@@ -60,3 +60,10 @@ The shared token, accessibility and documentation source is [Motion Constitution
 ### Product-specific maturity
 
 OPlague has a native Tk spring controller and persisted Reduce Motion/Eco/Expressive preferences. Its device inventory, INF/ZIP inspection, SHA-256 and compatibility relationships are read-only. USB ripple, firmware OTA rings, device DPI/Hz controls and driver installation/update flows are unavailable and must not be presented as live controls or telemetry.
+
+
+## Mora Drapery Motion
+
+The driver-inspection workbench receives a narrow amber drapery accent directly below its masthead. Its vertical fold geometry uses warm ridge highlights and deeper brown valleys, with a bounded wave of 1 px in Normal and 2.2 px in Expressive Motion. The UI-thread refresh is limited to 110 ms intervals and affects only this decorative strip.
+
+Reduce Motion, Eco Visuals, the native operating-system setting and `UI_REDUCED_MOTION` stop the timer and preserve a still drapery texture. The effect is never placed behind INF content, package evidence, compatibility findings, metric results or other precision work surfaces. It has no access to driver inspection or file-processing operations.
