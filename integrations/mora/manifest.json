@@ -1,0 +1,27 @@
+{
+  "$schema": "https://github.com/Ivan-VHS/DuckOS/blob/main/mora/app-manifest.schema.json",
+  "schema_version": "1.0.0",
+  "application_id": "ivan-vhs.oplague-workbench",
+  "project": "Ivan-VHS/OPlague",
+  "display_name": "OPlague Workbench",
+  "description": "Local read-only workbench for Windows Plug and Play inventory, driver metadata inspection and evidence review.",
+  "launch": {
+    "kind": "local_process",
+    "platforms": ["windows", "linux", "macos"],
+    "entrypoint": "oplague_app.py",
+    "runtime": "python3",
+    "arguments": [],
+    "working_directory": "."
+  },
+  "policy": {
+    "integration_policy": "opt_in",
+    "confirmation_required": true,
+    "shell_interpolation": false,
+    "trust_source": "operator_installed_project"
+  },
+  "maturity": {
+    "maturity_status": "specified",
+    "verification_status": "not_run"
+  },
+  "capabilities": ["device-inventory", "driver-metadata-inspection", "evidence-review"]
+}
