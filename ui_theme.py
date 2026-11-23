@@ -64,6 +64,13 @@ def _install_semantic_status_tokens() -> None:
             "error": "#FF8EAC" if dark else "#A91F49",
             "info": "#D5D6EB" if dark else "#4E4B63",
         })
+        palette.update({
+            "brand": "#A78BFA" if dark else "#5B43B5",
+            "brand_hover": "#C1AEFF" if dark else "#49359D",
+            "on_brand": "#1D1730" if dark else "#FFFFFF",
+            "brand_secondary": "#38D4B7" if dark else "#006F68",
+            "on_brand_secondary": "#09231F" if dark else "#FFFFFF",
+        })
 
 
 def palette_contrast_issues(palette: dict[str, str]) -> list[str]:
@@ -73,6 +80,7 @@ def palette_contrast_issues(palette: dict[str, str]) -> list[str]:
         ("heading", "bg"), ("on_blue", "blue"), ("on_red", "red"),
         ("selection_fg", "selection"), ("success", "bg"),
         ("warning", "bg"), ("error", "bg"), ("info", "bg"),
+        ("on_brand", "brand"), ("on_brand_secondary", "brand_secondary"),
     )
     issues = []
     for foreground, background in pairs:
@@ -204,8 +212,8 @@ def palette_for(mode: str = "system", *, system_dark: bool | None = None) -> dic
         "page": result["bg"],
         "surface_alt": result["elevated"],
         "text": result["fg"],
-        "accent": result["blue"],
-        "accent_hover": result["blue_hover"],
+        "accent": result["brand"],
+        "accent_hover": result["brand_hover"],
         "danger": result["red"],
         "success": result["success"],
         "editor": result["surface"],
@@ -272,14 +280,14 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
         background=[("disabled", colors["elevated"]), ("pressed", colors["selection"]), ("active", colors["elevated"])],
     )
     style.configure(
-        "Primary.TButton", padding=(15, 13), foreground=colors["on_blue"],
-        background=colors["blue"], bordercolor=colors["blue"],
-        lightcolor=colors["blue"], darkcolor=colors["blue"],
+        "Primary.TButton", padding=(15, 13), foreground=colors["on_brand"],
+        background=colors["brand"], bordercolor=colors["brand"],
+        lightcolor=colors["brand"], darkcolor=colors["brand"],
     )
     style.map(
         "Primary.TButton",
-        foreground=[("disabled", colors["disabled"]), ("!disabled", colors["on_blue"])],
-        background=[("disabled", colors["elevated"]), ("pressed", colors["blue"]), ("active", colors["blue_hover"])],
+        foreground=[("disabled", colors["disabled"]), ("!disabled", colors["on_brand"])],
+        background=[("disabled", colors["elevated"]), ("pressed", colors["brand"]), ("active", colors["brand_hover"])],
     )
     style.configure(
         "Danger.TButton", padding=(14, 13), foreground=colors["fg"],
@@ -324,7 +332,7 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
         foreground=colors["fg"], relief="flat", font=("Segoe UI Semibold", 10),
     )
     style.configure("TSeparator", background=colors["border"])
-    style.configure("Horizontal.TProgressbar", background=colors["blue"], troughcolor=colors["elevated"])
+    style.configure("Horizontal.TProgressbar", background=colors["brand"], troughcolor=colors["elevated"])
 
     for widget in _walk(root):
         try:

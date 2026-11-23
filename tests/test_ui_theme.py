@@ -75,6 +75,16 @@ class OPlagueThemeTests(unittest.TestCase):
     def test_preferred_theme_loader_returns_supported_mode(self):
         self.assertIn(load_preferred_theme(), {"system", "light", "dark"})
 
+    def test_mora_brand_tokens_are_available_and_contrast_safe(self):
+        for name, palette in PALETTES.items():
+            self.assertIn('brand', palette, name)
+            self.assertIn('brand_hover', palette, name)
+            self.assertIn('on_brand', palette, name)
+            self.assertIn('brand_secondary', palette, name)
+            self.assertGreaterEqual(contrast_ratio(palette['on_brand'], palette['brand']), 4.5, name)
+            self.assertGreaterEqual(
+                contrast_ratio(palette['on_brand_secondary'], palette['brand_secondary']), 4.5, name
+            )
     def test_focus_and_supporting_text_have_semantic_contrast(self):
         for palette in PALETTES.values():
             self.assertGreaterEqual(contrast_ratio(palette["focus"], palette["bg"]), 3.0)
