@@ -1,7 +1,7 @@
 from __future__ import annotations
 import hashlib, stat, tempfile, unittest, zipfile
 from pathlib import Path
-from oplague_app import inspect_package, parse_inf_text
+from oplague_app import MAX_INF_BYTES, inspect_package, parse_inf_text
 
 SAMPLE = """[Version]
 Class=Net
