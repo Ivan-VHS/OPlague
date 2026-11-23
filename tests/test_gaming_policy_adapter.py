@@ -45,6 +45,16 @@ class GamingPolicyAdapterTests(unittest.TestCase):
         self.assertFalse(caps["fan_control"]["available"])
         self.assertFalse(caps["scheduler"]["available"])
 
+    def test_windows_power_plan_executor_is_advertised_as_consent_gated(self):
+        with patch("tools.gaming_policy_adapter.platform.system", return_value="Windows"):
+            evidence = build_duckos_capability_evidence()
+        control = evidence["control_adapters"]["windows_power_plan_session"]
+        self.assertTrue(control["available"])
+        self.assertTrue(control["requires_explicit_user_consent"])
+        self.assertTrue(control["captures_baseline_before_change"])
+        self.assertTrue(control["restores_only_when_current_plan_is_unchanged"])
+        self.assertFalse(control["changes_driver_or_registry_state"])
+
     def test_power_plan_provider_is_platform_scoped(self):
         with patch("tools.gaming_policy_adapter.platform.system", return_value="Linux"):
             evidence = build_duckos_capability_evidence(
