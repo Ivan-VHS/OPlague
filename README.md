@@ -1,4 +1,4 @@
-# OPlague — read-only device and driver workbench
+# OPlague — device, driver and gaming performance workbench
 
 [English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
 
@@ -23,7 +23,7 @@ Implemented path: Windows PnP and user-selected files → bounded INF/ZIP inspec
 [![Windows build](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&label=Windows%20build)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)  [![Docs checks](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/docs.yml?branch=main&label=Docs%20checks)](https://github.com/Ivan-VHS/OPlague/actions/workflows/docs.yml)  [![License](https://img.shields.io/github/license/Ivan-VHS/OPlague)](LICENSE)
 
 
-> **Scope:** OPlague is a local read-only desktop workbench for Windows Plug and Play inventory, INF/ZIP driver-package metadata and evidence-based comparison. It does **not** install, load, extract or modify driver payloads. This repository does not publish a hosted web demo, remote API or production device-management service. Documentation was checked against `main` on **2026-11-22**.
+> **Scope:** OPlague is a local Windows desktop workbench with read-only Plug and Play and driver-package inspection plus explicitly user-started, reversible game-session power profiles. It does **not** install, load, extract or modify driver payloads. This repository does not publish a hosted web demo, remote API or production device-management service. Documentation was checked against `main` on **2026-11-22**.
 
 ## Purpose and boundaries
 
@@ -36,6 +36,9 @@ The result is an evidence record and candidate comparison, not a final safety or
 | Area | Implemented behavior | Boundary |
 |---|---|---|
 | Device inventory | reads Windows Plug and Play identity, status, manufacturer and PNPDeviceID | live collection is Windows-only and read-only |
+| Gaming sessions | captures hardware/driver metadata and active power plan; temporarily switches a built-in Windows power scheme; restores it safely | no driver changes, overclocking, registry/IRQ/network tuning or background-service termination |
+| Frame-time analysis | imports measured CSV and reports mean FPS, 1%/0.1% low, median and p99 frametime | 0.1% low remains unavailable for captures under 1,000 frames; no sensor data is fabricated |
+| Game profile cache | stores operator-confirmed profiles by exact hardware fingerprint, driver version and game ID | local, bounded cache; no automatic tuning or universal profile claims |
 | INF inspection | reads selected metadata, hardware-ID declarations and target architecture | does not run INF directives |
 | ZIP inspection | checks paths, sizes, compression ratios, hashes and INF metadata | does not extract or execute package payloads |
 | PE/COFF inspection | reads machine type, optional header, sections, entry point and certificate-table location | header parsing only; no image loading or signature verdict |
@@ -58,6 +61,10 @@ python tools/sbom_inventory.py ./staging --output staging.spdx.json
 
 PE inspection reads headers only. The SPDX export records hashes and leaves unverified licence information as `NOASSERTION`.
 
+
+## Gaming performance workbench
+
+The **Игровая лаборатория** window provides exact hardware/driver fingerprints, atomic local snapshots, temporary built-in Windows power-plan sessions, guarded restore, measured frametime CSV comparison and a validated local profile cache. See [Gaming Performance Workbench](docs/GAMING_PERFORMANCE_WORKBENCH.md) for supported fields and safety limits.
 
 ## Related OS product: DuckOS
 
@@ -179,7 +186,7 @@ The data path is: **local input → bounded parser → evidence record → dry-r
 |---|---|
 | `oplague_app.py` | public, correctly spelled desktop entry point |
 | `oplage_app.py` | desktop implementation, package inspection and PnP query |
-| `tools/` | CLI utilities, report composition, metrics and UDRV inspection |
+| `tools/` | CLI utilities, report composition, metrics, UDRV inspection and reversible gaming-session helpers |
 | `tests/` | unit and regression tests with local fixtures |
 | `docs/` | architecture, safety boundaries, schemas and operator guidance |
 | `schemas/` | versioned report and package contracts |
@@ -220,7 +227,7 @@ The desktop status and dialog messages describe the immediate failure. For CI fa
 
 ## Known limitations, contribution and license
 
-OPlague is deliberately non-destructive. It does not install, load, extract or modify drivers; matching is candidate evidence rather than certification. Live hardware enumeration is Windows-only. The metric profiles are advisory. Hashes establish byte identity, not publisher authenticity or ownership. The UDRV inspector does not execute payloads.
+Device and driver inspection remains read-only. A game session may temporarily switch only a built-in Windows power plan after saving a snapshot, and its restore guard will not overwrite a later external power-plan change. OPlague does not install, load, extract or modify drivers; matching is candidate evidence rather than certification. Live hardware enumeration is Windows-only. The metric profiles are advisory. Hashes establish byte identity, not publisher authenticity or ownership. The UDRV inspector does not execute payloads.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the repository's contribution workflow and validation requirements. Report a problem or propose a change through [GitHub Issues](https://github.com/Ivan-VHS/OPlague/issues) or a Pull Request. Include the OS, Python version, safe sample file type, exact command and expected/actual result. Do not attach private driver packages or sensitive device identifiers without removing identifying data.
 
