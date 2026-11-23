@@ -19,6 +19,11 @@ class GamingPolicyAdapterTests(unittest.TestCase):
         self.assertFalse(evidence["system_mutations_performed"])
         self.assertFalse(evidence["execution_performed"])
 
+    def test_provider_catalog_matches_duckos_cpu_telemetry_contract(self):
+        self.assertIn("cpu_telemetry", PROVIDER_IDS)
+        evidence = build_duckos_capability_evidence()
+        self.assertFalse(evidence["providers"]["cpu_telemetry"]["available"])
+
     def test_maps_only_real_supplied_evidence(self):
         gpu = {
             "provider": "nvidia-smi", "available": True,
