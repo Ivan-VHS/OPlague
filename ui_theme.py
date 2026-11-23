@@ -32,6 +32,15 @@ PALETTES: dict[str, dict[str, str]] = {
         "selection": "#244F82", "selection_fg": "#FFFFFF", "disabled": "#9BAFC4",
         "log": "#071A2D", "log_text": "#E8EDF2", "mode": "dark",
     },
+    "mora": {
+        "bg": "#211913", "surface": "#33261D", "elevated": "#493326",
+        "fg": "#FFF3E2", "secondary": "#E7D2B8", "muted": "#C4A98A",
+        "heading": "#FFD9A1", "blue": "#D58B3D", "blue_hover": "#EAA653",
+        "on_blue": "#211913", "red": "#B64A40", "red_hover": "#C85C50",
+        "on_red": "#FFF3E2", "border": "#75543A", "focus": "#F3C16B",
+        "selection": "#60442E", "selection_fg": "#FFF3E2", "disabled": "#B09A83",
+        "log": "#18120D", "log_text": "#FFF3E2", "mode": "mora",
+    },
 }
 
 
@@ -57,6 +66,16 @@ def contrast_ratio(foreground: str, background: str) -> float:
 def _install_semantic_status_tokens() -> None:
     """Expose brand-compliant status roles; text and icons disambiguate meaning."""
     for theme_name, palette in PALETTES.items():
+        if theme_name == "mora":
+            palette.update({
+                "success": "#9EC39A", "warning": "#F0BE73",
+                "error": "#EF8E7C", "info": "#E8C99F",
+                "brand": "#D58B3D", "brand_hover": "#EAA653",
+                "on_brand": "#211913", "brand_secondary": "#526347",
+                "on_brand_secondary": "#FFF3E2",
+            })
+            continue
+
         dark = theme_name == "dark"
         palette.update({
             "success": "#FFFFFF" if dark else "#0039A6",
@@ -115,19 +134,19 @@ def _settings_path() -> Path:
 
 
 def load_preferred_theme() -> str:
-    """Return the saved System/Light/Dark choice, defaulting to System."""
+    """Return the saved theme, defaulting to Mora Amber for new installations."""
     try:
         payload = json.loads(_settings_path().read_text(encoding="utf-8"))
         mode = payload.get("mode") if isinstance(payload, dict) else None
-        return mode if mode in {"system", "light", "dark"} else "system"
+        return mode if mode in {"system", "light", "dark", "mora"} else "mora"
     except (OSError, ValueError, TypeError):
-        return "system"
+        return "mora"
 
 
 def _save_preferred_theme(mode: str) -> None:
     """Persist a supported theme choice with same-directory atomic replacement."""
-    if mode not in {"system", "light", "dark"}:
-        raise ValueError("Theme must be 'system', 'light' or 'dark'")
+    if mode not in {"system", "light", "dark", "mora"}:
+        raise ValueError("Theme must be 'system', 'light', 'dark' or 'mora'")
 
     temporary: Path | None = None
     try:
@@ -193,7 +212,7 @@ def _system_dark() -> bool:
 
 
 def palette_for(mode: str = "system", *, system_dark: bool | None = None) -> dict[str, str]:
-    """Resolve System/Light/Dark and return semantic plus legacy token names."""
+    """Resolve Mora Amber, System, Light or Dark semantic theme tokens."""
     requested = str(mode or "system").casefold()
     override = os.environ.get(THEME_ENV, "").casefold()
     if requested == "system" and override in PALETTES:
@@ -201,7 +220,7 @@ def palette_for(mode: str = "system", *, system_dark: bool | None = None) -> dic
     if requested == "system":
         requested = "dark" if (_system_dark() if system_dark is None else system_dark) else "light"
     if requested not in PALETTES:
-        raise ValueError("Theme must be 'system', 'light' or 'dark'")
+        raise ValueError("Theme must be 'system', 'light', 'dark' or 'mora'")
 
     result = dict(PALETTES[requested])
     # Compatibility aliases retained for the existing OPlague theme API.
