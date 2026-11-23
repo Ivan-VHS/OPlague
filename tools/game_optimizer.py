@@ -21,7 +21,7 @@ from typing import Any, Callable, Iterable
 
 SCHEMA_VERSION = "oplague.gaming.v1"
 GUID_PATTERN = re.compile(r"^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$")
-DEVICE_ID_PATTERN = re.compile(r"^(PCI|USB|ACPI|HID|ROOT|SCSI|BTH|SWD|DISPLAY)(\\[A-Z0-9&_.\\-]+)+$")
+DEVICE_ID_PATTERN = re.compile(r"^[A-Z][A-Z0-9_]{0,31}(\\[A-Z0-9&_.{}:+#\\-]+)+$")
 FRAME_TIME_COLUMNS = (
     "msbetweenpresents",
     "frametime",
