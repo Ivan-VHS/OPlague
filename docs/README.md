@@ -80,3 +80,7 @@ This is an illustrative personal-budgeting reference, not a claim that the host 
 
 - [Engineering Evolution Framework](ENGINEERING_EVOLUTION_FRAMEWORK.md) — shared machine-readable 20-domain contract, 40 practices and 20 execution directives.
 - [Repository-wide implementation directives](REPOSITORY_EVOLUTION_DIRECTIVES.md) — the 20 requested directions, their engineering meaning and acceptance rules.
+
+## Shared visual system
+
+- [DuckOS single-palette contract](DUCK_PALETTE.md) — black/white/yellow tokens, accessible contrast and legacy settings migration.
