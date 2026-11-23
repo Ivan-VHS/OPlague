@@ -90,14 +90,18 @@ class MultiSyntaxSourceAuditTests(unittest.TestCase):
     def test_rejects_unrecognized_syntax_and_malformed_polyglot_block(self):
         with self.assertRaisesRegex(SyntaxAuditError, "unknown syntax"):
             audit_validation_report(self.source, self.report("powershell"))
+        polyglot_source = self.root / "malformed.polyglot"
+        polyglot_source.write_text("%% python\\nprint(42)", encoding="utf-8")
         report = {
             "schema": "reaper.polyglot-validation.v1",
-            "source_sha256": self.digest, "valid": True,
-            "execution_performed": False, "block_count": 1,
+            "source_sha256": hashlib.sha256(polyglot_source.read_bytes()).hexdigest(),
+            "valid": True,
+            "execution_performed": False,
+            "block_count": 1,
             "blocks": [{"syntax": "python", "valid": True}],
         }
         with self.assertRaisesRegex(SyntaxAuditError, "non-executing"):
-            audit_validation_report(self.source, report)
+            audit_validation_report(polyglot_source, report)
 
 
 if __name__ == "__main__":
