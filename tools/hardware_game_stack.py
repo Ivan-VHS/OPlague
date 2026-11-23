@@ -302,7 +302,7 @@ def build_report(snapshot: Mapping[str, Any], *, benchmark: Mapping[str, Any] | 
                                                           "version": _text(d.get("version")), "date": _text(d.get("date")),
                                                           "inf_name": _text(d.get("inf_name")),
                                                           "is_signed": d.get("is_signed") if isinstance(d.get("is_signed"), bool) else None}
-                                                         for d in drivers[:500]},
+                                                         for d in drivers[:500]]},
                                             ["PnPUtil can enumerate staged packages; localized command output is not parsed here."]),
         "device_health": _section("warning" if problems else "available" if devices else "limited", "Windows PnP problem codes surfaced for diagnosis, not auto-repair.",
                                   {"problem_device_count": len(problems), "problem_devices": problems[:200]}),
