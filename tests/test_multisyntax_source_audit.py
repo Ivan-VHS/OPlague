@@ -41,6 +41,10 @@ class MultiSyntaxSourceAuditTests(unittest.TestCase):
         with self.assertRaisesRegex(SyntaxAuditError, "non-executing"):
             audit_validation_report(self.source, report)
 
+    def test_rejects_report_for_a_different_source_extension(self):
+        with self.assertRaisesRegex(SyntaxAuditError, "extension does not match"):
+            audit_validation_report(self.source, self.report("brainfuck"))
+
     def test_blocks_capabilities_not_provided_by_safe_python_frontend(self):
         result = audit_validation_report(
             self.source, self.report(), ["pure", "network", "filesystem_io"]
