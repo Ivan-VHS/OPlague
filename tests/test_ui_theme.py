@@ -22,6 +22,7 @@ class OPlagueThemeTests(unittest.TestCase):
         }
         self.assertTrue(required.issubset(light))
         self.assertTrue(required.issubset(dark))
+        self.assertTrue(required.issubset(palette_for("mora")))
 
     def test_system_mode_can_be_resolved_deterministically(self):
         self.assertEqual(palette_for("system", system_dark=True)["mode"], "dark")
@@ -73,7 +74,7 @@ class OPlagueThemeTests(unittest.TestCase):
             _save_preferred_theme("neon")
 
     def test_preferred_theme_loader_returns_supported_mode(self):
-        self.assertIn(load_preferred_theme(), {"system", "light", "dark"})
+        self.assertIn(load_preferred_theme(), {"system", "light", "dark", "mora"})
 
     def test_mora_brand_tokens_are_available_and_contrast_safe(self):
         for name, palette in PALETTES.items():
@@ -85,6 +86,15 @@ class OPlagueThemeTests(unittest.TestCase):
             self.assertGreaterEqual(
                 contrast_ratio(palette['on_brand_secondary'], palette['brand_secondary']), 4.5, name
             )
+    def test_mora_amber_is_the_shared_warm_palette(self):
+        palette = palette_for("mora")
+        self.assertEqual(palette["bg"], "#211913")
+        self.assertEqual(palette["blue"], "#D58B3D")
+        self.assertEqual(palette["red"], "#B64A40")
+        self.assertGreaterEqual(contrast_ratio(palette["fg"], palette["bg"]), 7.0)
+        self.assertGreaterEqual(contrast_ratio(palette["muted"], palette["bg"]), 4.5)
+        self.assertGreaterEqual(contrast_ratio(palette["on_brand_secondary"], palette["brand_secondary"]), 4.5)
+
     def test_focus_and_supporting_text_have_semantic_contrast(self):
         for palette in PALETTES.values():
             self.assertGreaterEqual(contrast_ratio(palette["focus"], palette["bg"]), 3.0)
