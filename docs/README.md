@@ -84,3 +84,7 @@ This is an illustrative personal-budgeting reference, not a claim that the host 
 ## Shared visual system
 
 - [DuckOS single-palette contract](DUCK_PALETTE.md) — black/white/yellow tokens, accessible contrast and legacy settings migration.
+
+## Current ecosystem engineering baseline
+
+[ECOSYSTEM_ENGINEERING_STANDARD.md](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/ECOSYSTEM_ENGINEERING_STANDARD.md) defines the current five-repository ownership map, stack-specific build/test commands, shared quality requirements, audit sequence and release gates. It complements this repository's own architecture and engineering contracts; source, tests and CI remain the evidence for implementation status.
