@@ -24,7 +24,7 @@ class GameOptimizerTests(unittest.TestCase):
         self.assertEqual(gaming.normalize_hardware_id(""), "")
 
     def test_preserves_full_pnp_instance_suffix(self):
-        device_id = r"PCI\\VEN_8086&DEV_15F3&SUBSYS_00008086&REV_03\\4&2A3B4C5D&0&00E0"
+        device_id = r"PCI\VEN_8086&DEV_15F3&SUBSYS_00008086&REV_03\4&2A3B4C5D&0&00E0"
         self.assertEqual(gaming.normalize_hardware_id(device_id), device_id.upper())
         identity = gaming.hardware_identity(device_id)
         self.assertEqual(identity["vendor_id"], "8086")
@@ -88,7 +88,7 @@ class GameOptimizerTests(unittest.TestCase):
             commands = []
             class Completed:
                 returncode = 0
-                stdout = f"Power Scheme GUID: {external} (User selected)\\n"
+                stdout = f"Power Scheme GUID: {external} (User selected)\n"
                 stderr = ""
             def runner(command, **kwargs):
                 commands.append(command)
