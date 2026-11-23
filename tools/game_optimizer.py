@@ -336,7 +336,7 @@ def collect_windows_reliability_events(
                 "provider": str(event.get("ProviderName") or ""),
                 "event_id": event.get("Id"),
                 "level": str(event.get("LevelDisplayName") or ""),
-                "message": str(event.get("Message") or ""),
+                "message": str(event.get("Message") or "")[:2000],
             }
             for event in events if isinstance(event, dict)
         ],
