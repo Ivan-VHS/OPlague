@@ -10,6 +10,11 @@ on:
       - "LICENSE"
       - ".github/workflows/docs.yml"
       - ".github/scripts/check_readme_links.py"
+      - "docs/**"
+      - "engineering-evolution.v1.json"
+      - "schemas/engineering-evolution.v1.schema.json"
+      - "tools/validate_engineering_evolution.py"
+      - "tests/test_engineering_evolution.py"
       - ".github/workflows/verified-auto-merge.yml"
       - "assets/screenshots/**"
   push:
@@ -22,6 +27,11 @@ on:
       - "LICENSE"
       - ".github/workflows/docs.yml"
       - ".github/scripts/check_readme_links.py"
+      - "docs/**"
+      - "engineering-evolution.v1.json"
+      - "schemas/engineering-evolution.v1.schema.json"
+      - "tools/validate_engineering_evolution.py"
+      - "tests/test_engineering_evolution.py"
       - ".github/workflows/verified-auto-merge.yml"
       - "assets/screenshots/**"
 
@@ -62,3 +72,22 @@ jobs:
           test -s LICENSE
       - name: Validate local README links
         run: python .github/scripts/check_readme_links.py
+
+  engineering-contract:
+    name: Engineering framework contract
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Validate the shared engineering framework
+        run: python tools/validate_engineering_evolution.py
+      - name: Test framework contract and negative cases
+        run: python -m unittest tests.test_engineering_evolution -v
