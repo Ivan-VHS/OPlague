@@ -252,3 +252,8 @@ Web Stand 检查清单按实际桌面工作台进行映射，而不是复制为�
 ## 文档导航图
 
 请从[文档索引](docs/README.md)进入，并使用[信息架构图](docs/INFORMATION_ARCHITECTURE.md)浏览设备检查、驱动与软件包分析、安全证据、架构和工作台 UX。主题入口链接到详细契约；只读范围和实现状态仍以源代码、测试和 Schema 为准。
+
+
+## Mora 桌面集成
+
+OPlague 可从统一的 Mora 工作空间启动，作为只读设备和驱动包检查工具。Mora 负责应用发现和启动主题；OPlague 原有的检查与安全边界保持不变。请参阅 [Mora 集成说明](docs/MORA_DESKTOP_INTEGRATION.md) 和 [DuckOS 工作空间契约](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md)。

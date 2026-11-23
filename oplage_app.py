@@ -6,6 +6,7 @@ import os
 import platform
 import re
 import subprocess
+import threading
 import stat
 import tkinter as tk
 import zipfile
@@ -23,6 +24,11 @@ from tools.inspection_batch import inspect_batch
 from tools.metric_analysis import analyze_device_profiles
 from tools.architecture_profiles import current_host_architecture, detect_inf_target_architectures, evaluate_driver_targets
 from tools.device_graph import extract_inf_compatibility, build_dry_run_plan
+from tools.hardware_game_stack import (
+    build_report as build_hardware_report,
+    collect_windows_snapshot as collect_hardware_snapshot,
+    redact_report as redact_hardware_report,
+)
 from tools.report_export import render_report
 
 MAX_PACKAGE_BYTES = 512 * 1024 * 1024
@@ -249,6 +255,8 @@ class OPlagueApp(tk.Tk):
         self.tabs.add(metrics, text="Лаборатория метрик")
         compatibility = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(compatibility, text="Проверка совместимости")
+        hardware_stack = ttk.Frame(self.tabs, padding=12)
+        self.tabs.add(hardware_stack, text="Железо / Игры")
         ttk.Label(
             compatibility,
             text="Сопоставление выполняется только по точным аппаратным идентификаторам INF. Кандидат не является заключением о совместимости или безопасности; операции с драйверами не выполняются.",
@@ -262,6 +270,49 @@ class OPlagueApp(tk.Tk):
             compatibility, wrap="word", font=("Consolas", 10), height=20, state="disabled"
         )
         self.compatibility_result.pack(fill="both", expand=True)
+        ttk.Label(
+            hardware_stack,
+            text="15 подсистем: UEFI/SMBIOS, CPU, RAM, GPU, PnP/PCI/USB/ACPI, драйверы, поиск обновлений, температуры и игровой benchmark. Только чтение — без перепрошивки, установки драйверов и разгона.",
+            style="Muted.TLabel", wraplength=1000,
+        ).pack(anchor="w", pady=(0, 10))
+        hardware_options = ttk.Frame(hardware_stack)
+        hardware_options.pack(fill="x", pady=(0, 8))
+        self.hardware_update_search = tk.BooleanVar(value=False)
+        ttk.Checkbutton(
+            hardware_options,
+            text="Искать обновления драйверов через Windows Update (сетевой поиск, без загрузки)",
+            variable=self.hardware_update_search,
+        ).pack(anchor="w")
+        game_row = ttk.Frame(hardware_stack)
+        game_row.pack(fill="x", pady=(4, 8))
+        ttk.Label(game_row, text="Имена игровых процессов:").pack(side="left")
+        self.hardware_game_names = ttk.Entry(game_row)
+        self.hardware_game_names.pack(side="left", fill="x", expand=True, padx=(8, 0))
+        self.hardware_game_names.insert(0, "Cyberpunk2077, cs2, r5apex")
+        hardware_actions = ttk.Frame(hardware_stack)
+        hardware_actions.pack(fill="x", pady=(0, 8))
+        self.hardware_collect_button = ttk.Button(
+            hardware_actions, text="Снять аппаратный профиль",
+            command=self.collect_hardware_stack, style="Primary.TButton",
+        )
+        self.hardware_collect_button.pack(side="left")
+        ttk.Button(
+            hardware_actions, text="Загрузить benchmark JSON…",
+            command=self.choose_hardware_benchmark,
+        ).pack(side="left", padx=(8, 0))
+        ttk.Button(
+            hardware_actions, text="Экспорт отчёта…",
+            command=self.export_hardware_stack_report,
+        ).pack(side="left", padx=(8, 0))
+        self.hardware_benchmark_data: dict[str, Any] | None = None
+        self.hardware_benchmark_label = tk.StringVar(value="Benchmark: не загружен")
+        ttk.Label(hardware_stack, textvariable=self.hardware_benchmark_label, style="Muted.TLabel").pack(anchor="w", pady=(0, 6))
+        self.hardware_stack_report: dict[str, Any] | None = None
+        self._hardware_stack_running = False
+        self.hardware_stack_result = ScrolledText(
+            hardware_stack, wrap="word", font=("Consolas", 9), height=20, state="disabled"
+        )
+        self.hardware_stack_result.pack(fill="both", expand=True)
         ttk.Label(
             metrics,
             text="Сравнение нормализованных аппаратных и тестовых профилей по многомерным метрикам и взвешенному квадратичному расстоянию.",
@@ -376,6 +427,108 @@ class OPlagueApp(tk.Tk):
         if container is not None:
             for column in range(3):
                 container.columnconfigure(column, weight=1 if column < columns else 0)
+
+    def choose_hardware_benchmark(self) -> None:
+        filename = filedialog.askopenfilename(
+            parent=self, title="Выберите игровой benchmark JSON",
+            filetypes=[("JSON benchmark", "*.json"), ("All files", "*.*")],
+        )
+        if not filename:
+            return
+        try:
+            data = json.loads(Path(filename).read_text(encoding="utf-8"))
+            if not isinstance(data, dict):
+                raise ValueError("Benchmark должен содержать JSON-объект.")
+            self.hardware_benchmark_data = data
+        except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as error:
+            messagebox.showerror("Benchmark", str(error), parent=self)
+            return
+        self.hardware_benchmark_label.set(f"Benchmark: {Path(filename).name}")
+
+    def collect_hardware_stack(self) -> None:
+        if self._hardware_stack_running:
+            return
+        if os.name != "nt":
+            messagebox.showinfo(
+                "Аппаратный профиль",
+                "Сбор live-данных доступен в Windows. На других системах используйте сохранённый JSON-снимок через CLI.",
+                parent=self,
+            )
+            return
+        self._hardware_stack_running = True
+        self.hardware_collect_button.configure(state="disabled")
+        self.status.set("Сбор 15 подсистем OPlague…")
+        include_updates = self.hardware_update_search.get()
+        game_names = [
+            item.strip() for item in self.hardware_game_names.get().split(",") if item.strip()
+        ]
+        benchmark = dict(self.hardware_benchmark_data) if self.hardware_benchmark_data else None
+        driver_catalog = [dict(item) for item in self.inspected_drivers]
+
+        def worker() -> None:
+            try:
+                snapshot = collect_hardware_snapshot(
+                    discover_driver_updates=include_updates, timeout_seconds=120
+                )
+                report = build_hardware_report(
+                    snapshot, benchmark=benchmark,
+                    driver_catalog=driver_catalog, games=game_names,
+                )
+                report = redact_hardware_report(report)
+            except Exception as error:
+                message = str(error)
+                try:
+                    self.after(0, lambda message=message: self._finish_hardware_stack_error(message))
+                except RuntimeError:
+                    pass
+                return
+            try:
+                self.after(0, lambda report=report: self._finish_hardware_stack_report(report))
+            except RuntimeError:
+                pass
+
+        threading.Thread(target=worker, name="oplague-hardware-probe", daemon=True).start()
+
+    def _finish_hardware_stack_error(self, message: str) -> None:
+        self._hardware_stack_running = False
+        self.hardware_collect_button.configure(state="normal")
+        self.status.set("Сбор аппаратного профиля завершился ошибкой")
+        messagebox.showerror("Аппаратный профиль", message, parent=self)
+
+    def _finish_hardware_stack_report(self, report: dict[str, Any]) -> None:
+        self._hardware_stack_running = False
+        self.hardware_collect_button.configure(state="normal")
+        self.hardware_stack_report = report
+        self.hardware_stack_result.configure(state="normal")
+        self.hardware_stack_result.delete("1.0", "end")
+        self.hardware_stack_result.insert("1.0", json.dumps(report, indent=2, ensure_ascii=False))
+        self.hardware_stack_result.configure(state="disabled")
+        self.tabs.select(4)
+        warnings = sum(
+            1 for item in report["subsystems"].values()
+            if item.get("status") == "warning"
+        )
+        self.status.set(f"Hardware/Game Stack: {report['subsystem_count']} подсистем; предупреждений: {warnings}; система не изменена")
+
+    def export_hardware_stack_report(self) -> None:
+        if self.hardware_stack_report is None:
+            messagebox.showinfo("Экспорт отчёта", "Сначала снимите аппаратный профиль.", parent=self)
+            return
+        destination = filedialog.asksaveasfilename(
+            parent=self, title="Экспортировать Hardware/Game Stack",
+            defaultextension=".json", filetypes=[("JSON report", "*.json")],
+        )
+        if not destination:
+            return
+        try:
+            Path(destination).write_text(
+                json.dumps(self.hardware_stack_report, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
+        except OSError as error:
+            messagebox.showerror("Экспорт отчёта", str(error), parent=self)
+            return
+        self.status.set(f"Hardware/Game Stack экспортирован: {Path(destination).name}")
 
     def refresh_devices(self) -> None:
         self.status.set("Получение локального списка устройств Windows…"); self.update_idletasks()

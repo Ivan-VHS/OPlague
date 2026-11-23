@@ -3,6 +3,7 @@
 ## Topic hubs
 
 - [Device, driver and package inspection](clusters/device-driver-inspection.md) — Read-only Windows device discovery, driver metadata, compatibility and package inspection contracts.
+- [Hardware & game performance stack](HARDWARE_GAME_STACK.md) — Fifteen read-only subsystems for firmware/platform inventory, device health, driver candidates, thermal evidence and repeatable game benchmarks.
 - [Security, safety and evidence](clusters/security-evidence.md) — Trust boundaries, provenance, validation, evidence handling and quality gates.
 - [Architecture and system contracts](clusters/architecture-systems.md) — System structure, persistence, runtime boundaries and reusable engineering contracts.
 - [Workbench UI and visual system](clusters/ui-workbench.md) — Desktop workbench interaction, motion, accessibility and visual documentation.
@@ -35,6 +36,7 @@
 | [UI_MOTION.md](UI_MOTION.md) | accessible motion preferences, reduced-motion limits and UI performance |
 | [UI_UX_SYSTEM.md](UI_UX_SYSTEM.md) | desktop interaction contract |
 | [DEVICE_COMPATIBILITY_GRAPH.md](DEVICE_COMPATIBILITY_GRAPH.md) | exact-ID candidate graph; not an automatic verdict |
+| [HARDWARE_GAME_STACK.md](HARDWARE_GAME_STACK.md) | 15-subsystem platform, driver-evidence and game-performance report |
 | [DRIVER_TARGET_ARCHITECTURE.md](DRIVER_TARGET_ARCHITECTURE.md) | INF and PE machine codes |
 | [UDRV_FORMAT_V1.md](UDRV_FORMAT_V1.md) | package manifest, hashing and size limits |
 | [DRIVE_LENS_EVIDENCE_LEDGER.md](DRIVE_LENS_EVIDENCE_LEDGER.md) | evidence provenance |
