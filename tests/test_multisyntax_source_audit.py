@@ -53,9 +53,12 @@ class MultiSyntaxSourceAuditTests(unittest.TestCase):
         self.assertEqual(result["unsupported_capabilities"], ["filesystem_io", "network"])
 
     def test_polyglot_capabilities_use_the_intersection_of_frontends(self):
+        polyglot_source = self.root / "project.polyglot"
+        polyglot_source.write_text("%% python\\nprint(42)\\n%% brainfuck\\n+.", encoding="utf-8")
+        polyglot_digest = hashlib.sha256(polyglot_source.read_bytes()).hexdigest()
         report = {
             "schema": "reaper.polyglot-validation.v1",
-            "source_sha256": self.digest,
+            "source_sha256": polyglot_digest,
             "valid": True,
             "execution_performed": False,
             "block_count": 2,
@@ -64,18 +67,23 @@ class MultiSyntaxSourceAuditTests(unittest.TestCase):
                 {"syntax": "brainfuck", "valid": True, "execution_performed": False, "analysis": {}},
             ],
         }
-        result = audit_validation_report(self.source, report, ["pure", "filesystem_io"])
+        result = audit_validation_report(polyglot_source, report, ["pure", "filesystem_io"])
         self.assertEqual(result["status"], "blocked")
         self.assertEqual(result["validated_syntaxes"], ["python", "brainfuck"])
 
     def test_surfaces_brainfuck_pointer_diagnostics(self):
-        report = self.report("brainfuck")
+        brainfuck_source = self.root / "sample.bf"
+        brainfuck_source.write_text("[>+]", encoding="utf-8")
+        report = {
+            **self.report("brainfuck"),
+            "source_sha256": hashlib.sha256(brainfuck_source.read_bytes()).hexdigest(),
+        }
         report["analysis"] = {
             "pointer_balance_warnings": [
                 {"code": "BF-W001", "message": "loop has non-zero pointer displacement"}
             ]
         }
-        result = audit_validation_report(self.source, report)
+        result = audit_validation_report(brainfuck_source, report)
         self.assertEqual(result["status"], "attention_required")
         self.assertEqual(result["findings"][0]["code"], "BF-W001")
 
