@@ -118,7 +118,8 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
             seen_paths: set[str] = set()
             for entry in entries:
                 _safe_archive_name(entry.filename)
-                canonical_name = entry.filename.replace("\\", "/").rstrip("/")                folded_name = canonical_name.casefold()
+                canonical_name = entry.filename.replace("\\", "/").rstrip("/")
+                folded_name = canonical_name.casefold()
                 if folded_name in seen_paths:
                     raise ValueError(f"Duplicate archive path detected: {entry.filename}")
                 seen_paths.add(folded_name)
