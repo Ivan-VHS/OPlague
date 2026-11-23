@@ -27,6 +27,7 @@
 | [FEATURES.md](FEATURES.md) | supported inspection tools and safety boundaries |
 | [AUTHENTICODE.md](AUTHENTICODE.md) | local Windows signature inspection and trust boundaries |
 | [PROGRAM_CATALOG_1000.md](PROGRAM_CATALOG_1000.md) | read-only binary analysis and SPDX catalogue implementation map |
+| [GAMING_PERFORMANCE_WORKBENCH.md](GAMING_PERFORMANCE_WORKBENCH.md) | Reversible game sessions, hardware snapshots, frametime analysis and local profiles |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | device and package inspection flow |
 | [ENGINEERING.md](ENGINEERING.md) | release and safety gates |
 | [PROJECT_STEWARDSHIP_STANDARD.md](PROJECT_STEWARDSHIP_STANDARD.md) | operator, privacy and communication policy |
