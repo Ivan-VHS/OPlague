@@ -83,10 +83,13 @@ def audit_validation_report(
     schema = report["schema"]
     suffix = source.suffix.casefold()
     if schema == "reaper.syntax-validation.v1":
+        syntax = report.get("syntax")
+        if syntax not in SUPPORTED_SYNTAXES:
+            raise SyntaxAuditError("validation report names an unknown syntax frontend")
         allowed_extensions = SOURCE_EXTENSIONS.get(suffix)
         if allowed_extensions is None:
             raise SyntaxAuditError(f"source extension {suffix or '<none>'!r} is not registered")
-        if report.get("syntax") not in allowed_extensions:
+        if syntax not in allowed_extensions:
             raise SyntaxAuditError("source extension does not match the validated syntax")
     elif suffix != ".polyglot":
         raise SyntaxAuditError("polyglot validation evidence must reference a .polyglot source file")
