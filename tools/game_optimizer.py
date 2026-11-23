@@ -21,7 +21,7 @@ from typing import Any, Callable, Iterable
 
 SCHEMA_VERSION = "oplague.gaming.v1"
 GUID_PATTERN = re.compile(r"^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$")
-DEVICE_ID_PATTERN = re.compile(r"^(PCI|USB|ACPI|HID|ROOT|SCSI|BTH|SWD|DISPLAY)\\[A-Z0-9&_.\\-]+$")
+DEVICE_ID_PATTERN = re.compile(r"^(PCI|USB|ACPI|HID|ROOT|SCSI|BTH|SWD|DISPLAY)(\\[A-Z0-9&_.\\-]+)+$")
 FRAME_TIME_COLUMNS = (
     "msbetweenpresents",
     "frametime",
@@ -398,7 +398,9 @@ def summarize_frametime_csv(filename: str | Path, *, max_rows: int = 2_000_000) 
         raise ValueError("Benchmark CSV contains no valid frame-time samples")
     ordered = sorted(samples)
     worst_one = ordered[-max(1, math.ceil(len(ordered) * 0.01)):]
-    worst_point_one = ordered[-max(1, math.ceil(len(ordered) * 0.001)):]
+    # A 0.1% low from fewer than 1,000 frames would overstate a single frame as
+    # a percentile. Leave it unavailable until the sample actually supports it.
+    worst_point_one = ordered[-max(1, math.ceil(len(ordered) * 0.001)):] if len(ordered) >= 1000 else []
     mean = sum(samples) / len(samples)
 
     def average(values: list[float]) -> float:
@@ -416,7 +418,7 @@ def summarize_frametime_csv(filename: str | Path, *, max_rows: int = 2_000_000) 
         "p99_frametime_ms": round(ordered[p99_index], 4),
         "average_fps": round(1000.0 / mean, 2),
         "one_percent_low_fps": round(low_fps(worst_one), 2),
-        "point_one_percent_low_fps": round(low_fps(worst_point_one), 2),
+        "point_one_percent_low_fps": round(low_fps(worst_point_one), 2) if worst_point_one else None,
         "metric_definition": "1% and 0.1% lows are the inverse mean frametime of the slowest 1% and 0.1% of frames",
     }
 
@@ -435,24 +437,28 @@ def compare_benchmarks(
         raise ValueError("Both benchmark summaries must contain 1%/0.1% lows and p99 frametime")
     one_base = float(baseline["one_percent_low_fps"])
     one_new = float(candidate["one_percent_low_fps"])
-    point_base = float(baseline["point_one_percent_low_fps"])
-    point_new = float(candidate["point_one_percent_low_fps"])
+    point_base_raw = baseline.get("point_one_percent_low_fps")
+    point_new_raw = candidate.get("point_one_percent_low_fps")
+    point_available = point_base_raw is not None and point_new_raw is not None
+    point_base = float(point_base_raw) if point_available else 0.0
+    point_new = float(point_new_raw) if point_available else 0.0
     p99_base = float(baseline["p99_frametime_ms"])
     p99_new = float(candidate["p99_frametime_ms"])
     one_drop = max(0.0, (one_base - one_new) / one_base * 100) if one_base > 0 else 0.0
-    point_drop = max(0.0, (point_base - point_new) / point_base * 100) if point_base > 0 else 0.0
+    point_drop = max(0.0, (point_base - point_new) / point_base * 100) if point_available and point_base > 0 else None
     p99_rise = max(0.0, (p99_new - p99_base) / p99_base * 100) if p99_base > 0 else 0.0
     triggers = []
     if one_drop >= one_percent_drop:
         triggers.append("1% low dropped beyond threshold")
-    if point_drop >= point_one_drop:
+    if point_drop is not None and point_drop >= point_one_drop:
         triggers.append("0.1% low dropped beyond threshold")
     if p99_rise >= p99_increase:
         triggers.append("p99 frametime increased beyond threshold")
     return {
         "regression_detected": bool(triggers),
         "one_percent_low_drop_pct": round(one_drop, 2),
-        "point_one_percent_low_drop_pct": round(point_drop, 2),
+        "point_one_percent_low_drop_pct": round(point_drop, 2) if point_drop is not None else None,
+        "point_one_percent_low_available": point_available,
         "p99_frametime_increase_pct": round(p99_rise, 2),
         "thresholds_pct": {
             "one_percent_low_drop": one_percent_drop,
