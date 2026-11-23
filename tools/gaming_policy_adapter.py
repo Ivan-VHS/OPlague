@@ -147,6 +147,15 @@ def build_duckos_capability_evidence(
         "provided_capabilities": sorted(
             name for name, evidence in providers.items() if evidence["available"]
         ),
+        "control_adapters": {
+            "windows_power_plan_session": {
+                "available": platform.system() == "Windows",
+                "requires_explicit_user_consent": True,
+                "captures_baseline_before_change": True,
+                "restores_only_when_current_plan_is_unchanged": True,
+                "changes_driver_or_registry_state": False,
+            }
+        },
         "system_mutations_performed": False,
         "driver_state_changed": False,
         "power_plan_changed": False,
