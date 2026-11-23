@@ -59,6 +59,10 @@ python tools/sbom_inventory.py ./staging --output staging.spdx.json
 PE-перевірка читає лише заголовки. SPDX-звіт зберігає хеші, а неперевірені відомості про ліцензії позначає `NOASSERTION`.
 
 
+## Пов’язаний продукт ОС: DuckOS
+
+Сім застосунків Mora (Cockos, Kavun, Ka-bon, Gloverty, Po, Illidia та Unify) описані в окремому проєкті [DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/PREINSTALLED_APPLICATIONS.md). Це рівень застосунків операційної системи, а не компонент OPlague. Цей репозиторій не заявляє про постачання цих застосунків або надання їхніх системних служб. Власні можливості та інтерфейси OPlague визначаються її вихідним кодом, тестами й версіонованими контрактами.
+
 ## Швидкий старт
 
 ### Вимоги
