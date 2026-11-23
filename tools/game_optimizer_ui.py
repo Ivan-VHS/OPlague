@@ -70,6 +70,15 @@ def open_game_optimizer(parent: tk.Misc) -> None:
         )
         if not game_name:
             return
+        confirmed = messagebox.askyesno(
+            "Подтвердить игровой режим",
+            "OPlague сохранит снимок и временно включит штатный план High Performance Windows. "
+            "После сессии исходный план будет восстановлен, если он не изменён извне. "
+            "Драйверы, реестр, BIOS и сетевые параметры не затрагиваются. Продолжить?",
+            parent=window,
+        )
+        if not confirmed:
+            return
         try:
             result = start_game_session(game_name, power_mode="performance")
         except Exception as error:
