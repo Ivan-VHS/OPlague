@@ -28,6 +28,7 @@ jobs:
         run: |
           python -m compileall -q oplague_app.py oplage_app.py tests
           python tools/validate_visual_canon.py ui_theme.py
+          python tools/validate_engineering_evolution.py
           python -m unittest discover -s tests -v
       - name: Build standalone executable
         run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name OPlague oplague_app.py
