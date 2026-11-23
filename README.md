@@ -47,7 +47,7 @@ The **Игровая лаборатория** adds reversible Windows power-plan
 | UDRV v1 | validates manifest, sizes and SHA-256 evidence | integrity check, not publisher authentication |
 | Reports | produces structured evidence, totals and fingerprints | no system write and no driver installation |
 
-The application has four principal tabs: **Devices**, **Package Inspection**, **Metric Lab** and **Compatibility Review**. The theme can cycle through system/light/dark modes; motion preferences include Reduce Motion and Eco Visuals.
+The application has four principal tabs: **Devices**, **Package Inspection**, **Metric Lab** and **Compatibility Review**. The workbench uses one fixed DuckOS black/white/yellow palette; motion preferences include Reduce Motion and Eco Visuals.
 
 The screenshot is a captured desktop application, not a browser preview.
 
@@ -169,7 +169,7 @@ The current device list and inspection results live in the desktop process. Clos
 
 There is no root `.env.example`, Docker Compose web stack, API key, OAuth account, test login, CORS policy, HTTP proxy or local HTTPS certificate setup. No secrets are needed for normal local inspection. The current app does not document a runtime ENV variable contract; do not invent one.
 
-Relevant in-app controls are the theme cycle (system/light/dark) and motion settings (Reduce Motion, Eco Visuals and Expressive Motion).
+Relevant in-app controls are the static DUCK palette badge and motion settings (Reduce Motion, Eco Visuals and Expressive Motion).
 
 The live PnP query requires Windows PowerShell and the local CIM provider. If that command is blocked or fails, package-file inspection and saved-data review remain separate workflows; the app shows the inventory error instead of substituting a fake device list.
 
@@ -259,4 +259,4 @@ Use the [documentation index](docs/README.md) as the entry point and the [inform
 
 ## Mora desktop integration
 
-OPlague is available from the shared Mora workspace as the read-only device and driver workbench. Mora provides discovery and the startup theme; the application's inspection and safety boundaries remain unchanged. See [Mora integration](docs/MORA_DESKTOP_INTEGRATION.md) and the [DuckOS workspace contract](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md).
+OPlague is available from the shared Mora workspace as the read-only device and driver workbench. Mora provides discovery and the shared fixed Duck palette; the application's inspection and safety boundaries remain unchanged. See [Mora integration](docs/MORA_DESKTOP_INTEGRATION.md) and the [DuckOS workspace contract](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md).
