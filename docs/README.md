@@ -32,6 +32,7 @@
 | [PROJECT_STEWARDSHIP_STANDARD.md](PROJECT_STEWARDSHIP_STANDARD.md) | operator, privacy and communication policy |
 | [DISTRIBUTED_SYSTEMS_ENGINEERING_STANDARD.md](DISTRIBUTED_SYSTEMS_ENGINEERING_STANDARD.md) | resilience and trust contract |
 | [DUCK_SOVEREIGN_CANON.md](DUCK_SOVEREIGN_CANON.md) | shared design tokens |
+| [MORA_AMBER_DESIGN_SYSTEM.md](MORA_AMBER_DESIGN_SYSTEM.md) | default Mora Amber profile and semantic palette |
 | [UI_MOTION.md](UI_MOTION.md) | accessible motion preferences, reduced-motion limits and UI performance |
 | [UI_UX_SYSTEM.md](UI_UX_SYSTEM.md) | desktop interaction contract |
 | [DEVICE_COMPATIBILITY_GRAPH.md](DEVICE_COMPATIBILITY_GRAPH.md) | exact-ID candidate graph; not an automatic verdict |
