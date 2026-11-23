@@ -19,6 +19,14 @@ REPORT_SCHEMAS = {
     "reaper.polyglot-validation.v1",
 }
 SUPPORTED_SYNTAXES = {"reaper", "python", "pipeline", "lisp", "forth", "brainfuck", "befunge93"}
+SOURCE_EXTENSIONS = {
+    ".rpr": {"reaper"}, ".most": {"reaper"},
+    ".py": {"python"}, ".pipe": {"pipeline"}, ".ppl": {"pipeline"},
+    ".lisp": {"lisp"}, ".lsp": {"lisp"}, ".scm": {"lisp"},
+    ".forth": {"forth"}, ".fs": {"forth"},
+    ".bf": {"brainfuck"}, ".b": {"brainfuck"},
+    ".bf93": {"befunge93"}, ".befunge": {"befunge93"},
+}
 CAPABILITY_ALLOWLISTS = {
     "reaper": {"pure", "console_output", "filesystem_io", "resource_management", "modules"},
     "python": {"pure", "console_output"},
@@ -73,6 +81,15 @@ def audit_validation_report(
         raise SyntaxAuditError("source SHA-256 does not match the Reaper validation report")
 
     schema = report["schema"]
+    suffix = source.suffix.casefold()
+    if schema == "reaper.syntax-validation.v1":
+        allowed_extensions = SOURCE_EXTENSIONS.get(suffix)
+        if allowed_extensions is None:
+            raise SyntaxAuditError(f"source extension {suffix or '<none>'!r} is not registered")
+        if report.get("syntax") not in allowed_extensions:
+            raise SyntaxAuditError("source extension does not match the validated syntax")
+    elif suffix != ".polyglot":
+        raise SyntaxAuditError("polyglot validation evidence must reference a .polyglot source file")
     blocks: list[dict[str, Any]]
     if schema == "reaper.syntax-validation.v1":
         syntax = report.get("syntax")
@@ -176,6 +193,8 @@ def main(argv: list[str] | None = None) -> int:
         encoded = json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False) + "\n"
         if args.output:
             output = args.output.expanduser()
+            if output.is_symlink():
+                raise SyntaxAuditError("audit output must not be a symbolic link")
             if output.resolve() in {args.source.resolve(), args.report.resolve()}:
                 raise SyntaxAuditError("audit output must not overwrite an input file")
             output.parent.mkdir(parents=True, exist_ok=True)
