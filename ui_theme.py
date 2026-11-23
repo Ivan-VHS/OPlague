@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import tkinter as tk
+from tkinter import font as tkfont
 from tkinter import ttk
 from typing import Iterator
 
@@ -186,6 +187,18 @@ def apply_ui_theme(root: tk.Misc, mode: str = "duck") -> dict[str, str]:
     root._oplague_theme_mode = "duck"  # type: ignore[attr-defined]
     style = ttk.Style(root)
     try:
+        installed = {family.casefold(): family for family in tkfont.families(root)}
+    except tk.TclError:
+        installed = {}
+    display_font = next(
+        (installed[name.casefold()] for name in ("Lobster", "Pacifico") if name.casefold() in installed),
+        "Georgia",
+    )
+    script_font = next(
+        (installed[name.casefold()] for name in ("Caveat", "Marck Script", "Bad Script") if name.casefold() in installed),
+        "Georgia",
+    )
+    try:
         if "clam" in style.theme_names() and style.theme_use() != "clam":
             style.theme_use("clam")
     except tk.TclError:
@@ -207,8 +220,8 @@ def apply_ui_theme(root: tk.Misc, mode: str = "duck") -> dict[str, str]:
     style.configure("Panel.TFrame", background=colors["surface"])
     style.configure("Card.TFrame", background=colors["elevated"])
     style.configure("TLabel", background=colors["bg"], foreground=colors["fg"])
-    style.configure("Title.TLabel", background=colors["bg"], foreground=colors["heading"], font=("Georgia", 18, "bold"))
-    style.configure("Section.TLabel", background=colors["bg"], foreground=colors["heading"], font=("Georgia", 11, "bold"), padding=(4, 5))
+    style.configure("Title.TLabel", background=colors["bg"], foreground=colors["heading"], font=(display_font, 18))
+    style.configure("Section.TLabel", background=colors["bg"], foreground=colors["heading"], font=(script_font, 12), padding=(4, 5))
     style.configure("Muted.TLabel", background=colors["bg"], foreground=colors["muted"])
     for status_name in ("Success", "Warning", "Error", "Info"):
         token = status_name.lower()
@@ -264,7 +277,7 @@ def apply_ui_theme(root: tk.Misc, mode: str = "duck") -> dict[str, str]:
         foreground=[("selected", colors["fg"]), ("active", colors["fg"])],
     )
     style.configure("TLabelframe", background=colors["surface"], bordercolor=colors["border"])
-    style.configure("TLabelframe.Label", background=colors["surface"], foreground=colors["heading"], font=("Georgia", 10, "bold"))
+    style.configure("TLabelframe.Label", background=colors["surface"], foreground=colors["heading"], font=(script_font, 11))
     style.configure(
         "Treeview", rowheight=42, background=colors["surface"],
         fieldbackground=colors["surface"], foreground=colors["fg"],
