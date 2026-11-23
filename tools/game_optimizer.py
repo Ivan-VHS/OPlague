@@ -314,7 +314,7 @@ def collect_windows_reliability_events(
             "events": [],
         }
 
-    output = (result.stdout or "").strip().lstrip("\\ufeff")
+    output = (result.stdout or "").strip().lstrip("\ufeff")
     if not output or output.casefold() == "null":
         events = []
     else:
@@ -453,8 +453,12 @@ def start_game_session(
 
     devices = (device_reader or collect_windows_devices)()
     previous = active_power_scheme(runner)
+    telemetry = {
+        "gpu": collect_nvidia_telemetry(runner),
+        "reliability_events": collect_windows_reliability_events(runner=runner),
+    }
     snapshot = create_snapshot(
-        devices=devices, power_scheme=previous,
+        devices=devices, power_scheme=previous, telemetry=telemetry,
         directory=(directory or _data_directory()) / "snapshots",
     )
     target = {
