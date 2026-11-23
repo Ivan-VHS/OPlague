@@ -31,14 +31,13 @@ OPlague helps an operator inspect the current machine's device records, read dri
 
 The result is an evidence record and candidate comparison, not a final safety or compatibility verdict. An exact hardware-ID match does not prove publisher trust, OS compatibility, device suitability or safe installation. Driver deployment remains outside the product.
 
+The **Игровая лаборатория** adds reversible Windows power-plan sessions, hardware/driver snapshots, benchmark CSV analysis and a local profile cache; it does not deploy or patch driver binaries.
+
 ### What the workbench actually does
 
 | Area | Implemented behavior | Boundary |
 |---|---|---|
 | Device inventory | reads Windows Plug and Play identity, status, manufacturer and PNPDeviceID | live collection is Windows-only and read-only |
-| Gaming sessions | captures hardware/driver metadata and active power plan; temporarily switches a built-in Windows power scheme; restores it safely | no driver changes, overclocking, registry/IRQ/network tuning or background-service termination |
-| Frame-time analysis | imports measured CSV and reports mean FPS, 1%/0.1% low, median and p99 frametime | 0.1% low remains unavailable for captures under 1,000 frames; no sensor data is fabricated |
-| Game profile cache | stores operator-confirmed profiles by exact hardware fingerprint, driver version and game ID | local, bounded cache; no automatic tuning or universal profile claims |
 | INF inspection | reads selected metadata, hardware-ID declarations and target architecture | does not run INF directives |
 | ZIP inspection | checks paths, sizes, compression ratios, hashes and INF metadata | does not extract or execute package payloads |
 | PE/COFF inspection | reads machine type, optional header, sections, entry point and certificate-table location | header parsing only; no image loading or signature verdict |
@@ -61,10 +60,6 @@ python tools/sbom_inventory.py ./staging --output staging.spdx.json
 
 PE inspection reads headers only. The SPDX export records hashes and leaves unverified licence information as `NOASSERTION`.
 
-
-## Gaming performance workbench
-
-The **Игровая лаборатория** window provides exact hardware/driver fingerprints, atomic local snapshots, temporary built-in Windows power-plan sessions, guarded restore, measured frametime CSV comparison and a validated local profile cache. See [Gaming Performance Workbench](docs/GAMING_PERFORMANCE_WORKBENCH.md) for supported fields and safety limits.
 
 ## Related OS product: DuckOS
 
@@ -186,7 +181,7 @@ The data path is: **local input → bounded parser → evidence record → dry-r
 |---|---|
 | `oplague_app.py` | public, correctly spelled desktop entry point |
 | `oplage_app.py` | desktop implementation, package inspection and PnP query |
-| `tools/` | CLI utilities, report composition, metrics, UDRV inspection and reversible gaming-session helpers |
+| `tools/` | CLI utilities, report composition, metrics and UDRV inspection |
 | `tests/` | unit and regression tests with local fixtures |
 | `docs/` | architecture, safety boundaries, schemas and operator guidance |
 | `schemas/` | versioned report and package contracts |
