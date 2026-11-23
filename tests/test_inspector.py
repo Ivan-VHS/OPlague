@@ -1,6 +1,7 @@
 from __future__ import annotations
-import hashlib, tempfile, unittest, zipfile
+import hashlib, stat, tempfile, unittest, zipfile
 from pathlib import Path
+from oplage_app import MAX_INF_BYTES
 from oplague_app import inspect_package, parse_inf_text
 
 SAMPLE = """[Version]
@@ -45,6 +46,43 @@ class InspectorTests(unittest.TestCase):
             with zipfile.ZipFile(path, "w") as archive:
                 archive.writestr("../escape.inf", SAMPLE)
             with self.assertRaisesRegex(ValueError, "Unsafe archive path"):
+                inspect_package(path)
+
+
+    def test_rejects_case_insensitive_duplicate_archive_paths(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "duplicate.zip"
+            with zipfile.ZipFile(path, "w") as archive:
+                archive.writestr("driver.inf", SAMPLE)
+                archive.writestr("DRIVER.INF", SAMPLE)
+            with self.assertRaisesRegex(ValueError, "Duplicate archive path"):
+                inspect_package(path)
+
+    def test_rejects_symlink_entries_without_extracting_them(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "symlink.zip"
+            link = zipfile.ZipInfo("payload.inf")
+            link.create_system = 3
+            link.external_attr = (stat.S_IFLNK | 0o777) << 16
+            with zipfile.ZipFile(path, "w") as archive:
+                archive.writestr(link, SAMPLE)
+            with self.assertRaisesRegex(ValueError, "Non-regular archive entry"):
+                inspect_package(path)
+
+    def test_rejects_non_canonical_dot_segments(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "dot-segment.zip"
+            with zipfile.ZipFile(path, "w") as archive:
+                archive.writestr("nested/./driver.inf", SAMPLE)
+            with self.assertRaisesRegex(ValueError, "Unsafe archive path"):
+                inspect_package(path)
+
+    def test_oversized_direct_inf_is_rejected_before_reading(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "oversized.inf"
+            with path.open("wb") as stream:
+                stream.truncate(MAX_INF_BYTES + 1)
+            with self.assertRaisesRegex(ValueError, "INF file is too large"):
                 inspect_package(path)
 
     def test_rejects_unknown_extension(self):
