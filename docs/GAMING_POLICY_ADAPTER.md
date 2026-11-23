@@ -24,3 +24,7 @@ python -m unittest tests.test_gaming_policy_adapter -v
 ## Sequential rollout
 
 Rollout gate: this PR stays in draft until DuckOS PR #75 is merged. Then it is the second stage of the gaming-policy rollout.
+
+## DuckOS integration
+
+`build_duckos_capability_evidence()` returns `oplague.duckos-gaming-evidence.v1`. DuckOS accepts that versioned `providers` object through `assess_capability_document()` and the `gaming-assess --capabilities` CLI. The provider inventory is kept synchronized with the canonical DuckOS 66-rule catalog, including the CPU telemetry identifier (unavailable from OPlague until a matching measured source is supplied).
