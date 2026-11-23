@@ -211,11 +211,9 @@ def _number_or_none(value: str, *, integer: bool = False) -> int | float | None:
 
 def collect_nvidia_telemetry(
     runner: PowerRunner | None = None,
-    *,
-    executable: str | None = None,
 ) -> dict[str, Any]:
     """Read NVIDIA GPU sensors through nvidia-smi without changing device state."""
-    command = executable or shutil.which("nvidia-smi")
+    command = shutil.which("nvidia-smi")
     if not command:
         return {
             "provider": "nvidia-smi",
