@@ -14,7 +14,7 @@ from tkinter import filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
 from tools.authenticode_inspector import inspect_signatures
 from ui_theme import apply_ui_theme, load_preferred_theme, set_dpi_awareness
-from ui_motion import MotionController, MotionPreferences, fade_in_window
+from ui_motion import DraperyAccent, MotionController, MotionPreferences, fade_in_window
 from budget_planner import open_budget_planner
 from typing import Any
 
@@ -239,6 +239,8 @@ class OPlagueApp(tk.Tk):
         self.motion_button.pack(side="right", padx=(0, 8))
         self.budget_button = ttk.Button(header, text="Бюджет 500 грн", command=lambda: open_budget_planner(self))
         self.budget_button.pack(side="right", padx=(0, 8))
+        self.drapery_accent = DraperyAccent(self, app_key="oplague", height=36)
+        self.drapery_accent.pack(fill="x", padx=14, pady=(0, 8))
         self.tabs = ttk.Notebook(self); self.tabs.pack(fill="both", expand=True, padx=14, pady=(0, 10))
         inventory = ttk.Frame(self.tabs, padding=12); packages = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(inventory, text="Устройства"); self.tabs.add(packages, text="Проверка пакетов")
@@ -318,6 +320,7 @@ class OPlagueApp(tk.Tk):
         ttk.Label(footer, text="Разработчик: Ivan-VHS", style="Muted.TLabel").pack(side="right")
         self.apply_visual_theme()
         self._motion = MotionController(self, app_key="oplague")
+        self.drapery_accent.set_preferences(self._motion.preferences)
         self._motion.fade_in()
 
     def show_motion_settings(self) -> None:
@@ -340,11 +343,13 @@ class OPlagueApp(tk.Tk):
         buttons = ttk.Frame(frame)
         buttons.pack(fill="x")
         def apply() -> None:
-            self._motion.update_preferences(MotionPreferences(
+            preferences = MotionPreferences(
                 reduce_motion=reduce_var.get(),
                 eco_visuals=eco_var.get(),
                 expressive_motion=expressive_var.get(),
-            ))
+            )
+            self._motion.update_preferences(preferences)
+            self.drapery_accent.set_preferences(preferences)
             window.destroy()
         ttk.Button(buttons, text="Сохранить", style="Primary.TButton", command=apply).pack(side="right")
         ttk.Button(buttons, text="Отмена", command=window.destroy).pack(side="right", padx=(0, 8))
