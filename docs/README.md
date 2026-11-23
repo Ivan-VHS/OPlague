@@ -18,6 +18,14 @@
 
 [DuckOS — Mora application suite](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/PREINSTALLED_APPLICATIONS.md) documents the seven applications provided by the OS layer. This is a related product reference only; it does not add app-suite capabilities to OPlague.
 
+## Katyuhen ecosystem
+
+[Integration with Katyuhen](KATYUHEN_INTEGRATION.md) records this project's ownership, registered interfaces, peer boundaries and validation requirements. The canonical federation registry is maintained in [DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/ecosystem/katyuhen.v1.json).
+
+## Katyuhen ecosystem
+
+[Integration with Katyuhen](KATYUHEN_INTEGRATION.md) records this project's ownership, registered interfaces, peer boundaries and validation requirements. The canonical federation registry is maintained in [DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/ecosystem/katyuhen.v1.json).
+
 ## Normative documentation standard
 
 [Unified documentation and semantics standard](UNIFIED_DOCUMENTATION_STANDARD.md) defines the shared terminology, capability maturity, runtime states, verification outcomes, evidence rules, localization requirements and documentation acceptance criteria. It is normative for this repository; project-specific architecture and implementation evidence remain authoritative for the product itself.
@@ -28,6 +36,7 @@
 | [FEATURES.md](FEATURES.md) | supported inspection tools and safety boundaries |
 | [AUTHENTICODE.md](AUTHENTICODE.md) | local Windows signature inspection and trust boundaries |
 | [PROGRAM_CATALOG_1000.md](PROGRAM_CATALOG_1000.md) | read-only binary analysis and SPDX catalogue implementation map |
+| [GAMING_PERFORMANCE_WORKBENCH.md](GAMING_PERFORMANCE_WORKBENCH.md) | Reversible game sessions, hardware snapshots, frametime analysis and local profiles |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | device and package inspection flow |
 | [ENGINEERING.md](ENGINEERING.md) | release and safety gates |
 | [PROJECT_STEWARDSHIP_STANDARD.md](PROJECT_STEWARDSHIP_STANDARD.md) | operator, privacy and communication policy |
@@ -67,3 +76,9 @@ This is an illustrative personal-budgeting reference, not a claim that the host 
 ## Project-specific engineering profile
 
 [IVAN_VHS_ENGINEERING_PROFILE.md](IVAN_VHS_ENGINEERING_PROFILE.md) translates the project's direction into concrete architecture boundaries, implementation priorities, human-readable code conventions and acceptance tests. It is a development contract; it does not mark planned work as implemented.
+
+
+## Cross-project engineering
+
+- [Engineering Evolution Framework](ENGINEERING_EVOLUTION_FRAMEWORK.md) — shared machine-readable 20-domain contract, 40 practices and 20 execution directives.
+- [Repository-wide implementation directives](REPOSITORY_EVOLUTION_DIRECTIVES.md) — the 20 requested directions, their engineering meaning and acceptance rules.

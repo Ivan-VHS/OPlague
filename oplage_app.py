@@ -30,6 +30,7 @@ from tools.hardware_game_stack import (
     redact_report as redact_hardware_report,
 )
 from tools.report_export import render_report
+from tools.game_optimizer_ui import open_game_optimizer
 
 MAX_PACKAGE_BYTES = 512 * 1024 * 1024
 MAX_ARCHIVE_ENTRIES = 10_000
@@ -245,6 +246,8 @@ class OPlagueApp(tk.Tk):
         self.motion_button.pack(side="right", padx=(0, 8))
         self.budget_button = ttk.Button(header, text="Бюджет 500 грн", command=lambda: open_budget_planner(self))
         self.budget_button.pack(side="right", padx=(0, 8))
+        self.game_button = ttk.Button(header, text="Игровая лаборатория", command=lambda: open_game_optimizer(self))
+        self.game_button.pack(side="right", padx=(0, 8))
         self.tabs = ttk.Notebook(self); self.tabs.pack(fill="both", expand=True, padx=14, pady=(0, 10))
         inventory = ttk.Frame(self.tabs, padding=12); packages = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(inventory, text="Устройства"); self.tabs.add(packages, text="Проверка пакетов")

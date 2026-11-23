@@ -1,4 +1,4 @@
-# OPlague — read-only device and driver workbench
+# OPlague — device, driver and gaming performance workbench
 
 [English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
 
@@ -23,13 +23,15 @@ Implemented path: Windows PnP and user-selected files → bounded INF/ZIP inspec
 [![Windows build](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&label=Windows%20build)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)  [![Docs checks](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/docs.yml?branch=main&label=Docs%20checks)](https://github.com/Ivan-VHS/OPlague/actions/workflows/docs.yml)  [![License](https://img.shields.io/github/license/Ivan-VHS/OPlague)](LICENSE)
 
 
-> **Scope:** OPlague is a local read-only desktop workbench for Windows Plug and Play inventory, INF/ZIP driver-package metadata and evidence-based comparison. It does **not** install, load, extract or modify driver payloads. This repository does not publish a hosted web demo, remote API or production device-management service. Documentation was checked against `main` on **2026-11-22**.
+> **Scope:** OPlague is a local Windows desktop workbench with read-only Plug and Play and driver-package inspection plus explicitly user-started, reversible game-session power profiles. It does **not** install, load, extract or modify driver payloads. This repository does not publish a hosted web demo, remote API or production device-management service. Documentation was checked against `main` on **2026-11-22**.
 
 ## Purpose and boundaries
 
 OPlague helps an operator inspect the current machine's device records, read driver-package metadata and compare normalized hardware identifiers. It is intended for Windows support engineers, hardware reviewers, QA and developers investigating package contents or compatibility evidence.
 
 The result is an evidence record and candidate comparison, not a final safety or compatibility verdict. An exact hardware-ID match does not prove publisher trust, OS compatibility, device suitability or safe installation. Driver deployment remains outside the product.
+
+The **Игровая лаборатория** adds reversible Windows power-plan sessions, hardware/driver snapshots, benchmark CSV analysis and a local profile cache; it does not deploy or patch driver binaries.
 
 ### What the workbench actually does
 
@@ -223,7 +225,7 @@ The desktop status and dialog messages describe the immediate failure. For CI fa
 
 ## Known limitations, contribution and license
 
-OPlague is deliberately non-destructive. It does not install, load, extract or modify drivers; matching is candidate evidence rather than certification. Live hardware enumeration is Windows-only. The metric profiles are advisory. Hashes establish byte identity, not publisher authenticity or ownership. The UDRV inspector does not execute payloads.
+Device and driver inspection remains read-only. A game session may temporarily switch only a built-in Windows power plan after saving a snapshot, and its restore guard will not overwrite a later external power-plan change. OPlague does not install, load, extract or modify drivers; matching is candidate evidence rather than certification. Live hardware enumeration is Windows-only. The metric profiles are advisory. Hashes establish byte identity, not publisher authenticity or ownership. The UDRV inspector does not execute payloads.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the repository's contribution workflow and validation requirements. Report a problem or propose a change through [GitHub Issues](https://github.com/Ivan-VHS/OPlague/issues) or a Pull Request. Include the OS, Python version, safe sample file type, exact command and expected/actual result. Do not attach private driver packages or sensitive device identifiers without removing identifying data.
 
