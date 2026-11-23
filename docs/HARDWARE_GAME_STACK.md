@@ -24,7 +24,7 @@ The stack joins OPlague's existing device and driver evidence tools into one Win
 
 ## Usage
 
-\`\`\`powershell
+```powershell
 # Local Windows inventory; exact hardware IDs are redacted in the report
 python -m tools.hardware_game_stack --output reports/hardware-game-stack.json
 
@@ -42,7 +42,7 @@ python -m tools.hardware_game_stack --snapshot hardware-snapshot.json --benchmar
 
 # Include exact hardware IDs only for a deliberate local diagnostic export
 python -m tools.hardware_game_stack --snapshot hardware-snapshot.json --include-hardware-ids
-\`\`\`
+```
 
 Benchmark JSON accepts frame_times_ms or fps_samples. Compare captures made in the same scene, resolution, graphics preset, driver version, power source and background workload. A 1% low is a diagnostic metric, not a promise of a particular game frame rate.
 
@@ -58,7 +58,7 @@ ACPI thermal zones may not expose CPU package or GPU hotspot sensors. Missing re
 
 ## Tests
 
-\`\`\`powershell
+```powershell
 python -m unittest tests.test_hardware_game_stack -v
 python -m unittest discover -s tests -v
-\`\`\`
+```
