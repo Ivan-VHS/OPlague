@@ -370,12 +370,25 @@ def restore_game_session(
     if not path.is_file():
         raise FileNotFoundError("No OPlague game session is available to restore")
     session = _read_json(path)
-    if session.get("schema") != SCHEMA_VERSION or session.get("status") != "active":
+    if session.get("schema") != SCHEMA_VERSION or session.get("status") not in {"active", "starting"}:
         raise ValueError("The saved game session is not active or has an unsupported schema")
     previous = session.get("previous_power_scheme") or {}
     previous_guid = str(previous.get("guid") or "")
     applied_guid = str(session.get("applied_power_scheme_guid") or "")
     current = active_power_scheme(runner)
+    if session.get("status") == "starting":
+        # The process may have stopped between switching the plan and recording
+        # the resulting GUID. Never guess whether a different plan is ours.
+        session["finished_at"] = utc_now()
+        if current["guid"].casefold() == previous_guid.casefold():
+            session["status"] = "restored"
+            session["restore_note"] = "Startup did not complete; the original plan was still active."
+            _atomic_write_json(path, session)
+            return {"restored": True, "session": session}
+        session["status"] = "restore_skipped_external_change"
+        session["restore_note"] = "Startup ended before the applied plan GUID was recorded. The active plan was left untouched for safety."
+        _atomic_write_json(path, session)
+        return {"restored": False, "reason": "incomplete_startup", "session": session}
     if current["guid"].casefold() != applied_guid.casefold():
         session["status"] = "restore_skipped_external_change"
         session["finished_at"] = utc_now()
