@@ -44,8 +44,9 @@ OPlague 帮助操作者查看当前机器的设备记录、读取驱动包元数
 | Metric Lab | 通过加权距离/方差比较用户输入的规范化配置 | 建议性分析，不是设备结论 |
 | UDRV v1 | 验证 manifest、大小和 SHA-256 证据 | 完整性检查，不验证发布者身份 |
 | 报告 | 生成结构化证据、汇总和指纹 | 不写入系统，也不安装驱动 |
+| 硬件与游戏性能工作台 | 15 个只读子系统，涵盖 UEFI/SMBIOS、CPU/RAM/GPU、PnP、驱动、温度证据和游戏基准测试 | 仅做清单与建议；不刷写 BIOS、不安装驱动、不超频 |
 
-应用包含四个主要标签页：**Devices**、**Package Inspection**、**Metric Lab** 和 **Compatibility Review**。主题可在 system/light/dark 之间切换；动态效果设置包括 Reduce Motion 和 Eco Visuals。
+应用包含五个主要标签页：**Devices**、**Package Inspection**、**Metric Lab**、**Compatibility Review** 和 **Hardware / Games**。最后一个标签页提供 15 个硬件清单与游戏基准分析子系统；实时采集取决于 Windows 以及各硬件接口实际公开的数据。主题可在 system/light/dark 之间切换；动态效果设置包括 Reduce Motion 和 Eco Visuals。
 
 下图是桌面应用的实际截屏，不是浏览器预览。
 
@@ -57,6 +58,8 @@ python tools/sbom_inventory.py ./staging --output staging.spdx.json
 ```
 
 PE 检查仅读取头部。SPDX 报告记录哈希；未经验证的许可证信息保留为 `NOASSERTION`。
+
+硬件性能工作台的详细说明和 CLI 命令见 [HARDWARE_GAME_STACK.md](docs/HARDWARE_GAME_STACK.md)。采集仅通过 Windows CIM/PnP 和 SMBIOS/UEFI 读取证据；可选的 Windows Update 搜索默认关闭，不会下载或安装驱动。导出默认隐藏精确硬件标识符。
 
 
 ## 相关操作系统产品：DuckOS
