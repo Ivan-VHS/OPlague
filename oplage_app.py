@@ -238,7 +238,8 @@ class OPlagueApp(tk.Tk):
         self.theme_button.pack(side="right")
         self.motion_button = ttk.Button(header, text="Движение", command=self.show_motion_settings)
         self.motion_button.pack(side="right", padx=(0, 8))
-        self.budget_button = ttk.Button(header, text="Бюджет 500 грн", command=lambda: open_budget_planner(self))        self.budget_button.pack(side="right", padx=(0, 8))
+        self.budget_button = ttk.Button(header, text="Бюджет 500 грн", command=lambda: open_budget_planner(self))
+        self.budget_button.pack(side="right", padx=(0, 8))
         self.game_button = ttk.Button(header, text="Игровая лаборатория", command=lambda: open_game_optimizer(self))
         self.game_button.pack(side="right", padx=(0, 8))
         self.tabs = ttk.Notebook(self); self.tabs.pack(fill="both", expand=True, padx=14, pady=(0, 10))
@@ -379,7 +380,8 @@ class OPlagueApp(tk.Tk):
             for column in range(3):
                 container.columnconfigure(column, weight=1 if column < columns else 0)
 
-    def refresh_devices(self) -> None:        self.status.set("Получение локального списка устройств Windows…"); self.update_idletasks()
+    def refresh_devices(self) -> None:
+        self.status.set("Получение локального списка устройств Windows…"); self.update_idletasks()
         self.devices.delete(*self.devices.get_children())
         try:
             devices = list_pnp_devices()
@@ -518,7 +520,8 @@ class OPlagueApp(tk.Tk):
             messagebox.showerror(
                 "Экспорт отчёта",
                 "Используйте расширение .json, .csv или .md.",
-                parent=self,            )
+                parent=self,
+            )
             return
         anonymize = messagebox.askyesno(
             "Конфиденциальность отчёта",
