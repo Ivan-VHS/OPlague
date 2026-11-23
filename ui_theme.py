@@ -107,7 +107,10 @@ def _settings_path() -> Path:
 
 
 def load_preferred_theme() -> str:
-    """Return the saved System/Light/Dark choice, defaulting to System."""
+    """Return Mora's startup theme when inherited, otherwise the saved choice."""
+    inherited = os.environ.get("MORA_THEME_MODE", "").strip().casefold()
+    if inherited in {"dark", "light"}:
+        return inherited
     try:
         payload = json.loads(_settings_path().read_text(encoding="utf-8"))
         mode = payload.get("mode") if isinstance(payload, dict) else None
