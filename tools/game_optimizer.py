@@ -7,11 +7,13 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import io
 import json
 import math
 import os
 import platform
 import re
+import shutil
 import subprocess
 import tempfile
 import uuid
@@ -194,6 +196,154 @@ def collect_windows_devices(timeout_seconds: int = 30) -> list[dict[str, Any]]:
     return devices
 
 
+def _number_or_none(value: str, *, integer: bool = False) -> int | float | None:
+    cleaned = str(value or "").strip()
+    if not cleaned or cleaned.casefold() in {"n/a", "na", "not supported", "[not supported]"}:
+        return None
+    try:
+        number = float(cleaned)
+    except ValueError:
+        return None
+    if not math.isfinite(number):
+        return None
+    return int(number) if integer else number
+
+
+def collect_nvidia_telemetry(
+    runner: PowerRunner | None = None,
+    *,
+    executable: str | None = None,
+) -> dict[str, Any]:
+    """Read NVIDIA GPU sensors through nvidia-smi without changing device state."""
+    command = executable or shutil.which("nvidia-smi")
+    if not command:
+        return {
+            "provider": "nvidia-smi",
+            "captured_at": utc_now(),
+            "available": False,
+            "reason": "nvidia-smi was not found on PATH",
+            "gpus": [],
+        }
+
+    fields = (
+        "name,driver_version,temperature.gpu,utilization.gpu,memory.used,memory.total,"
+        "power.draw,clocks.gr,clocks.mem"
+    )
+    result = _run(
+        [command, f"--query-gpu={fields}", "--format=csv,noheader,nounits"],
+        runner,
+    )
+    if result.returncode:
+        return {
+            "provider": "nvidia-smi",
+            "captured_at": utc_now(),
+            "available": False,
+            "reason": (result.stderr or "nvidia-smi query failed").strip(),
+            "gpus": [],
+        }
+
+    gpus = []
+    for row in csv.reader(io.StringIO(result.stdout or "")):
+        if not row:
+            continue
+        if len(row) != 9:
+            return {
+                "provider": "nvidia-smi",
+                "captured_at": utc_now(),
+                "available": False,
+                "reason": f"Unexpected nvidia-smi row width: {len(row)}",
+                "gpus": [],
+            }
+        gpus.append({
+            "name": row[0].strip(),
+            "driver_version": row[1].strip(),
+            "temperature_c": _number_or_none(row[2], integer=True),
+            "utilization_pct": _number_or_none(row[3], integer=True),
+            "memory_used_mib": _number_or_none(row[4], integer=True),
+            "memory_total_mib": _number_or_none(row[5], integer=True),
+            "power_w": _number_or_none(row[6]),
+            "graphics_clock_mhz": _number_or_none(row[7], integer=True),
+            "memory_clock_mhz": _number_or_none(row[8], integer=True),
+        })
+
+    return {
+        "provider": "nvidia-smi",
+        "captured_at": utc_now(),
+        "available": bool(gpus),
+        "reason": None if gpus else "nvidia-smi returned no GPU rows",
+        "gpus": gpus,
+    }
+
+
+def collect_windows_reliability_events(
+    hours: int = 24,
+    *,
+    runner: PowerRunner | None = None,
+) -> dict[str, Any]:
+    """Read recent WHEA and Windows display-driver reset events, when available."""
+    if not isinstance(hours, int) or isinstance(hours, bool) or not 1 <= hours <= 168:
+        raise ValueError("Event lookback must be between 1 and 168 hours")
+    if os.name != "nt":
+        return {
+            "provider": "Windows System event log",
+            "captured_at": utc_now(),
+            "available": False,
+            "reason": "Windows event logs are only available on Windows",
+            "events": [],
+        }
+
+    script = (
+        "$ErrorActionPreference = 'SilentlyContinue'; "
+        f"$since = (Get-Date).AddHours(-{hours}); "
+        "$items = @(Get-WinEvent -FilterHashtable @{LogName='System'; StartTime=$since} "
+        "-MaxEvents 2000 -ErrorAction SilentlyContinue | "
+        "Where-Object { $_.ProviderName -eq 'Microsoft-Windows-WHEA-Logger' -or "
+        "($_.ProviderName -eq 'Display' -and $_.Id -eq 4101) } | "
+        "Select-Object -First 100 @{Name='TimeCreated';Expression={$_.TimeCreated.ToUniversalTime().ToString('o')}}, "
+        "ProviderName, Id, LevelDisplayName, Message); "
+        "ConvertTo-Json -InputObject $items -Depth 3 -Compress"
+    )
+    result = _run(
+        ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", script],
+        runner,
+    )
+    if result.returncode:
+        return {
+            "provider": "Windows System event log",
+            "captured_at": utc_now(),
+            "available": False,
+            "reason": (result.stderr or "Could not read Windows System event log").strip(),
+            "events": [],
+        }
+
+    output = (result.stdout or "").strip().lstrip("\\ufeff")
+    if not output or output.casefold() == "null":
+        events = []
+    else:
+        payload = json.loads(output)
+        events = [payload] if isinstance(payload, dict) else payload
+        if not isinstance(events, list):
+            raise RuntimeError("Unexpected Windows event-log response")
+    return {
+        "provider": "Windows System event log",
+        "captured_at": utc_now(),
+        "available": True,
+        "lookback_hours": hours,
+        "event_count": len(events),
+        "events": [
+            {
+                "time_created": str(event.get("TimeCreated") or ""),
+                "provider": str(event.get("ProviderName") or ""),
+                "event_id": event.get("Id"),
+                "level": str(event.get("LevelDisplayName") or ""),
+                "message": str(event.get("Message") or ""),
+            }
+            for event in events if isinstance(event, dict)
+        ],
+        "event_types": ["Microsoft-Windows-WHEA-Logger", "Display/4101"],
+    }
+
+
 def active_power_scheme(runner: PowerRunner | None = None) -> dict[str, str]:
     """Read the active power scheme; no settings are changed."""
     if os.name != "nt":
@@ -224,6 +374,7 @@ def set_active_power_scheme(guid: str, runner: PowerRunner | None = None) -> Non
 def _snapshot_payload(
     devices: list[dict[str, Any]],
     power_scheme: dict[str, str] | None,
+    telemetry: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     safe_devices = []
     for device in devices:
@@ -249,6 +400,7 @@ def _snapshot_payload(
         "host": {"system": platform.system(), "release": platform.release(), "architecture": platform.machine()},
         "hardware_fingerprint": hardware_fingerprint(safe_devices),
         "active_power_scheme": power_scheme,
+        "telemetry": telemetry,
         "devices": safe_devices,
         "scope": "Configuration and driver metadata only; no SYS/INF payload copy or system write",
     }
@@ -258,6 +410,7 @@ def create_snapshot(
     *,
     devices: list[dict[str, Any]] | None = None,
     power_scheme: dict[str, str] | None = None,
+    telemetry: dict[str, Any] | None = None,
     directory: Path | None = None,
 ) -> dict[str, Any]:
     """Capture an atomic local baseline before a game session or tuning action."""
@@ -265,7 +418,7 @@ def create_snapshot(
         devices = collect_windows_devices() if os.name == "nt" else []
     if power_scheme is None and os.name == "nt":
         power_scheme = active_power_scheme()
-    payload = _snapshot_payload(devices, power_scheme)
+    payload = _snapshot_payload(devices, power_scheme, telemetry)
     folder = directory or (_data_directory() / "snapshots")
     path = folder / f"{payload['snapshot_id']}.json"
     _atomic_write_json(path, payload)
