@@ -82,9 +82,10 @@ class GameOptimizerTests(unittest.TestCase):
             returncode = 0
             stdout = "GPU,1.0,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A\n"
             stderr = ""
-        result = gaming.collect_nvidia_telemetry(
-            lambda *args, **kwargs: Completed(), executable="nvidia-smi"
-        )
+        with patch.object(gaming.shutil, "which", return_value="nvidia-smi"):
+            result = gaming.collect_nvidia_telemetry(
+                lambda *args, **kwargs: Completed()
+            )
         self.assertTrue(result["available"])
         self.assertIsNone(result["gpus"][0]["temperature_c"])
         self.assertIsNone(result["gpus"][0]["memory_used_mib"])
