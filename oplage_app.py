@@ -13,7 +13,7 @@ from pathlib import Path, PurePosixPath
 from tkinter import filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
 from tools.authenticode_inspector import inspect_signatures
-from ui_theme import apply_ui_theme, load_preferred_theme, set_dpi_awareness
+from ui_theme import apply_ui_theme, set_dpi_awareness
 from ui_motion import MotionController, MotionPreferences, fade_in_window
 from budget_planner import open_budget_planner
 from typing import Any
@@ -229,13 +229,11 @@ class OPlagueApp(tk.Tk):
         self.title("OPlague — мастерская оборудования и драйверов · Ivan-VHS")
         self.geometry("1120x720")
         self.minsize(820, 540)
-        self._theme_mode = load_preferred_theme()
-        self._theme_cycle = ("system", "light", "dark")
+        self._theme_mode = "duck"
         header = ttk.Frame(self, padding=(16, 12)); header.pack(fill="x")
         ttk.Label(header, text="OPLAGUE", style="Title.TLabel").pack(side="left")
         ttk.Label(header, text="Инвентаризация оборудования  /  Проверка пакетов драйверов", style="Muted.TLabel").pack(side="left", padx=16)
-        self.theme_button = ttk.Button(header, text="Тема: системная", command=self.cycle_theme)
-        self.theme_button.pack(side="right")
+        ttk.Label(header, text="DUCK", style="Brand.TLabel").pack(side="right")
         self.motion_button = ttk.Button(header, text="Движение", command=self.show_motion_settings)
         self.motion_button.pack(side="right", padx=(0, 8))
         self.budget_button = ttk.Button(header, text="Бюджет 500 грн", command=lambda: open_budget_planner(self))
@@ -356,15 +354,8 @@ class OPlagueApp(tk.Tk):
         window.geometry(f"+{self.winfo_rootx() + 120}+{self.winfo_rooty() + 100}")
 
     def apply_visual_theme(self) -> None:
-        """Apply the selected appearance to tabs, tables and report editors."""
-        apply_ui_theme(self, self._theme_mode)
-        theme_title = {"system": "системная", "light": "светлая", "dark": "тёмная"}.get(self._theme_mode, "системная")
-        self.theme_button.configure(text=f"Тема: {theme_title}")
-
-    def cycle_theme(self) -> None:
-        index = self._theme_cycle.index(self._theme_mode)
-        self._theme_mode = self._theme_cycle[(index + 1) % len(self._theme_cycle)]
-        self.apply_visual_theme()
+        """Apply the fixed Duck palette to tabs, tables and report editors."""
+        apply_ui_theme(self, "duck")
 
     def _layout_metric_inputs(self, event: tk.Event | None = None) -> None:
         """Reflow Metric Lab editors without shrinking their text or hit areas."""
