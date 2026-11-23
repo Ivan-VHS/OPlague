@@ -1,4 +1,33 @@
+> **Navigation:** Start with the [information architecture map](INFORMATION_ARCHITECTURE.md), then select a [topic hub](clusters/device-driver-inspection.md). The map connects the repository's read-only device, driver, security and workbench documentation.
+
+## Topic hubs
+
+- [Device, driver and package inspection](clusters/device-driver-inspection.md) — Read-only Windows device discovery, driver metadata, compatibility and package inspection contracts.
+- [Security, safety and evidence](clusters/security-evidence.md) — Trust boundaries, provenance, validation, evidence handling and quality gates.
+- [Architecture and system contracts](clusters/architecture-systems.md) — System structure, persistence, runtime boundaries and reusable engineering contracts.
+- [Workbench UI and visual system](clusters/ui-workbench.md) — Desktop workbench interaction, motion, accessibility and visual documentation.
+- [Integrations and project federation](clusters/integration-federation.md) — Runtime integration points, plugins, external tools and cross-project interfaces.
+- [Governance, planning and reference material](clusters/governance-planning.md) — Stewardship, roadmap, catalog and supporting project references.
+
+---
+
 # Documentation
+
+## Related OS product
+
+[DuckOS — Mora application suite](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/PREINSTALLED_APPLICATIONS.md) documents the seven applications provided by the OS layer. This is a related product reference only; it does not add app-suite capabilities to OPlague.
+
+## Katyuhen ecosystem
+
+[Integration with Katyuhen](KATYUHEN_INTEGRATION.md) records this project's ownership, registered interfaces, peer boundaries and validation requirements. The canonical federation registry is maintained in [DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/ecosystem/katyuhen.v1.json).
+
+## Katyuhen ecosystem
+
+[Integration with Katyuhen](KATYUHEN_INTEGRATION.md) records this project's ownership, registered interfaces, peer boundaries and validation requirements. The canonical federation registry is maintained in [DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/ecosystem/katyuhen.v1.json).
+
+## Normative documentation standard
+
+[Unified documentation and semantics standard](UNIFIED_DOCUMENTATION_STANDARD.md) defines the shared terminology, capability maturity, runtime states, verification outcomes, evidence rules, localization requirements and documentation acceptance criteria. It is normative for this repository; project-specific architecture and implementation evidence remain authoritative for the product itself.
 
 | File | Purpose |
 |---|---|

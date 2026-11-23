@@ -15,22 +15,22 @@ from typing import Iterator
 THEME_ENV = "OPLAGUE_UI_THEME"
 PALETTES: dict[str, dict[str, str]] = {
     "light": {
-        "bg": "#F4F8FD", "surface": "#FFFFFF", "elevated": "#EAF1FA",
-        "fg": "#122C45", "secondary": "#314B66", "muted": "#4D6177",
-        "heading": "#004E98", "blue": "#004E98", "blue_hover": "#1A5FDB", "on_blue": "#FFFFFF",
-        "red": "#B5122D", "red_hover": "#9C1026", "on_red": "#FFFFFF",
-        "border": "#CAD8E8", "focus": "#1A5FDB",
-        "selection": "#D9E8FF", "selection_fg": "#122C45", "disabled": "#6B7C90",
-        "log": "#0A1E46", "log_text": "#FFFFFF", "mode": "light",
+        "bg": "#F5F3FA", "surface": "#FFFFFF", "elevated": "#ECE9F5",
+        "fg": "#211F31", "secondary": "#4E4B63", "muted": "#66627A",
+        "heading": "#5B43B5", "blue": "#5B43B5", "blue_hover": "#49359D", "on_blue": "#FFFFFF",
+        "red": "#A91F49", "red_hover": "#84193A", "on_red": "#FFFFFF",
+        "border": "#D6D0E7", "focus": "#006F68", "selection": "#E6E0F7",
+        "selection_fg": "#211F31", "disabled": "#77738B", "log": "#ECE9F5",
+        "log_text": "#211F31", "mode": "light",
     },
     "dark": {
-        "bg": "#071A2D", "surface": "#0F2A45", "elevated": "#173A5E",
-        "fg": "#E8EDF2", "secondary": "#D0DCE8", "muted": "#B3C4D6",
-        "heading": "#FFFFFF", "blue": "#70A5FF", "blue_hover": "#8AB6FF", "on_blue": "#071A2D",
-        "red": "#FF7B86", "red_hover": "#FF9AA2", "on_red": "#071A2D",
-        "border": "#31516F", "focus": "#8AB6FF",
-        "selection": "#244F82", "selection_fg": "#FFFFFF", "disabled": "#9BAFC4",
-        "log": "#071A2D", "log_text": "#E8EDF2", "mode": "dark",
+        "bg": "#10142A", "surface": "#191E39", "elevated": "#252B4B",
+        "fg": "#F5F4FF", "secondary": "#D5D6EB", "muted": "#A8ADC8",
+        "heading": "#F5F4FF", "blue": "#A78BFA", "blue_hover": "#C1AEFF", "on_blue": "#1D1730",
+        "red": "#FF8EAC", "red_hover": "#FFC0CF", "on_red": "#330A1A",
+        "border": "#3B4262", "focus": "#38D4B7", "selection": "#353054",
+        "selection_fg": "#F5F4FF", "disabled": "#8388A3", "log": "#10142A",
+        "log_text": "#F5F4FF", "mode": "dark",
     },
 }
 
@@ -55,14 +55,21 @@ def contrast_ratio(foreground: str, background: str) -> float:
 
 
 def _install_semantic_status_tokens() -> None:
-    """Expose brand-compliant status roles; text and icons disambiguate meaning."""
+    """Use Mora's teal, purple and danger roles; labels keep status meaning explicit."""
     for theme_name, palette in PALETTES.items():
         dark = theme_name == "dark"
         palette.update({
-            "success": "#FFFFFF" if dark else "#0039A6",
-            "warning": "#FFFFFF" if dark else "#B51A10",
-            "error": "#FFFFFF" if dark else "#B51A10",
-            "info": "#FFFFFF" if dark else "#0A1E46",
+            "success": "#38D4B7" if dark else "#006F68",
+            "warning": "#C1AEFF" if dark else "#5B43B5",
+            "error": "#FF8EAC" if dark else "#A91F49",
+            "info": "#D5D6EB" if dark else "#4E4B63",
+        })
+        palette.update({
+            "brand": "#A78BFA" if dark else "#5B43B5",
+            "brand_hover": "#C1AEFF" if dark else "#49359D",
+            "on_brand": "#1D1730" if dark else "#FFFFFF",
+            "brand_secondary": "#38D4B7" if dark else "#006F68",
+            "on_brand_secondary": "#09231F" if dark else "#FFFFFF",
         })
 
 
@@ -73,6 +80,7 @@ def palette_contrast_issues(palette: dict[str, str]) -> list[str]:
         ("heading", "bg"), ("on_blue", "blue"), ("on_red", "red"),
         ("selection_fg", "selection"), ("success", "bg"),
         ("warning", "bg"), ("error", "bg"), ("info", "bg"),
+        ("on_brand", "brand"), ("on_brand_secondary", "brand_secondary"),
     )
     issues = []
     for foreground, background in pairs:
@@ -107,7 +115,10 @@ def _settings_path() -> Path:
 
 
 def load_preferred_theme() -> str:
-    """Return the saved System/Light/Dark choice, defaulting to System."""
+    """Return Mora's startup theme when inherited, otherwise the saved choice."""
+    inherited = os.environ.get("MORA_THEME_MODE", "").strip().casefold()
+    if inherited in {"dark", "light"}:
+        return inherited
     try:
         payload = json.loads(_settings_path().read_text(encoding="utf-8"))
         mode = payload.get("mode") if isinstance(payload, dict) else None
@@ -201,8 +212,8 @@ def palette_for(mode: str = "system", *, system_dark: bool | None = None) -> dic
         "page": result["bg"],
         "surface_alt": result["elevated"],
         "text": result["fg"],
-        "accent": result["blue"],
-        "accent_hover": result["blue_hover"],
+        "accent": result["brand"],
+        "accent_hover": result["brand_hover"],
         "danger": result["red"],
         "success": result["success"],
         "editor": result["surface"],
@@ -269,14 +280,14 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
         background=[("disabled", colors["elevated"]), ("pressed", colors["selection"]), ("active", colors["elevated"])],
     )
     style.configure(
-        "Primary.TButton", padding=(15, 13), foreground=colors["on_blue"],
-        background=colors["blue"], bordercolor=colors["blue"],
-        lightcolor=colors["blue"], darkcolor=colors["blue"],
+        "Primary.TButton", padding=(15, 13), foreground=colors["on_brand"],
+        background=colors["brand"], bordercolor=colors["brand"],
+        lightcolor=colors["brand"], darkcolor=colors["brand"],
     )
     style.map(
         "Primary.TButton",
-        foreground=[("disabled", colors["disabled"]), ("!disabled", colors["on_blue"])],
-        background=[("disabled", colors["elevated"]), ("pressed", colors["blue"]), ("active", colors["blue_hover"])],
+        foreground=[("disabled", colors["disabled"]), ("!disabled", colors["on_brand"])],
+        background=[("disabled", colors["elevated"]), ("pressed", colors["brand"]), ("active", colors["brand_hover"])],
     )
     style.configure(
         "Danger.TButton", padding=(14, 13), foreground=colors["fg"],
@@ -321,7 +332,7 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
         foreground=colors["fg"], relief="flat", font=("Segoe UI Semibold", 10),
     )
     style.configure("TSeparator", background=colors["border"])
-    style.configure("Horizontal.TProgressbar", background=colors["blue"], troughcolor=colors["elevated"])
+    style.configure("Horizontal.TProgressbar", background=colors["brand"], troughcolor=colors["elevated"])
 
     for widget in _walk(root):
         try:

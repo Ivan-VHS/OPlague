@@ -59,6 +59,10 @@ python tools/sbom_inventory.py ./staging --output staging.spdx.json
 PE inspection reads headers only. The SPDX export records hashes and leaves unverified licence information as `NOASSERTION`.
 
 
+## Related OS product: DuckOS
+
+The seven-app **Mora** suite (Cockos, Kavun, Ka-bon, Gloverty, Po, Illidia and Unify) is specified in the separate [DuckOS project](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/PREINSTALLED_APPLICATIONS.md). It is an operating-system application layer, not a component of OPlague. This repository does not claim to ship those applications or provide their OS services. Its own capabilities and interfaces remain independently defined by this repository's source, tests and versioned contracts.
+
 ## Quick Start
 
 ### Requirements
@@ -244,3 +248,13 @@ Wrap a JSON evidence report using the shared ivan-vhs.report.v1 format:
     python tools/report_envelope.py --tool oplague --version VERSION --input-file driver.zip < evidence.json
 
 Only the input SHA-256 is recorded, not the local path. See docs/REPORT_ENVELOPE.md and schemas/ivan-vhs.report.v1.schema.json.
+
+
+## Documentation map
+
+Use the [documentation index](docs/README.md) as the entry point and the [information architecture map](docs/INFORMATION_ARCHITECTURE.md) to navigate device inspection, driver/package analysis, security evidence, architecture and workbench UX. Topic hubs lead to detailed contracts; read-only scope and implementation status remain defined by source, tests and schemas.
+
+
+## Mora desktop integration
+
+OPlague is available from the shared Mora workspace as the read-only device and driver workbench. Mora provides discovery and the startup theme; the application's inspection and safety boundaries remain unchanged. See [Mora integration](docs/MORA_DESKTOP_INTEGRATION.md) and the [DuckOS workspace contract](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md).

@@ -59,6 +59,10 @@ python tools/sbom_inventory.py ./staging --output staging.spdx.json
 PE-перевірка читає лише заголовки. SPDX-звіт зберігає хеші, а неперевірені відомості про ліцензії позначає `NOASSERTION`.
 
 
+## Пов’язаний продукт ОС: DuckOS
+
+Сім застосунків Mora (Cockos, Kavun, Ka-bon, Gloverty, Po, Illidia та Unify) описані в окремому проєкті [DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/PREINSTALLED_APPLICATIONS.md). Це рівень застосунків операційної системи, а не компонент OPlague. Цей репозиторій не заявляє про постачання цих застосунків або надання їхніх системних служб. Власні можливості та інтерфейси OPlague визначаються її вихідним кодом, тестами й версіонованими контрактами.
+
 ## Швидкий старт
 
 ### Вимоги
@@ -243,3 +247,13 @@ JSON-звіт із доказами можна обгорнути в загал�
     python tools/report_envelope.py --tool oplague --version VERSION --input-file driver.zip < evidence.json
 
 В оболонку записується лише SHA-256 вхідного файла, а не локальний шлях. Див. docs/REPORT_ENVELOPE.md і schemas/ivan-vhs.report.v1.schema.json.
+
+
+## Карта документації
+
+Використовуйте [індекс документації](docs/README.md) як точку входу, а [карту інформаційної архітектури](docs/INFORMATION_ARCHITECTURE.md) — для навігації перевіркою пристроїв, аналізом драйверів і пакетів, безпекою, архітектурою та інтерфейсом робочої станції. Хаби ведуть до детальних контрактів; режим лише читання та стан реалізації визначаються кодом, тестами й схемами.
+
+
+## Інтеграція з робочим столом Mora
+
+OPlague доступний зі спільного робочого простору Mora як read-only інструмент перевірки пристроїв і пакетів драйверів. Mora відповідає за виявлення програми та початкову тему; межі перевірки й безпеки не змінюються. Див. [інтеграцію Mora](docs/MORA_DESKTOP_INTEGRATION.md) та [контракт DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md).

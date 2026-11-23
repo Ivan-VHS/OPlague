@@ -59,6 +59,10 @@ python tools/sbom_inventory.py ./staging --output staging.spdx.json
 PE 检查仅读取头部。SPDX 报告记录哈希；未经验证的许可证信息保留为 `NOASSERTION`。
 
 
+## 相关操作系统产品：DuckOS
+
+七款 Mora 应用（Cockos、Kavun、Ka-bon、Gloverty、Po、Illidia 和 Unify）在独立的 [DuckOS 项目](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/PREINSTALLED_APPLICATIONS.md)中定义。它们属于操作系统应用层，并不是 OPlague 的组成部分。本仓库不声称随附这些应用或提供其操作系统服务。OPlague 自身的能力和接口仍以本仓库的源代码、测试和版本化契约为准。
+
 ## 快速开始
 
 ### 环境要求
@@ -243,3 +247,13 @@ Web Stand 检查清单按实际桌面工作台进行映射，而不是复制为�
     python tools/report_envelope.py --tool oplague --version VERSION --input-file driver.zip < evidence.json
 
 封装中只记录输入文件的 SHA-256，不记录本地路径。请参阅 docs/REPORT_ENVELOPE.md 和 schemas/ivan-vhs.report.v1.schema.json。
+
+
+## 文档导航图
+
+请从[文档索引](docs/README.md)进入，并使用[信息架构图](docs/INFORMATION_ARCHITECTURE.md)浏览设备检查、驱动与软件包分析、安全证据、架构和工作台 UX。主题入口链接到详细契约；只读范围和实现状态仍以源代码、测试和 Schema 为准。
+
+
+## Mora 桌面集成
+
+OPlague 可从统一的 Mora 工作空间启动，作为只读设备和驱动包检查工具。Mora 负责应用发现和启动主题；OPlague 原有的检查与安全边界保持不变。请参阅 [Mora 集成说明](docs/MORA_DESKTOP_INTEGRATION.md) 和 [DuckOS 工作空间契约](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md)。
