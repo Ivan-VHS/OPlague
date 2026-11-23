@@ -244,3 +244,8 @@ Wrap a JSON evidence report using the shared ivan-vhs.report.v1 format:
     python tools/report_envelope.py --tool oplague --version VERSION --input-file driver.zip < evidence.json
 
 Only the input SHA-256 is recorded, not the local path. See docs/REPORT_ENVELOPE.md and schemas/ivan-vhs.report.v1.schema.json.
+
+
+## Documentation map
+
+Use the [documentation index](docs/README.md) as the entry point and the [information architecture map](docs/INFORMATION_ARCHITECTURE.md) to navigate device inspection, driver/package analysis, security evidence, architecture and workbench UX. Topic hubs lead to detailed contracts; read-only scope and implementation status remain defined by source, tests and schemas.
