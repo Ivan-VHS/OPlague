@@ -24,6 +24,7 @@ from tools.metric_analysis import analyze_device_profiles
 from tools.architecture_profiles import current_host_architecture, detect_inf_target_architectures, evaluate_driver_targets
 from tools.device_graph import extract_inf_compatibility, build_dry_run_plan
 from tools.report_export import render_report
+from tools.game_optimizer_ui import open_game_optimizer
 
 MAX_PACKAGE_BYTES = 512 * 1024 * 1024
 MAX_ARCHIVE_ENTRIES = 10_000
@@ -239,6 +240,8 @@ class OPlagueApp(tk.Tk):
         self.motion_button.pack(side="right", padx=(0, 8))
         self.budget_button = ttk.Button(header, text="Бюджет 500 грн", command=lambda: open_budget_planner(self))
         self.budget_button.pack(side="right", padx=(0, 8))
+        self.game_button = ttk.Button(header, text="Игровая лаборатория", command=lambda: open_game_optimizer(self))
+        self.game_button.pack(side="right", padx=(0, 8))
         self.tabs = ttk.Notebook(self); self.tabs.pack(fill="both", expand=True, padx=14, pady=(0, 10))
         inventory = ttk.Frame(self.tabs, padding=12); packages = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(inventory, text="Устройства"); self.tabs.add(packages, text="Проверка пакетов")
