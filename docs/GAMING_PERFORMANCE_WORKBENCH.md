@@ -22,7 +22,7 @@ The profile cache API is available in tools/game_optimizer.py for future profile
 
 This feature does not install, replace, patch, load, unload or download drivers. It does not edit registry keys, BIOS/UEFI settings, voltage/frequency curves, IRQ/MSI affinity, CPU core parking, network settings, services or anti-cheat-sensitive process priorities. It never disables security software. No third-party driver aggregator or untrusted download endpoint is used.
 
-Temperature, VRAM, GPU-engine, WHEA and sensor readings are not fabricated. This release does not provide a sensor backend or an embedded PresentMon capture process; import genuine CSV output from a compatible local telemetry tool. A CSV regression is advisory and does not automatically prove causation. The UI asks the operator to finish the session and restore; it does not change settings based on a single noisy sample.
+Temperature, VRAM, GPU-engine, WHEA and sensor readings are not fabricated. This release does not provide a sensor backend or an embedded PresentMon capture process; import genuine CSV output from a compatible local telemetry tool. A CSV regression is advisory and does not automatically prove causation. When a compared run crosses a regression threshold, the UI attempts to restore the active OPlague session's previous power plan. The restore guard leaves the system untouched if another application or the user changed the active plan. No automatic driver rollback is attempted.
 
 A power-plan switch is a real system change. OPlague snapshots the previous plan before switching, offers an explicit restore action, and restores only while the active plan is still the plan it set. Driver payload backups and Windows restore points are outside this feature because this workbench does not perform driver deployment.
 
@@ -30,4 +30,4 @@ A power-plan switch is a real system change. OPlague snapshots the previous plan
 
     python -m unittest tests.test_game_optimizer -v
 
-The tests cover exact hardware-ID normalization, PCI/USB identity fields, stable fingerprints, atomic snapshots, power-scheme parsing and validation, bounded CSV analysis, regression thresholds and exact-tuple profile caching.
+The tests cover exact hardware-ID normalization (including instance-path segments), PCI/USB identity fields, stable fingerprints, atomic snapshots, power-scheme parsing and validation, bounded CSV analysis, percentile sample sufficiency, regression thresholds and exact-tuple profile caching.
