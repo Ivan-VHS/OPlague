@@ -14,7 +14,7 @@ SCHEMA = "oplague.duckos-gaming-evidence.v1"
 SAFE_SHA256 = re.compile(r"^[0-9a-fA-F]{64}$")
 PROVIDER_IDS = (
     "process_catalog", "window_manager", "graphics_context", "display_info",
-    "power_source", "session_coordinator", "scheduler", "cpu_topology",
+    "power_source", "session_coordinator", "scheduler", "cpu_telemetry", "cpu_topology",
     "interrupt_telemetry", "power_telemetry", "timer_provider", "frame_time",
     "memory_pressure", "swap_metrics", "compression", "page_cache",
     "storage_prefetch", "vram_metrics", "compositor", "gpu_queue", "vrr",
