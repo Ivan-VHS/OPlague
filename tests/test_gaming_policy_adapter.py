@@ -72,6 +72,17 @@ class GamingPolicyAdapterTests(unittest.TestCase):
                 snapshot={"snapshot_id": "snap-1", "hardware_fingerprint": "not-a-hash"}
             )
 
+    def test_accepts_oplague_saved_profile_hardware_fingerprint(self):
+        evidence = build_duckos_capability_evidence(
+            compatibility_profile={
+                "validation": "operator_confirmed",
+                "game_id": "game.exe",
+                "hardware_fingerprint": "b" * 64,
+                "driver_version": "1.0",
+            }
+        )
+        self.assertTrue(evidence["providers"]["compatibility_profiles"]["available"])
+
     def test_profile_must_be_operator_confirmed(self):
         with self.assertRaises(GamingEvidenceError):
             build_duckos_capability_evidence(
