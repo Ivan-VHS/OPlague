@@ -12,6 +12,28 @@ OPlague's gaming workbench extends the existing read-only device and driver insp
 - Compares benchmark summaries and flags configurable regressions. The operator must choose the same game, scene, resolution and test duration; noisy or non-repeatable runs are not evidence of a driver improvement.
 - Caches only operator-confirmed game profiles keyed by exact hardware fingerprint, driver version and game identifier. The cache is local and bounded to 250 profiles.
 
+## Coverage of the 15 requested rules
+
+| Rule | Current implementation |
+|---|---|
+| 1. Exact hardware identity | Implemented for full normalized PCI/USB and other PnP instance paths; PCI/USB vendor, device, subsystem and revision fields are extracted. |
+| 2. Snapshot and rollback | Partial: atomically snapshots hardware/driver metadata and the power plan; guarded power-plan restore is implemented. Driver-store backup and Windows restore-point creation are not implemented because this release never deploys drivers. |
+| 3. Trusted driver sources | Partial: the existing inspector supports local INF/ZIP metadata and Authenticode inspection. It does not download or install driver packages. |
+| 4. Driver-only installation | Not enabled: there is no driver installer or background component remover. |
+| 5. OS/architecture compatibility | Partial: existing INF target architecture and exact-ID analysis remain available. A per-game DX11/DX12/Vulkan/anti-cheat compatibility database is not included. |
+| 6. Safe driver overrides | Partial: only operator-selected power mode and local profile metadata are supported. Driver binaries are never patched; no registry/environment/third-party wrapper settings are changed. |
+| 7. Power and boost profiles | Partial: a built-in Windows High Performance plan may be enabled for a session after a snapshot and restored afterwards. CPU/GPU frequency, voltage, PCIe, memory and core-parking controls are not changed. |
+| 8. Interrupt and I/O tuning | Not enabled: IRQ/MSI affinity and queue-depth changes are intentionally excluded. |
+| 9. Memory and shader cache | Not enabled: no VRAM, paging-file or vendor shader-cache controls are changed. |
+| 10. Thermal safeguards | Not enabled: this release has no verified sensor/fan/VRM provider. Missing temperatures are never guessed and no fan curve or overclock is applied. |
+| 11. Background process isolation | Not enabled: no service, updater, security process or background application is terminated or suspended. |
+| 12. Network tuning | Not enabled: MTU, adapter power, queue and protocol settings remain untouched. |
+| 13. Adaptive game profiles | Partial: local profiles are keyed to exact game ID, hardware fingerprint and driver version and require operator validation. Automatic game detection and genre/refresh-rate policy selection are not included. |
+| 14. 1%/0.1% low and rollback | Implemented for imported measured CSV captures: average FPS, 1%/0.1% low (0.1% only with at least 1,000 frames), median and p99 frametime. Threshold regression attempts guarded restoration of the OPlague power-plan session. WHEA/GPU reset and sensor telemetry are not integrated. |
+| 15. Local learning cache | Implemented as a bounded, local cache of operator-confirmed exact-match profiles; it does not learn from unverified or mismatched hardware/game tuples. |
+
+The intentionally disabled items need hardware-specific providers, repeatable validation and platform-native permission/rollback implementations. They must not be simulated with guessed metrics or generic registry tweaks.
+ 
 ## Start
 
 Use the "Игровая лаборатория" button in the OPlague desktop header. The workbench can capture a system snapshot, start a temporary power-profile session, restore it and compare two frame-time CSV files.
