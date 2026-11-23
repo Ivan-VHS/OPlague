@@ -231,6 +231,13 @@ class OPlagueApp(tk.Tk):
         self.minsize(820, 540)
         self._theme_mode = load_preferred_theme()
         self._theme_cycle = ("system", "light", "dark")
+        brand_strip = tk.Frame(self, height=5, bd=0, highlightthickness=0)
+        brand_strip.pack(fill="x")
+        brand_strip.pack_propagate(False)
+        for color in ("#0039A6", "#FFFFFF", "#D52B1E"):
+            tk.Frame(brand_strip, background=color, bd=0, highlightthickness=0).pack(
+                side="left", fill="both", expand=True
+            )
         header = ttk.Frame(self, padding=(16, 12)); header.pack(fill="x")
         ttk.Label(header, text="OPLAGUE", style="Title.TLabel").pack(side="left")
         ttk.Label(header, text="Инвентаризация оборудования  /  Проверка пакетов драйверов", style="Muted.TLabel").pack(side="left", padx=16)
@@ -357,7 +364,13 @@ class OPlagueApp(tk.Tk):
 
     def apply_visual_theme(self) -> None:
         """Apply the selected appearance to tabs, tables and report editors."""
-        apply_ui_theme(self, self._theme_mode)
+        colors = apply_ui_theme(self, self._theme_mode)
+        if hasattr(self, "devices"):
+            self.devices.tag_configure(
+                "alternate",
+                background=colors["elevated"],
+                foreground=colors["fg"],
+            )
         theme_title = {"system": "системная", "light": "светлая", "dark": "тёмная"}.get(self._theme_mode, "системная")
         self.theme_button.configure(text=f"Тема: {theme_title}")
 
@@ -389,8 +402,13 @@ class OPlagueApp(tk.Tk):
             self.status.set("Не удалось получить список устройств")
             messagebox.showerror("Список устройств", str(error), parent=self); return
         self.device_rows = devices
-        for row in devices:
-            self.devices.insert("", "end", values=(row["name"], row["status"], row["manufacturer"], row["pnp_id"]))
+        for index, row in enumerate(devices):
+            tags = ("alternate",) if index % 2 else ()
+            self.devices.insert(
+                "", "end",
+                values=(row["name"], row["status"], row["manufacturer"], row["pnp_id"]),
+                tags=tags,
+            )
         self.status.set(f"Найдено устройств Plug and Play: {len(devices)}")
 
     def compare_profiles(self) -> None:
