@@ -76,7 +76,7 @@ class GameOptimizerTests(unittest.TestCase):
                 encoding="utf-8",
             )
             result = gaming.summarize_frametime_csv(source)
-        self.assertEqual(result["sample_count"], 100)
+        self.assertEqual(result["sample_count"], 1000)
         self.assertGreater(result["average_fps"], 90)
         self.assertAlmostEqual(result["one_percent_low_fps"], 71.43, places=2)
         self.assertEqual(result["point_one_percent_low_fps"], 20.0)
