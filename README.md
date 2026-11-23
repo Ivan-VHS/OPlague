@@ -249,3 +249,8 @@ Only the input SHA-256 is recorded, not the local path. See docs/REPORT_ENVELOPE
 ## Documentation map
 
 Use the [documentation index](docs/README.md) as the entry point and the [information architecture map](docs/INFORMATION_ARCHITECTURE.md) to navigate device inspection, driver/package analysis, security evidence, architecture and workbench UX. Topic hubs lead to detailed contracts; read-only scope and implementation status remain defined by source, tests and schemas.
+
+
+## Mora desktop integration
+
+OPlague is available from the shared Mora workspace as the read-only device and driver workbench. Mora provides discovery and the startup theme; the application's inspection and safety boundaries remain unchanged. See [Mora integration](docs/MORA_DESKTOP_INTEGRATION.md) and the [DuckOS workspace contract](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md).
