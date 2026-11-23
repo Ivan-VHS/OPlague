@@ -6,6 +6,7 @@ import os
 import platform
 import re
 import subprocess
+import stat
 import tkinter as tk
 import zipfile
 from pathlib import Path, PurePosixPath
@@ -70,8 +71,16 @@ def _inf(data: bytes, label: str) -> dict[str, str]:
 
 def _safe_archive_name(name: str) -> None:
     normalized = name.replace("\\", "/")
-    parsed = PurePosixPath(normalized)
-    if parsed.is_absolute() or ".." in parsed.parts or "\x00" in normalized or re.match(r"^[A-Za-z]:", normalized):
+    trimmed = normalized[:-1] if normalized.endswith("/") else normalized
+    parts = trimmed.split("/")
+    parsed = PurePosixPath(trimmed)
+    if (
+        not trimmed
+        or any(part in {"", ".", ".."} for part in parts)
+        or parsed.is_absolute()
+        or "\x00" in normalized
+        or re.match(r"^[A-Za-z]:", normalized)
+    ):
         raise ValueError(f"Unsafe archive path detected: {name}")
 
 def inspect_package(filename: str | Path) -> dict[str, Any]:
@@ -88,6 +97,8 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
         "sha256": _hash_file(path), "format": suffix.lstrip(".").upper(),
     }
     if suffix == ".inf":
+        if size > MAX_INF_BYTES:
+            raise ValueError(f"INF file is too large to inspect: {path.name}")
         raw_inf = path.read_bytes()
         report["inf_metadata"] = _inf(raw_inf, path.name)
         report["compatibility"] = extract_inf_compatibility(_decode_inf(raw_inf))
@@ -103,10 +114,26 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
             if len(entries) > MAX_ARCHIVE_ENTRIES:
                 raise ValueError("Archive contains more than 10,000 entries")
             expanded, inf_files = 0, []
+            seen_paths: set[str] = set()
             for entry in entries:
                 _safe_archive_name(entry.filename)
+                canonical_name = entry.filename.replace("\\", "/").rstrip("/")
+                folded_name = canonical_name.casefold()
+                if folded_name in seen_paths:
+                    raise ValueError(f"Duplicate archive path detected: {entry.filename}")
+                seen_paths.add(folded_name)
+
+                mode = (entry.external_attr >> 16) & 0xFFFF
+                file_type = stat.S_IFMT(mode)
+                if file_type not in (0, stat.S_IFREG, stat.S_IFDIR):
+                    raise ValueError(f"Non-regular archive entry is not allowed: {entry.filename}")
                 if entry.is_dir():
+                    if file_type not in (0, stat.S_IFDIR):
+                        raise ValueError(f"Archive directory has an invalid file type: {entry.filename}")
                     continue
+                if entry.flag_bits & 0x1:
+                    raise ValueError(f"Encrypted archive entry is not supported: {entry.filename}")
+
                 expanded += entry.file_size
                 if expanded > MAX_EXPANDED_BYTES:
                     raise ValueError("Archive exceeds the expanded-size inspection limit")
@@ -117,7 +144,13 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
                 if entry.filename.casefold().endswith(".inf"):
                     if entry.file_size > MAX_INF_BYTES:
                         raise ValueError(f"INF file is too large to inspect: {entry.filename}")
-                    raw_inf = archive.read(entry)
+                    # Bound decompression as well as the declared ZIP size. A
+                    # malformed central directory must not trigger an unbounded
+                    # archive.read() allocation for an INF inspection.
+                    with archive.open(entry, "r") as source:
+                        raw_inf = source.read(MAX_INF_BYTES + 1)
+                    if len(raw_inf) > MAX_INF_BYTES or len(raw_inf) != entry.file_size:
+                        raise ValueError(f"INF entry size does not match its declared bound: {entry.filename}")
                     inf_files.append({
                         "file": entry.filename,
                         "metadata": _inf(raw_inf, entry.filename),
