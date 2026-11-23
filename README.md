@@ -44,8 +44,9 @@ The result is an evidence record and candidate comparison, not a final safety or
 | Metric Lab | compares user-supplied normalized profiles with weighted distance/variance | advisory analysis, not a device verdict |
 | UDRV v1 | validates manifest, sizes and SHA-256 evidence | integrity check, not publisher authentication |
 | Reports | produces structured evidence, totals and fingerprints | no system write and no driver installation |
+| Hardware & Game Performance Stack | fifteen read-only subsystems for UEFI/SMBIOS, CPU/RAM/GPU, PnP, drivers, thermal evidence and gaming benchmarks | inventory and recommendations only; no BIOS flashing, driver installation or overclocking |
 
-The application has four principal tabs: **Devices**, **Package Inspection**, **Metric Lab** and **Compatibility Review**. The theme can cycle through system/light/dark modes; motion preferences include Reduce Motion and Eco Visuals.
+The application has five principal tabs: **Devices**, **Package Inspection**, **Metric Lab**, **Compatibility Review** and **Hardware / Games**. The last tab provides fifteen inventory and gaming-benchmark analysis subsystems; live collection depends on Windows and on the evidence exposed by each hardware interface. The theme can cycle through system/light/dark modes; motion preferences include Reduce Motion and Eco Visuals.
 
 The screenshot is a captured desktop application, not a browser preview.
 
@@ -57,6 +58,8 @@ python tools/sbom_inventory.py ./staging --output staging.spdx.json
 ```
 
 PE inspection reads headers only. The SPDX export records hashes and leaves unverified licence information as `NOASSERTION`.
+
+Details and CLI commands for the new hardware stack: [HARDWARE_GAME_STACK.md](docs/HARDWARE_GAME_STACK.md). Collection uses Windows CIM/PnP and SMBIOS/UEFI evidence read-only; optional Windows Update discovery is off by default and does not download or install drivers. Exact hardware identifiers are redacted by default.
 
 
 ## Related OS product: DuckOS
