@@ -80,7 +80,7 @@ class GameOptimizerTests(unittest.TestCase):
     def test_nvidia_telemetry_keeps_missing_values_unknown(self):
         class Completed:
             returncode = 0
-            stdout = "GPU,1.0,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A\n"
+            stdout = "GPU,1.0,N/A,N/A,N/A,N/A,N/A,N/A,N/A\n"
             stderr = ""
         with patch.object(gaming.shutil, "which", return_value="nvidia-smi"):
             result = gaming.collect_nvidia_telemetry(
