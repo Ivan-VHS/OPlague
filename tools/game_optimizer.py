@@ -55,12 +55,12 @@ def hardware_identity(value: Any) -> dict[str, str]:
         return {}
     fields = {"device_id": device_id, "bus": device_id.split("\\", 1)[0]}
     for key, pattern in (
-        ("vendor_id", r"(?:^|&)VEN_([0-9A-F]{4})(?:&|$)"),
-        ("device_code", r"(?:^|&)DEV_([0-9A-F]{4})(?:&|$)"),
-        ("subsystem_id", r"(?:^|&)SUBSYS_([0-9A-F]{8})(?:&|$)"),
-        ("revision", r"(?:^|&)REV_([0-9A-F]{2})(?:&|$)"),
-        ("usb_vendor_id", r"(?:^|&)VID_([0-9A-F]{4})(?:&|$)"),
-        ("usb_product_id", r"(?:^|&)PID_([0-9A-F]{4})(?:&|$)"),
+        ("vendor_id", r"(?:^|[&\\])VEN_([0-9A-F]{4})(?:&|\\|$)"),
+        ("device_code", r"(?:^|[&\\])DEV_([0-9A-F]{4})(?:&|\\|$)"),
+        ("subsystem_id", r"(?:^|[&\\])SUBSYS_([0-9A-F]{8})(?:&|\\|$)"),
+        ("revision", r"(?:^|[&\\])REV_([0-9A-F]{2})(?:&|\\|$)"),
+        ("usb_vendor_id", r"(?:^|[&\\])VID_([0-9A-F]{4})(?:&|\\|$)"),
+        ("usb_product_id", r"(?:^|[&\\])PID_([0-9A-F]{4})(?:&|\\|$)"),
     ):
         match = re.search(pattern, device_id)
         if match:
