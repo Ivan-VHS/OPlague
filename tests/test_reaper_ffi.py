@@ -60,6 +60,21 @@ class ReaperFfiTests(unittest.TestCase):
             with patch("tools.reaper_ffi.ctypes.CDLL", return_value=_Library()):
                 self.assertEqual(reaper_ffi.evaluate_i64("6 * 7", library_path), 42)
 
+    def test_rejects_symlinked_library_path(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "reaper-real.so"
+            link = Path(directory) / "reaper-link.so"
+            target.write_bytes(b"test fixture")
+            try:
+                link.symlink_to(target)
+            except (OSError, NotImplementedError) as error:
+                self.skipTest(f"symlinks are unavailable in this environment: {error}")
+
+            with patch("tools.reaper_ffi.ctypes.CDLL") as loader:
+                with self.assertRaisesRegex(ValueError, "symlink"):
+                    reaper_ffi._library(str(link))
+                loader.assert_not_called()
+
     def test_rejects_nul_and_oversized_source_before_loading_library(self):
         with patch("tools.reaper_ffi.ctypes.CDLL") as loader:
             with self.assertRaisesRegex(ValueError, "NUL"):
