@@ -50,11 +50,64 @@ class GameOptimizerTests(unittest.TestCase):
     def test_snapshot_is_written_atomically_and_contains_identity(self):
         devices = [{"name": "GPU", "pnp_id": r"PCI\VEN_10DE&DEV_2C05", "driver_version": "1.2"}]
         with tempfile.TemporaryDirectory() as folder:
-            result = gaming.create_snapshot(devices=devices, power_scheme=None, directory=Path(folder))
+            telemetry = {"gpu": {"provider": "nvidia-smi", "available": True, "gpus": []}}
+            result = gaming.create_snapshot(
+                devices=devices, power_scheme=None, telemetry=telemetry, directory=Path(folder)
+            )
             stored = json.loads(Path(result["snapshot_path"]).read_text(encoding="utf-8"))
         self.assertEqual(stored["schema"], gaming.SCHEMA_VERSION)
         self.assertEqual(stored["devices"][0]["driver_version"], "1.2")
+        self.assertEqual(stored["telemetry"]["gpu"]["provider"], "nvidia-smi")
         self.assertEqual(len(stored["hardware_fingerprint"]), 64)
+
+    def test_nvidia_telemetry_parses_real_sensor_values_and_unknowns(self):
+        class Completed:
+            returncode = 0
+            stdout = (
+                "NVIDIA GeForce RTX 5070, 572.16, 43, 24, 4096, 12282, "
+                "93.5, 2505, 9001\\n"
+            )
+            stderr = ""
+        with patch.object(gaming.shutil, "which", return_value="nvidia-smi"):
+            result = gaming.collect_nvidia_telemetry(lambda *args, **kwargs: Completed())
+        gpu = result["gpus"][0]
+        self.assertTrue(result["available"])
+        self.assertEqual(gpu["name"], "NVIDIA GeForce RTX 5070")
+        self.assertEqual(gpu["temperature_c"], 43)
+        self.assertEqual(gpu["memory_used_mib"], 4096)
+        self.assertEqual(gpu["power_w"], 93.5)
+
+    def test_nvidia_telemetry_keeps_missing_values_unknown(self):
+        class Completed:
+            returncode = 0
+            stdout = "GPU,1.0,N/A,N/A,N/A,N/A,N/A,N/A,N/A\\n"
+            stderr = ""
+        result = gaming.collect_nvidia_telemetry(
+            lambda *args, **kwargs: Completed(), executable="nvidia-smi"
+        )
+        self.assertTrue(result["available"])
+        self.assertIsNone(result["gpus"][0]["temperature_c"])
+        self.assertIsNone(result["gpus"][0]["memory_used_mib"])
+
+    def test_windows_reliability_events_are_read_without_modifying_settings(self):
+        class Completed:
+            returncode = 0
+            stdout = (
+                '[{"TimeCreated":"2026-11-23T12:00:00Z","ProviderName":"Microsoft-Windows-WHEA-Logger",'
+                '"Id":17,"LevelDisplayName":"Warning","Message":"PCIe corrected error"}]'
+            )
+            stderr = ""
+        with patch.object(gaming.os, "name", "nt"):
+            result = gaming.collect_windows_reliability_events(
+                hours=24, runner=lambda *args, **kwargs: Completed()
+            )
+        self.assertTrue(result["available"])
+        self.assertEqual(result["event_count"], 1)
+        self.assertEqual(result["events"][0]["event_id"], 17)
+
+    def test_windows_event_lookback_is_bounded(self):
+        with self.assertRaises(ValueError):
+            gaming.collect_windows_reliability_events(hours=1000)
 
     def test_power_scheme_parser_uses_guid_and_keeps_description(self):
         class Completed:
