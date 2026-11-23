@@ -5,6 +5,7 @@ It never changes a power plan, driver, registry key, service or device.
 """
 from __future__ import annotations
 
+import math
 import platform
 import re
 from typing import Any
@@ -71,7 +72,10 @@ def build_duckos_capability_evidence(
         record = _valid_record(gpu_telemetry, "gpu_telemetry")
         if record.get("provider") != "nvidia-smi" or not isinstance(record.get("available"), bool):
             raise GamingEvidenceError("gpu_telemetry must contain a boolean availability from nvidia-smi")
-        available = record["available"] and bool(record.get("gpus"))
+        gpu_rows = record.get("gpus")
+        if not isinstance(gpu_rows, list) or any(not isinstance(item, dict) for item in gpu_rows):
+            raise GamingEvidenceError("gpu_telemetry.gpus must be a list of sensor records")
+        available = record["available"] and bool(gpu_rows)
         providers["gpu_telemetry"] = _provider(
             available, "nvidia-smi",
             record.get("reason") or "NVIDIA sensor rows are unavailable",
@@ -95,8 +99,11 @@ def build_duckos_capability_evidence(
         if isinstance(count, bool) or not isinstance(count, int) or count <= 0:
             raise GamingEvidenceError("frame_time.sample_count must be a positive integer")
         value = record.get("p99_frametime_ms")
-        if isinstance(value, bool) or not isinstance(value, (int, float)) or value <= 0:
-            raise GamingEvidenceError("frame_time.p99_frametime_ms must be a positive measurement")
+        if (
+            isinstance(value, bool) or not isinstance(value, (int, float))
+            or not math.isfinite(float(value)) or value <= 0
+        ):
+            raise GamingEvidenceError("frame_time.p99_frametime_ms must be a finite positive measurement")
         providers["frame_time"] = _provider(True, "PresentMon-compatible CSV", version="measured")
     
     if active_power_plan is not None:
