@@ -71,15 +71,25 @@ class GameOptimizerTests(unittest.TestCase):
             source = Path(folder) / "frames.csv"
             source.write_text(
                 "Application,MsBetweenPresents\n" + "\n".join(
-                    f"game.exe,{value}" for value in [10.0] * 99 + [50.0]
+                    f"game.exe,{value}" for value in [10.0] * 999 + [50.0]
                 ),
                 encoding="utf-8",
             )
             result = gaming.summarize_frametime_csv(source)
         self.assertEqual(result["sample_count"], 100)
         self.assertGreater(result["average_fps"], 90)
-        self.assertEqual(result["one_percent_low_fps"], 20.0)
+        self.assertAlmostEqual(result["one_percent_low_fps"], 71.43, places=2)
         self.assertEqual(result["point_one_percent_low_fps"], 20.0)
+
+    def test_0_1_percent_low_is_unavailable_for_short_capture(self):
+        with tempfile.TemporaryDirectory() as folder:
+            source = Path(folder) / "short.csv"
+            source.write_text(
+                "MsBetweenPresents\\n" + "\\n".join(["10.0"] * 99 + ["50.0"]),
+                encoding="utf-8",
+            )
+            result = gaming.summarize_frametime_csv(source)
+        self.assertIsNone(result["point_one_percent_low_fps"])
 
     def test_frametime_csv_rejects_unknown_header(self):
         with tempfile.TemporaryDirectory() as folder:
