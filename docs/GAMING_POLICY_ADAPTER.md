@@ -19,3 +19,8 @@ The adapter does not start/restore a power session, touch drivers, write the reg
 ```sh
 python -m unittest tests.test_gaming_policy_adapter -v
 ```
+
+
+## Sequential rollout
+
+Rollout gate: this PR stays in draft until DuckOS PR #75 is merged. Then it is the second stage of the gaming-policy rollout.
