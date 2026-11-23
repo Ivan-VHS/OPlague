@@ -1,3 +1,16 @@
+> **Navigation:** Start with the [information architecture map](INFORMATION_ARCHITECTURE.md), then select a [topic hub](clusters/device-driver-inspection.md). The map connects the repository's read-only device, driver, security and workbench documentation.
+
+## Topic hubs
+
+- [Device, driver and package inspection](clusters/device-driver-inspection.md) — Read-only Windows device discovery, driver metadata, compatibility and package inspection contracts.
+- [Security, safety and evidence](clusters/security-evidence.md) — Trust boundaries, provenance, validation, evidence handling and quality gates.
+- [Architecture and system contracts](clusters/architecture-systems.md) — System structure, persistence, runtime boundaries and reusable engineering contracts.
+- [Workbench UI and visual system](clusters/ui-workbench.md) — Desktop workbench interaction, motion, accessibility and visual documentation.
+- [Integrations and project federation](clusters/integration-federation.md) — Runtime integration points, plugins, external tools and cross-project interfaces.
+- [Governance, planning and reference material](clusters/governance-planning.md) — Stewardship, roadmap, catalog and supporting project references.
+
+---
+
 # Documentation
 
 ## Normative documentation standard

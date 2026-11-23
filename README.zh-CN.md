@@ -243,3 +243,8 @@ Web Stand 检查清单按实际桌面工作台进行映射，而不是复制为�
     python tools/report_envelope.py --tool oplague --version VERSION --input-file driver.zip < evidence.json
 
 封装中只记录输入文件的 SHA-256，不记录本地路径。请参阅 docs/REPORT_ENVELOPE.md 和 schemas/ivan-vhs.report.v1.schema.json。
+
+
+## 文档导航图
+
+请从[文档索引](docs/README.md)进入，并使用[信息架构图](docs/INFORMATION_ARCHITECTURE.md)浏览设备检查、驱动与软件包分析、安全证据、架构和工作台 UX。主题入口链接到详细契约；只读范围和实现状态仍以源代码、测试和 Schema 为准。
