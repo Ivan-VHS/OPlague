@@ -133,10 +133,11 @@ def build_duckos_capability_evidence(
         record = _valid_record(compatibility_profile, "compatibility_profile")
         if record.get("validation") != "operator_confirmed":
             raise GamingEvidenceError("compatibility profile must be operator-confirmed")
-        if not isinstance(record.get("game_id"), str) or not isinstance(record.get("hardware_hash"), str):
-            raise GamingEvidenceError("compatibility profile requires game_id and hardware_hash")
-        if not SAFE_SHA256.fullmatch(record["hardware_hash"]):
-            raise GamingEvidenceError("compatibility profile hardware_hash must be SHA-256")
+        hardware_fingerprint = record.get("hardware_fingerprint") or record.get("hardware_hash")
+        if not isinstance(record.get("game_id"), str) or not isinstance(hardware_fingerprint, str):
+            raise GamingEvidenceError("compatibility profile requires game_id and hardware_fingerprint")
+        if not SAFE_SHA256.fullmatch(hardware_fingerprint):
+            raise GamingEvidenceError("compatibility profile hardware_fingerprint must be SHA-256")
         providers["compatibility_profiles"] = _provider(
             True, "OPlague validated local profile cache", version="operator-confirmed"
         )
