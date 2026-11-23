@@ -71,3 +71,8 @@ OPlague is a hardware and driver inspection workbench. Keep inventory and packag
 - [Microsoft Windows app design](https://learn.microsoft.com/windows/apps/design/)
 
 Targets are documented; this file does not claim all manual acceptance checks have passed.
+
+
+## Mora Amber profile
+
+The default [Mora Amber theme](MORA_AMBER_DESIGN_SYSTEM.md) adds a warm walnut workspace, amber actions and a muted olive secondary accent while preserving the product's explicit status and evidence semantics. Light, Dark and System remain selectable. The workbench stays read-only; the new profile changes presentation only.
