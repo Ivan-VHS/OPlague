@@ -85,7 +85,7 @@ class GameOptimizerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             source = Path(folder) / "short.csv"
             source.write_text(
-                "MsBetweenPresents\\n" + "\\n".join(["10.0"] * 99 + ["50.0"]),
+                "MsBetweenPresents\n" + "\n".join(["10.0"] * 99 + ["50.0"]),
                 encoding="utf-8",
             )
             result = gaming.summarize_frametime_csv(source)
