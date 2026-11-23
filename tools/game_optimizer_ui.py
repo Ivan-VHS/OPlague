@@ -9,7 +9,9 @@ from tkinter import filedialog, messagebox, simpledialog, ttk
 from tkinter.scrolledtext import ScrolledText
 
 from tools.game_optimizer import (
+    collect_nvidia_telemetry,
     collect_windows_devices,
+    collect_windows_reliability_events,
     compare_benchmarks,
     create_snapshot,
     restore_game_session,
@@ -52,7 +54,11 @@ def open_game_optimizer(parent: tk.Misc) -> None:
     def snapshot() -> None:
         try:
             devices = collect_windows_devices() if os.name == "nt" else []
-            result = create_snapshot(devices=devices)
+            telemetry = {
+                "gpu": collect_nvidia_telemetry(),
+                "reliability_events": collect_windows_reliability_events(),
+            }
+            result = create_snapshot(devices=devices, telemetry=telemetry)
         except Exception as error:
             messagebox.showerror("Снимок системы", str(error), parent=window)
             return
