@@ -294,6 +294,12 @@ def start_game_session(
     if os.name != "nt":
         raise RuntimeError("Temporary power profiles are currently supported only on Windows")
 
+    session_file = _session_path(directory)
+    if session_file.is_file():
+        existing = _read_json(session_file)
+        if existing.get("schema") == SCHEMA_VERSION and existing.get("status") in {"active", "starting"}:
+            raise RuntimeError("An OPlague game session is already active. Restore it before starting another one.")
+
     devices = (device_reader or collect_windows_devices)()
     previous = active_power_scheme(runner)
     snapshot = create_snapshot(
@@ -305,14 +311,6 @@ def start_game_session(
         "balanced": "SCHEME_BALANCED",
         "none": previous["guid"],
     }[power_mode]
-    applied_guid = previous["guid"]
-    if target != previous["guid"] and power_mode != "none":
-        result = _run(["powercfg.exe", "/setactive", target], runner)
-        if result.returncode:
-            raise RuntimeError((result.stderr or "").strip() or "Could not activate the requested built-in power plan")
-        applied = active_power_scheme(runner)
-        applied_guid = applied["guid"]
-
     session = {
         "schema": SCHEMA_VERSION,
         "session_id": str(uuid.uuid4()),
@@ -321,13 +319,45 @@ def start_game_session(
         "snapshot_id": snapshot["snapshot_id"],
         "snapshot_path": snapshot["snapshot_path"],
         "previous_power_scheme": previous,
-        "applied_power_scheme_guid": applied_guid,
+        "applied_power_scheme_guid": previous["guid"],
         "power_mode": power_mode,
-        "status": "active",
+        "status": "starting",
         "restore_policy": "Restore only if the active plan is still the one this session applied",
     }
-    _atomic_write_json(_session_path(directory), session)
-    return session
+    _atomic_write_json(session_file, session)
+
+    changed_power_plan = False
+    try:
+        if target != previous["guid"] and power_mode != "none":
+            result = _run(["powercfg.exe", "/setactive", target], runner)
+            if result.returncode:
+                raise RuntimeError((result.stderr or "").strip() or "Could not activate the requested built-in power plan")
+            changed_power_plan = True
+            applied = active_power_scheme(runner)
+            session["applied_power_scheme_guid"] = applied["guid"]
+        session["status"] = "active"
+        _atomic_write_json(session_file, session)
+        return session
+    except Exception as error:
+        rollback_note = "No power-plan change needed."
+        if changed_power_plan:
+            try:
+                current = active_power_scheme(runner)
+                if current["guid"].casefold() == session["applied_power_scheme_guid"].casefold():
+                    set_active_power_scheme(previous["guid"], runner)
+                    rollback_note = "The previous power plan was restored after session startup failed."
+                else:
+                    rollback_note = "The active plan changed externally; it was left untouched."
+            except Exception as rollback_error:
+                rollback_note = f"Automatic startup rollback failed: {rollback_error}"
+        session["status"] = "start_failed"
+        session["finished_at"] = utc_now()
+        session["restore_note"] = rollback_note
+        try:
+            _atomic_write_json(session_file, session)
+        except OSError:
+            pass
+        raise RuntimeError(f"{error}. {rollback_note}") from error
 
 
 def restore_game_session(
