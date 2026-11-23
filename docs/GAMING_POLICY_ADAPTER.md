@@ -28,3 +28,5 @@ Rollout gate: this PR stays in draft until DuckOS PR #75 is merged. Then it is t
 ## DuckOS integration
 
 `build_duckos_capability_evidence()` returns `oplague.duckos-gaming-evidence.v1`. DuckOS accepts that versioned `providers` object through `assess_capability_document()` and the `gaming-assess --capabilities` CLI. The provider inventory is kept synchronized with the canonical DuckOS 66-rule catalog, including the CPU telemetry identifier (unavailable from OPlague until a matching measured source is supplied).
+
+The OPlague tree also exposes `tools.duckos_gaming_executor`. On Windows it can start a snapshot-first built-in power-plan session only with explicit user consent, then restore the previous plan on game exit. Restore is compare-before-restore: an external power-plan change is left untouched. The evidence document advertises this as a separate `control_adapters` entry; it is not confused with read-only `power_plan` telemetry.
