@@ -65,7 +65,7 @@ class GameOptimizerTests(unittest.TestCase):
             returncode = 0
             stdout = (
                 "NVIDIA GeForce RTX 5070, 572.16, 43, 24, 4096, 12282, "
-                "93.5, 2505, 9001\\n"
+                "93.5, 2505, 9001\n"
             )
             stderr = ""
         with patch.object(gaming.shutil, "which", return_value="nvidia-smi"):
@@ -80,7 +80,7 @@ class GameOptimizerTests(unittest.TestCase):
     def test_nvidia_telemetry_keeps_missing_values_unknown(self):
         class Completed:
             returncode = 0
-            stdout = "GPU,1.0,N/A,N/A,N/A,N/A,N/A,N/A,N/A\\n"
+            stdout = "GPU,1.0,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A\n"
             stderr = ""
         result = gaming.collect_nvidia_telemetry(
             lambda *args, **kwargs: Completed(), executable="nvidia-smi"
