@@ -65,6 +65,10 @@ PE 检查仅读取头部。SPDX 报告记录哈希；未经验证的许可证信
 
 ## Reaper 集成
 
+## 插件运行策略
+
+本地插件主机现在会限制输入/输出大小和并发调用，并记录处理器耗时与状态。请参阅[插件运行策略](docs/PLUGIN_EXECUTION_POLICY.md)。同步 Python 处理器的 deadline 在返回后检查，不会强制中断执行。
+
 OPlague 可通过版本化的 Reaper C17 ABI，对已验证数据执行受限整数表达式计算。这不会将驱动控制、软件包安装或兼容性结论交给 Reaper。
 
 详见 [Reaper 集成说明](docs/REAPER_RUNTIME_INTEGRATION.md)。
