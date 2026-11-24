@@ -3,7 +3,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from oplague.plugins import PluginError, PluginManager, PLUGIN_SPECS
+from oplague.plugins import (
+    PluginError, PluginExecutionPolicy, PluginManager, PLUGIN_SPECS,
+)
 
 
 class PluginFederationTests(unittest.TestCase):
@@ -65,6 +67,43 @@ class PluginFederationTests(unittest.TestCase):
         result = self.manager.run("profevo", current_version="1.2.3", target_version="2.0.0")
         self.assertEqual(result["change_level"], "major")
         self.assertFalse(result["files_modified"])
+
+    def test_plugin_execution_policy_bounds_inputs_and_outputs(self):
+        with self.assertRaises(PluginError):
+            PluginExecutionPolicy(max_input_bytes=True)
+        limited_input = PluginManager(policy=PluginExecutionPolicy(max_input_bytes=8))
+        with self.assertRaisesRegex(PluginError, "input exceeds"):
+            limited_input.run("operandu", value={"many": "characters"})
+
+        limited_output = PluginManager(policy=PluginExecutionPolicy(max_output_bytes=8))
+        with self.assertRaisesRegex(PluginError, "output exceeds"):
+            limited_output.run("operandu", value=1)
+
+    def test_plugin_health_reports_readiness_and_invocation_metrics(self):
+        manager = PluginManager()
+        self.assertTrue(manager.health()["ready"])
+        result = manager.run("operandu", value={"score": 0.5})
+        self.assertEqual(result["type"], "mapping")
+        health = manager.health()
+        self.assertEqual(health["schema"], "oplage.plugin-health.v1")
+        self.assertEqual(health["status"], "ready")
+        self.assertEqual(health["plugins"]["operandu"]["invocations"], 1)
+        self.assertEqual(health["plugins"]["operandu"]["successes"], 1)
+        self.assertEqual(health["plugins"]["operandu"]["in_flight"], 0)
+        self.assertGreaterEqual(
+            health["plugins"]["operandu"]["last_duration_ms"], 0.0
+        )
+
+    def test_plugin_dispatch_rejects_concurrency_saturation(self):
+        policy = PluginExecutionPolicy(max_concurrent_per_plugin=1)
+        manager = PluginManager(policy=policy)
+        semaphore = manager._semaphores["operandu"]
+        self.assertTrue(semaphore.acquire(blocking=False))
+        try:
+            with self.assertRaisesRegex(PluginError, "concurrency limit"):
+                manager.run("operandu", value=1)
+        finally:
+            semaphore.release()
 
 
 if __name__ == "__main__":
