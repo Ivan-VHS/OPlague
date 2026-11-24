@@ -36,7 +36,10 @@ def _timestamp(snapshot: Mapping[str, Any], label: str) -> datetime:
 def _finite_number(value: Any, label: str) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise TypeError(f"{label} must be a real number")
-    number = float(value)
+    try:
+        number = float(value)
+    except OverflowError as error:
+        raise ValueError(f"{label} exceeds the float64 range") from error
     if not math.isfinite(number):
         raise ValueError(f"{label} must be finite")
     return number
