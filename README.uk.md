@@ -205,7 +205,7 @@ UDRV v1 inspector має власний контракт: manifest до 4 MiB, �
 5. захоплює запущений desktop-застосунок і завантажує screenshot artifact;
 6. створює `OPlague-windows-x64.zip` з executable, README та license.
 
-Screenshot artifact зберігається 30 днів. Git-тег формату `v*` запускає публікацію GitHub Release. Workflow artifact — це файл для завантаження, а не hosted web demo.
+Screenshot artifact зберігається 30 днів. Git-тег формату `v*` збирає Windows-архів, перевіряє SHA-256 sidecar і створює чернетку GitHub Release за бар’єром `release-review`. Чернетку має вручну опублікувати супровідник. Workflow artifact — це файл для завантаження, а не hosted web demo.
 
 Для відкату розповсюдженої збірки виберіть попередній відомий робочий tagged release/archive. Серверного deployment для відкату немає. Логи workflow і тестів доступні в GitHub Actions.
 
