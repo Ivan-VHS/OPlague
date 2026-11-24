@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -48,6 +49,43 @@ class ReportEnvelopeTests(unittest.TestCase):
             )
         self.assertEqual(report["input"]["sha256"], digest)
         self.assertNotIn("private-source.bin", json.dumps(report))
+
+    def test_hash_input_rejects_symlinks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source.bin"
+            source.write_bytes(b"safe")
+            linked = root / "linked.bin"
+            try:
+                linked.symlink_to(source)
+            except (OSError, NotImplementedError):
+                self.skipTest("symlinks are not available on this host")
+            with self.assertRaisesRegex(report_envelope.EnvelopeError, "symbolic link"):
+                report_envelope.sha256_file(linked)
+
+    @unittest.skipUnless(hasattr(os, "mkfifo"), "named pipes are POSIX-only")
+    def test_hash_input_rejects_fifo_without_blocking(self):
+        with tempfile.TemporaryDirectory() as directory:
+            pipe = Path(directory) / "input.pipe"
+            os.mkfifo(pipe)
+            with self.assertRaisesRegex(report_envelope.EnvelopeError, "regular file"):
+                report_envelope.sha256_file(pipe)
+
+    def test_hash_input_enforces_actual_read_limit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "growing.bin"
+            source.write_bytes(b"12345")
+            previous = report_envelope.MAX_HASH_FILE_BYTES
+            report_envelope.MAX_HASH_FILE_BYTES = 4
+            try:
+                with self.assertRaisesRegex(report_envelope.EnvelopeError, "4-byte limit"):
+                    report_envelope.sha256_file(source)
+            finally:
+                report_envelope.MAX_HASH_FILE_BYTES = previous
+
+    def test_nesting_scanner_ignores_brackets_inside_json_strings(self):
+        payload = '{"text":"' + ("[{" * 1000) + '"}'
+        self.assertEqual(report_envelope._read_result(io.StringIO(payload))["text"], "[{" * 1000)
 
     def test_rejects_invalid_commit_and_hash(self):
         with self.assertRaises(report_envelope.EnvelopeError):
