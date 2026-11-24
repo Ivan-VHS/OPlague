@@ -87,6 +87,16 @@ class ReportEnvelopeTests(unittest.TestCase):
         finally:
             report_envelope.MAX_RESULT_BYTES = previous_limit
 
+    def test_json_result_rejects_duplicate_keys_at_any_depth(self):
+        with self.assertRaisesRegex(report_envelope.EnvelopeError, "duplicate object key"):
+            report_envelope._read_result(io.StringIO('{"outer":{"value":1,"value":2}}'))
+
+    def test_json_result_rejects_non_standard_non_finite_numbers(self):
+        for value in ("NaN", "Infinity", "-Infinity"):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(report_envelope.EnvelopeError, "non-finite"):
+                    report_envelope._read_result(io.StringIO('{"metric":' + value + "}"))
+
     def test_project_limitations_are_added_once(self):
         report = report_envelope.build_envelope(
             tool="oplague", version="1", commit=None, result={},
