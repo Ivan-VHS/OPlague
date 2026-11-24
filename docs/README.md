@@ -4,6 +4,7 @@
 
 - [Device, driver and package inspection](clusters/device-driver-inspection.md) — Read-only Windows device discovery, driver metadata, compatibility and package inspection contracts.
 - [Security, safety and evidence](clusters/security-evidence.md) — Trust boundaries, provenance, validation, evidence handling and quality gates.
+- [Red Sparrow Guard](RED_SPARROW_GUARD.md) — local read-only content triage for sensitive WMD, military-platform and air-defence topics.
 - [Architecture and system contracts](clusters/architecture-systems.md) — System structure, persistence, runtime boundaries and reusable engineering contracts.
 - [Workbench UI and visual system](clusters/ui-workbench.md) — Desktop workbench interaction, motion, accessibility and visual documentation.
 - [Integrations and project federation](clusters/integration-federation.md) — Runtime integration points, plugins, external tools and cross-project interfaces.

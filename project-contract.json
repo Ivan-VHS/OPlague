@@ -120,6 +120,17 @@
         "tests/test_octa_pyramid.py",
         "docs/OCTA_PYRAMID_FEDERATION.md"
       ]
+    },
+    {
+      "id": "security.red-sparrow-content-triage",
+      "status": "implemented",
+      "summary": "Scans bounded local repository text for sensitive WMD, military-platform or air-defence topic terms combined with non-negated operational language and produces human-review findings without modifying source files.",
+      "evidence": [
+        "tools/red_sparrow_guard.py",
+        "tests/test_red_sparrow_guard.py",
+        "security/red_sparrow.v1.json",
+        "docs/RED_SPARROW_GUARD.md"
+      ]
     }
   ],
   "interfaces": [
@@ -241,7 +252,8 @@
     "Imported INF, ZIP, UDRV and other package content is treated as untrusted and is never executed by the inspector.",
     "Compatibility output is candidate evidence, not a trust, signing, OS-support or installation verdict.",
     "No driver is installed, removed, enabled, disabled, extracted or modified by the federated inspection workflow.",
-    "Raw PnP instance IDs are omitted from snapshots in favor of linkable SHA-256 fingerprints; this is pseudonymization, not anonymization."
+    "Raw PnP instance IDs are omitted from snapshots in favor of linkable SHA-256 fingerprints; this is pseudonymization, not anonymization.",
+    "The Red Sparrow guard is a local, read-only content-triage utility; topic-only and country-only references are not findings, and the guard never automatically blocks, deletes or quarantines content or accesses military systems."
   ],
   "extension_points": [
     "Versioned JSON device and inspection-bundle interfaces.",

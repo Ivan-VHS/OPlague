@@ -98,6 +98,8 @@ python oplague_app.py
 python -m compileall -q oplague_app.py oplage_app.py tests
 python tools/validate_visual_canon.py ui_theme.py
 python -m unittest discover -s tests -v
+python tools/red_sparrow_guard.py
+python tools/beelzebul.py
 ```
 
 Примеры CLI:
