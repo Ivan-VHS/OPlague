@@ -74,12 +74,12 @@ CopyFiles=Payload
     def test_candidate_graph_uses_exact_id_index_and_stable_driver_order(self):
         devices = [
             {"device_id": "device-1", "hardware_ids": [
-                "USB\\\\VID_0001", "PCI\\\\VEN_1234&DEV_ABCD"
+                "USB\\VID_0001", "PCI\\VEN_1234&DEV_ABCD"
             ]}
         ]
         drivers = [
-            {"driver_id": "z-driver", "hardware_ids": ["PCI\\\\VEN_1234&DEV_ABCD"]},
-            {"driver_id": "a-driver", "hardware_ids": ["USB\\\\VID_0001"]},
+            {"driver_id": "z-driver", "hardware_ids": ["PCI\\VEN_1234&DEV_ABCD"]},
+            {"driver_id": "a-driver", "hardware_ids": ["USB\\VID_0001"]},
         ]
         graph = build_compatibility_graph(devices, drivers)
         self.assertEqual(
@@ -88,16 +88,16 @@ CopyFiles=Payload
         )
         self.assertEqual(
             [edge["matched_ids"][0] for edge in graph["edges"]],
-            ["USB\\\\VID_0001", "PCI\\\\VEN_1234&DEV_ABCD"],
+            ["USB\\VID_0001", "PCI\\VEN_1234&DEV_ABCD"],
         )
 
     def test_candidate_graph_rejects_edge_explosion(self):
         devices = [
-            {"device_id": f"device-{index}", "pnp_id": "USB\\\\VID_1234&PID_ABCD"}
+            {"device_id": f"device-{index}", "pnp_id": "USB\\VID_1234&PID_ABCD"}
             for index in range(1001)
         ]
         drivers = [
-            {"driver_id": f"driver-{index:03d}", "hardware_ids": ["USB\\\\VID_1234&PID_ABCD"]}
+            {"driver_id": f"driver-{index:03d}", "hardware_ids": ["USB\\VID_1234&PID_ABCD"]}
             for index in range(100)
         ]
         with self.assertRaisesRegex(ValueError, "100000-edge limit"):
