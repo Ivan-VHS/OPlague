@@ -62,7 +62,7 @@ class RedSparrowGuardTests(unittest.TestCase):
     def test_defensive_context_is_recorded_for_human_review(self):
         self.write(
             "draft.md",
-            "Защитная инструкция по управлению пуском ядерной ракеты для гражданской обороны.\n",
+            "Защита и гражданская оборона: инструкция по управлению пуском ядерной ракеты.\n",
         )
         report = self.report()
         self.assertEqual(report["verdict"], "review")
