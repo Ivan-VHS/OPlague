@@ -10,13 +10,18 @@ import argparse
 from datetime import datetime, timedelta, timezone
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
+import stat
 import platform
 import sys
 from typing import Any
 
 MAX_RESULT_BYTES = 16 * 1024 * 1024
+MAX_HASH_FILE_BYTES = 1024 * 1024 * 1024
+MAX_JSON_INTEGER_DIGITS = 1024
+MAX_JSON_NESTING_DEPTH = 128
 PROJECT_LIMITATIONS = {
     "pytyliki": (
         "hardware inspection is read-only",
@@ -58,11 +63,41 @@ def _validate_hex(value: str | None, label: str, minimum: int, maximum: int) -> 
 
 
 def sha256_file(path: str | Path) -> str:
-    """Hash a file incrementally without loading it into memory."""
+    """Hash a bounded regular file without following symlinks or blocking on pipes."""
+    candidate = Path(path)
+    descriptor: int | None = None
     digest = hashlib.sha256()
-    with Path(path).open("rb") as stream:
-        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
-            digest.update(chunk)
+    total_bytes = 0
+    try:
+        if candidate.is_symlink():
+            raise EnvelopeError("hash input must not be a symbolic link")
+        flags = os.O_RDONLY | getattr(os, "O_BINARY", 0)
+        flags |= getattr(os, "O_NONBLOCK", 0)
+        flags |= getattr(os, "O_NOFOLLOW", 0)
+        descriptor = os.open(candidate, flags)
+        metadata = os.fstat(descriptor)
+        if not stat.S_ISREG(metadata.st_mode):
+            raise EnvelopeError("hash input must be a regular file")
+        if metadata.st_size > MAX_HASH_FILE_BYTES:
+            raise EnvelopeError(
+                f"hash input exceeds the {MAX_HASH_FILE_BYTES}-byte limit"
+            )
+        with os.fdopen(descriptor, "rb") as stream:
+            descriptor = None
+            while chunk := stream.read(1024 * 1024):
+                total_bytes += len(chunk)
+                if total_bytes > MAX_HASH_FILE_BYTES:
+                    raise EnvelopeError(
+                        f"hash input exceeds the {MAX_HASH_FILE_BYTES}-byte limit"
+                    )
+                digest.update(chunk)
+    except FileNotFoundError as error:
+        raise EnvelopeError("hash input does not exist") from error
+    except OSError as error:
+        raise EnvelopeError(f"cannot safely read hash input: {error}") from error
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
     return digest.hexdigest()
 
 
@@ -80,6 +115,11 @@ def build_envelope(
     architecture: str | None = None,
 ) -> dict[str, Any]:
     """Build a validated, JSON-compatible report envelope."""
+    try:
+        json.dumps(result, ensure_ascii=False, allow_nan=False)
+    except (TypeError, ValueError) as error:
+        raise EnvelopeError("result must contain only finite JSON-compatible values") from error
+
     tool_name = _non_empty_text(tool, "tool name").lower()
     if any(char not in "abcdefghijklmnopqrstuvwxyz0123456789-_" for char in tool_name):
         raise EnvelopeError("tool name may contain only lowercase letters, digits, '-' and '_'")
@@ -148,6 +188,50 @@ def _reject_non_finite_json_constant(value: str) -> None:
     raise EnvelopeError(f"JSON result contains non-finite numeric constant: {value}")
 
 
+def _parse_finite_json_float(value: str) -> float:
+    """Reject exponent overflow such as 1e999, which otherwise becomes infinity."""
+    parsed = float(value)
+    if not math.isfinite(parsed):
+        raise EnvelopeError("JSON result contains a non-finite floating-point value")
+    return parsed
+
+
+def _parse_bounded_json_integer(value: str) -> int:
+    """Avoid pathological integer tokens consuming excessive CPU and memory."""
+    digits = value[1:] if value.startswith("-") else value
+    if len(digits) > MAX_JSON_INTEGER_DIGITS:
+        raise EnvelopeError(
+            f"JSON integer exceeds the {MAX_JSON_INTEGER_DIGITS}-digit limit"
+        )
+    return int(value)
+
+
+def _validate_json_nesting(raw: str) -> None:
+    """Enforce a portable structural depth limit while ignoring string contents."""
+    depth = 0
+    in_string = False
+    escaped = False
+    for character in raw:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif character == "\\":
+                escaped = True
+            elif character == '"':
+                in_string = False
+            continue
+        if character == '"':
+            in_string = True
+        elif character in "[{":
+            depth += 1
+            if depth > MAX_JSON_NESTING_DEPTH:
+                raise EnvelopeError(
+                    f"JSON nesting exceeds the {MAX_JSON_NESTING_DEPTH}-level limit"
+                )
+        elif character in "]}":
+            depth -= 1
+
+
 def _read_result(stream: Any) -> Any:
     """Read UTF-8 text in bounded chunks, enforcing the limit on encoded bytes."""
     chunks: list[str] = []
@@ -164,14 +248,19 @@ def _read_result(stream: Any) -> Any:
             raise EnvelopeError(f"JSON result exceeds the {MAX_RESULT_BYTES}-byte limit")
         chunks.append(chunk)
     raw = "".join(chunks)
+    _validate_json_nesting(raw)
     try:
         return json.loads(
             raw,
             object_pairs_hook=_unique_json_object,
             parse_constant=_reject_non_finite_json_constant,
+            parse_float=_parse_finite_json_float,
+            parse_int=_parse_bounded_json_integer,
         )
     except json.JSONDecodeError as error:
         raise EnvelopeError(f"standard input is not valid JSON: {error}") from error
+    except RecursionError as error:
+        raise EnvelopeError("JSON nesting exceeds the supported parser depth") from error
 
 
 def main(argv: list[str] | None = None) -> int:
