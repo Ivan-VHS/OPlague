@@ -95,7 +95,7 @@ python oplague_app.py
 ### 运行测试和 CLI 检查
 
 ```sh
-python -m compileall -q oplague_app.py oplage_app.py tests
+python -m compileall -q oplague_app.py oplage_app.py tests tools
 python tools/validate_visual_canon.py ui_theme.py
 python -m unittest discover -s tests -v
 ```
@@ -110,6 +110,13 @@ python -m oplague --profile 5
 python -m oplague --rank reach
 python tools/udrv_inspector.py path/to/package.udrv --json
 python tools/clinical_systems.py --catalog --pretty
+```
+
+如需仅检查 Hardware ID 格式，请运行本地检查器。它会解释受支持的 PCI 和 USB 字段，不会查询计算机：
+
+```sh
+python -m tools.hardware_id_linter "PCI\VEN_8086&DEV_15F3&SUBSYS_00008086&REV_03"
+python -m tools.hardware_id_linter --json "USB\VID_046D&PID_C52B&REV_1201"
 ```
 
 可选的 Reaper C17 计算需要显式指定可信库路径：
