@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="280" viewBox="0 0 1440 280" role="img" aria-labelledby="title desc">
+<title id="title">OPlague — verified workflow</title>
+<desc id="desc">Vector diagram of the implemented OPlague workflow. It is an architecture illustration, not a screenshot.</desc>
+<defs><linearGradient id="line" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#48B5E8"/><stop offset=".5" stop-color="#F08B8B"/><stop offset="1" stop-color="#76D6B7"/></linearGradient>
+<style>
+ .label{font:700 10px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:2px;fill:#A5B8CC}
+ .title{font:700 23px Inter,Segoe UI,Arial,sans-serif;letter-spacing:-.4px;fill:#F1F6FD}
+ .num{font:700 10px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1px;fill:#A8BACE}
+ .nodeTitle{font:700 14px Inter,Segoe UI,Arial,sans-serif;letter-spacing:.5px;fill:#F1F6FD}
+ .nodeBody{font:400 11px Inter,Segoe UI,Arial,sans-serif;fill:#B9CADB}
+ .foot{font:500 10px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1px;fill:#9FB2C7}
+</style></defs>
+<rect width="1440" height="280" rx="22" fill="#091827"/>
+<path d="M22 17H1418" stroke="url(#line)" stroke-width="3" opacity=".9"/>
+<text x="28" y="43" class="label">IMPLEMENTED DATA FLOW</text>
+<text x="1412" y="43" class="label" text-anchor="end">OPLAGUE / SYSTEM MAP</text>
+<path d="M279 147H308" stroke="#7F9BB5" stroke-width="2" stroke-linecap="round"/><path d="M302 141L308 147L302 153" fill="none" stroke="#7F9BB5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M564 147H593" stroke="#7F9BB5" stroke-width="2" stroke-linecap="round"/><path d="M587 141L593 147L587 153" fill="none" stroke="#7F9BB5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M849 147H878" stroke="#7F9BB5" stroke-width="2" stroke-linecap="round"/><path d="M872 141L878 147L872 153" fill="none" stroke="#7F9BB5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M1134 147H1163" stroke="#7F9BB5" stroke-width="2" stroke-linecap="round"/><path d="M1157 141L1163 147L1157 153" fill="none" stroke="#7F9BB5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(28 76)">
+  <rect width="246" height="142" rx="16" fill="#12283D" stroke="#29445E" stroke-width="1.2"/>
+  <rect x="0" y="0" width="246" height="5" rx="2.5" fill="#48B5E8"/>
+  <text x="18" y="31" class="num">01</text>
+  <text x="18" y="61" class="nodeTitle">INPUT</text>
+  <text x="18" y="89" class="nodeBody">Windows PnP</text>
+  <text x="18" y="109" class="nodeBody">operator-selected files</text>
+  <circle cx="224" cy="122" r="4" fill="#48B5E8"/>
+  </g><g transform="translate(313 76)">
+  <rect width="246" height="142" rx="16" fill="#12283D" stroke="#29445E" stroke-width="1.2"/>
+  <rect x="0" y="0" width="246" height="5" rx="2.5" fill="#F08B8B"/>
+  <text x="18" y="31" class="num">02</text>
+  <text x="18" y="61" class="nodeTitle">INSPECT</text>
+  <text x="18" y="89" class="nodeBody">Bounded INF / ZIP</text>
+  <text x="18" y="109" class="nodeBody">paths • size • hash</text>
+  <circle cx="224" cy="122" r="4" fill="#F08B8B"/>
+  </g><g transform="translate(598 76)">
+  <rect width="246" height="142" rx="16" fill="#12283D" stroke="#29445E" stroke-width="1.2"/>
+  <rect x="0" y="0" width="246" height="5" rx="2.5" fill="#76D6B7"/>
+  <text x="18" y="31" class="num">03</text>
+  <text x="18" y="61" class="nodeTitle">NORMALIZE</text>
+  <text x="18" y="89" class="nodeBody">Hardware IDs</text>
+  <text x="18" y="109" class="nodeBody">architecture • metadata</text>
+  <circle cx="224" cy="122" r="4" fill="#76D6B7"/>
+  </g><g transform="translate(883 76)">
+  <rect width="246" height="142" rx="16" fill="#12283D" stroke="#29445E" stroke-width="1.2"/>
+  <rect x="0" y="0" width="246" height="5" rx="2.5" fill="#48B5E8"/>
+  <text x="18" y="31" class="num">04</text>
+  <text x="18" y="61" class="nodeTitle">COMPARE</text>
+  <text x="18" y="89" class="nodeBody">Candidate graph</text>
+  <text x="18" y="109" class="nodeBody">exact-ID relationships</text>
+  <circle cx="224" cy="122" r="4" fill="#48B5E8"/>
+  </g><g transform="translate(1168 76)">
+  <rect width="246" height="142" rx="16" fill="#12283D" stroke="#29445E" stroke-width="1.2"/>
+  <rect x="0" y="0" width="246" height="5" rx="2.5" fill="#F08B8B"/>
+  <text x="18" y="31" class="num">05</text>
+  <text x="18" y="61" class="nodeTitle">REPORT</text>
+  <text x="18" y="89" class="nodeBody">Evidence summary</text>
+  <text x="18" y="109" class="nodeBody">manual review required</text>
+  <circle cx="224" cy="122" r="4" fill="#F08B8B"/>
+  </g>
+<text x="28" y="251" class="foot">READ-ONLY BY DESIGN — NO EXTRACTION, PAYLOAD EXECUTION, DRIVER INSTALL OR SYSTEM MODIFICATION</text>
+</svg>
