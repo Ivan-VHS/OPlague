@@ -41,13 +41,13 @@ Global ceiling: **5 runner jobs**, **45 minutes per job**, **3 parallel matrix w
 
 All scoped workflows require explicit concurrency/cancellation policy. Every runner job must declare `timeout-minutes`; matrices require `max-parallel`. These ceilings do not weaken Windows qualification or read-only inspection tests.
 
-## Recovery, release and hardware safety
+## Safe recovery and release boundaries
 
 Safe CI Recovery is manual-only, runs from protected `main`, permits only same-repository allow-listed workflows with failed/timed-out conclusions, reruns failed jobs only, and allows one retry maximum. Forks, cancelled/successful/action-required runs and repeated retries are rejected.
 
 Hardware and package operations remain read-only: no driver/firmware installation, device writes, flashing, clock/voltage control, payload extraction or executable launch is authorized by this roadmap. Production deployment remains inapplicable to this local desktop tool. Public release requires an explicit maintainer release action, a protected review boundary and verified signing/provenance before final publication.
 
-## Toolchain optimisation
+## Toolchain optimization
 
 Workstream 06 remains `extend` until comparable before/after measurements exist for clean and incremental packaging/builds, Python startup, unit-test duration, peak memory and artifact identity. No unmeasured PyInstaller or Python-version change is treated as an optimization.
 
