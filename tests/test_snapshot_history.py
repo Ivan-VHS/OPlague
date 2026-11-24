@@ -65,6 +65,15 @@ class SnapshotHistoryTests(unittest.TestCase):
                 self._snapshot("2026-11-21T00:00:20Z"),
             ])
 
+    def test_rejects_integer_inputs_outside_float64_range(self) -> None:
+        snapshots = [
+            self._snapshot("2026-11-21T00:00:00Z"),
+            self._snapshot("2026-11-21T00:00:10Z"),
+            self._snapshot("2026-11-21T00:00:20Z"),
+        ]
+        with self.assertRaisesRegex(ValueError, "float64 range"):
+            analyze_snapshot_history(snapshots, expected_interval_seconds=10 ** 1000)
+
     def test_report_write_is_atomic_and_rejects_symlink_destination(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
