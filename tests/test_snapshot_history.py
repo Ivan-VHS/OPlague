@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import tempfile
 import unittest
+from pathlib import Path
 
 from tools.federation import build_device_snapshot
-from tools.snapshot_history import analyze_snapshot_history
+from tools.snapshot_history import _write_report_atomically, analyze_snapshot_history
 
 
 class SnapshotHistoryTests(unittest.TestCase):
@@ -54,6 +56,32 @@ class SnapshotHistoryTests(unittest.TestCase):
         snapshots[1]["metrics"]["device_ok_ratio"] = 0.25
         with self.assertRaisesRegex(ValueError, "fingerprint"):
             analyze_snapshot_history(snapshots)
+
+    def test_rejects_non_utc_capture_timestamps(self) -> None:
+        with self.assertRaisesRegex(ValueError, "normalized to UTC"):
+            analyze_snapshot_history([
+                self._snapshot("2026-11-21T00:00:00Z"),
+                self._snapshot("2026-11-21T02:00:10+02:00"),
+                self._snapshot("2026-11-21T00:00:20Z"),
+            ])
+
+    def test_report_write_is_atomic_and_rejects_symlink_destination(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target = root / "report.json"
+            target.write_text("old", encoding="utf-8")
+            _write_report_atomically(target, "new\n")
+            self.assertEqual(target.read_text(encoding="utf-8"), "new\n")
+            source = root / "source.json"
+            source.write_text("keep", encoding="utf-8")
+            link = root / "linked.json"
+            try:
+                link.symlink_to(source)
+            except (OSError, NotImplementedError):
+                self.skipTest("symlinks are unavailable on this platform")
+            with self.assertRaisesRegex(ValueError, "symbolic link"):
+                _write_report_atomically(link, "overwrite")
+            self.assertEqual(source.read_text(encoding="utf-8"), "keep")
 
     def test_requires_minimum_history_and_valid_tolerance(self) -> None:
         one = self._snapshot("2026-11-21T00:00:00Z")
