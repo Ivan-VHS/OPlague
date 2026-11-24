@@ -133,6 +133,21 @@ def build_envelope(
     }
 
 
+def _unique_json_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    """Reject duplicate keys so report consumers see one unambiguous value."""
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise EnvelopeError(f"JSON result contains duplicate object key: {key!r}")
+        result[key] = value
+    return result
+
+
+def _reject_non_finite_json_constant(value: str) -> None:
+    """Reject NaN and Infinity extensions that are outside strict JSON."""
+    raise EnvelopeError(f"JSON result contains non-finite numeric constant: {value}")
+
+
 def _read_result(stream: Any) -> Any:
     """Read UTF-8 text in bounded chunks, enforcing the limit on encoded bytes."""
     chunks: list[str] = []
@@ -150,7 +165,11 @@ def _read_result(stream: Any) -> Any:
         chunks.append(chunk)
     raw = "".join(chunks)
     try:
-        return json.loads(raw)
+        return json.loads(
+            raw,
+            object_pairs_hook=_unique_json_object,
+            parse_constant=_reject_non_finite_json_constant,
+        )
     except json.JSONDecodeError as error:
         raise EnvelopeError(f"standard input is not valid JSON: {error}") from error
 
