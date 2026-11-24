@@ -40,6 +40,7 @@
 | [DUCK_SOVEREIGN_CANON.md](DUCK_SOVEREIGN_CANON.md) | shared design tokens |
 | [UI_MOTION.md](UI_MOTION.md) | accessible motion preferences, reduced-motion limits and UI performance |
 | [UI_UX_SYSTEM.md](UI_UX_SYSTEM.md) | desktop interaction contract |
+| [Mora integration](../integrations/mora/README.md) | optional launch manifest for the Mora desktop shell |
 | [DEVICE_COMPATIBILITY_GRAPH.md](DEVICE_COMPATIBILITY_GRAPH.md) | exact-ID candidate graph; not an automatic verdict |
 | [DRIVER_TARGET_ARCHITECTURE.md](DRIVER_TARGET_ARCHITECTURE.md) | INF and PE machine codes |
 | [UDRV_FORMAT_V1.md](UDRV_FORMAT_V1.md) | package manifest, hashing and size limits |
