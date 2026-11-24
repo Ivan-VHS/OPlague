@@ -120,6 +120,28 @@ CopyFiles=Payload
         self.assertEqual(coverage["drivers"][0]["candidate_device_count"], 2)
         self.assertIn("do not rank drivers", coverage["semantics"])
 
+    def test_hardware_id_lists_over_limit_are_rejected_not_silently_dropped(self):
+        oversized = [f"USB\\VID_{index:04X}" for index in range(257)]
+        with self.assertRaisesRegex(ValueError, "256-item limit"):
+            build_compatibility_graph(
+                [{"device_id": "device-overflow", "hardware_ids": oversized}],
+                [],
+            )
+        with self.assertRaisesRegex(ValueError, "256-item limit"):
+            build_compatibility_graph(
+                [],
+                [{"driver_id": "driver-overflow", "hardware_ids": oversized}],
+            )
+
+    def test_inf_model_identifier_overflow_is_reported(self):
+        lines = ["[Models.NTamd64]"]
+        lines.extend(
+            f"%Device{index}%=Install, USB\\VID_{index:04X}"
+            for index in range(257)
+        )
+        with self.assertRaisesRegex(ValueError, "256-identifier limit"):
+            extract_inf_compatibility("\n".join(lines))
+
     def test_normalization_rejects_bad_ids(self):
         self.assertEqual(normalize_hardware_id(" pci/ven_1234 "), "PCI\\VEN_1234")
         self.assertEqual(normalize_hardware_id("../escape"), "")
