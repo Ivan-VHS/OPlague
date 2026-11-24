@@ -6,6 +6,8 @@ from unittest.mock import patch
 
 from ui_theme import (
     PALETTES,
+    apply_native_backdrop,
+    native_backdrop_policy,
     _save_preferred_theme,
     contrast_ratio,
     load_preferred_theme,
@@ -89,3 +91,12 @@ class OPlagueThemeTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+
+    def test_native_backdrop_uses_windows_mica_with_portable_fallback(self):
+        self.assertEqual(native_backdrop_policy("win32"), "mica")
+        self.assertEqual(native_backdrop_policy("linux"), "opaque")
+        self.assertEqual(native_backdrop_policy("darwin"), "opaque")
+        if __import__("sys").platform != "win32":
+            self.assertFalse(apply_native_backdrop(object()))
