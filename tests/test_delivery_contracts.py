@@ -20,7 +20,8 @@ from tools.validate_delivery_contracts import (  # noqa: E402
     validate_workflow_scale,
 )
 
-REPOSITORY = "Ivan-VHS/Pytyliki"
+PROJECT = load_json(ROOT / "project-contract.json")
+REPOSITORY = PROJECT["project"]["repository"]
 
 
 class DeliveryContractTests(unittest.TestCase):
