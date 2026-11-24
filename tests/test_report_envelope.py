@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import importlib.util
+import io
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -48,6 +50,43 @@ class ReportEnvelopeTests(unittest.TestCase):
         self.assertEqual(report["input"]["sha256"], digest)
         self.assertNotIn("private-source.bin", json.dumps(report))
 
+    def test_hash_input_rejects_symlinks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source.bin"
+            source.write_bytes(b"safe")
+            linked = root / "linked.bin"
+            try:
+                linked.symlink_to(source)
+            except (OSError, NotImplementedError):
+                self.skipTest("symlinks are not available on this host")
+            with self.assertRaisesRegex(report_envelope.EnvelopeError, "symbolic link"):
+                report_envelope.sha256_file(linked)
+
+    @unittest.skipUnless(hasattr(os, "mkfifo"), "named pipes are POSIX-only")
+    def test_hash_input_rejects_fifo_without_blocking(self):
+        with tempfile.TemporaryDirectory() as directory:
+            pipe = Path(directory) / "input.pipe"
+            os.mkfifo(pipe)
+            with self.assertRaisesRegex(report_envelope.EnvelopeError, "regular file"):
+                report_envelope.sha256_file(pipe)
+
+    def test_hash_input_enforces_actual_read_limit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "growing.bin"
+            source.write_bytes(b"12345")
+            previous = report_envelope.MAX_HASH_FILE_BYTES
+            report_envelope.MAX_HASH_FILE_BYTES = 4
+            try:
+                with self.assertRaisesRegex(report_envelope.EnvelopeError, "4-byte limit"):
+                    report_envelope.sha256_file(source)
+            finally:
+                report_envelope.MAX_HASH_FILE_BYTES = previous
+
+    def test_nesting_scanner_ignores_brackets_inside_json_strings(self):
+        payload = '{"text":"' + ("[{" * 1000) + '"}'
+        self.assertEqual(report_envelope._read_result(io.StringIO(payload))["text"], "[{" * 1000)
+
     def test_rejects_invalid_commit_and_hash(self):
         with self.assertRaises(report_envelope.EnvelopeError):
             report_envelope.build_envelope(
@@ -67,6 +106,54 @@ class ReportEnvelopeTests(unittest.TestCase):
         with self.assertRaises(report_envelope.EnvelopeError):
             report_envelope.build_envelope(
                 tool="pytyliki", version="1", commit=None, result={}, limitations=["  "]
+            )
+
+    def test_timestamp_must_be_a_real_iso8601_utc_datetime(self):
+        with self.assertRaisesRegex(report_envelope.EnvelopeError, "valid ISO-8601"):
+            report_envelope.build_envelope(
+                tool="oplague", version="1", commit=None, result={},
+                created="not-a-timestampZ",
+            )
+
+    def test_result_limit_counts_utf8_bytes_not_characters(self):
+        previous_limit = report_envelope.MAX_RESULT_BYTES
+        report_envelope.MAX_RESULT_BYTES = 4
+        try:
+            self.assertEqual(report_envelope._read_result(io.StringIO('"é"')), "é")
+            with self.assertRaisesRegex(report_envelope.EnvelopeError, "4-byte limit"):
+                report_envelope._read_result(io.StringIO('"éé"'))
+        finally:
+            report_envelope.MAX_RESULT_BYTES = previous_limit
+
+    def test_json_result_rejects_duplicate_keys_at_any_depth(self):
+        with self.assertRaisesRegex(report_envelope.EnvelopeError, "duplicate object key"):
+            report_envelope._read_result(io.StringIO('{"outer":{"value":1,"value":2}}'))
+
+    def test_json_result_rejects_non_standard_non_finite_numbers(self):
+        for value in ("NaN", "Infinity", "-Infinity"):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(report_envelope.EnvelopeError, "non-finite"):
+                    report_envelope._read_result(io.StringIO('{"metric":' + value + "}"))
+
+    def test_json_result_rejects_exponent_overflow(self):
+        with self.assertRaisesRegex(report_envelope.EnvelopeError, "non-finite"):
+            report_envelope._read_result(io.StringIO('{"metric":1e999}'))
+
+    def test_json_result_bounds_integer_token_length(self):
+        oversized = "1" * (report_envelope.MAX_JSON_INTEGER_DIGITS + 1)
+        with self.assertRaisesRegex(report_envelope.EnvelopeError, "digit limit"):
+            report_envelope._read_result(io.StringIO('{"count":' + oversized + "}"))
+
+    def test_json_result_translates_excessive_nesting(self):
+        deeply_nested = "[" * (report_envelope.MAX_JSON_NESTING_DEPTH + 1) + "0" + "]" * (report_envelope.MAX_JSON_NESTING_DEPTH + 1)
+        with self.assertRaisesRegex(report_envelope.EnvelopeError, "nesting"):
+            report_envelope._read_result(io.StringIO(deeply_nested))
+
+    def test_programmatic_envelope_rejects_non_finite_result_values(self):
+        with self.assertRaisesRegex(report_envelope.EnvelopeError, "finite JSON-compatible"):
+            report_envelope.build_envelope(
+                tool="oplague", version="1", commit=None,
+                result={"metric": float("inf")},
             )
 
     def test_project_limitations_are_added_once(self):
