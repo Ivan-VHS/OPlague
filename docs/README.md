@@ -40,6 +40,7 @@
 | [ENGINEERING.md](ENGINEERING.md) | release and safety gates |
 | [PROJECT_STEWARDSHIP_STANDARD.md](PROJECT_STEWARDSHIP_STANDARD.md) | operator, privacy and communication policy |
 | [DISTRIBUTED_SYSTEMS_ENGINEERING_STANDARD.md](DISTRIBUTED_SYSTEMS_ENGINEERING_STANDARD.md) | resilience and trust contract |
+| [ROADMAP_GOVERNANCE_CI_SCALE.md](ROADMAP_GOVERNANCE_CI_SCALE.md) | evidence-based roadmap status, P0/P1/P2 review, safe recovery and bounded workflow budgets |
 | [DUCK_SOVEREIGN_CANON.md](DUCK_SOVEREIGN_CANON.md) | shared design tokens |
 | [UI_MOTION.md](UI_MOTION.md) | accessible motion preferences, reduced-motion limits and UI performance |
 | [UI_UX_SYSTEM.md](UI_UX_SYSTEM.md) | desktop interaction contract |
