@@ -241,7 +241,8 @@
     "disable air defence",
     "disable air defense",
     "optimize warhead",
-    "attack planning"
+    "attack planning",
+    "управлению пуском"
   ],
   "defensive_context_patterns": [
     "защита",
