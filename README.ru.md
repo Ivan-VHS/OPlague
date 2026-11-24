@@ -205,7 +205,7 @@ Live PnP-запрос требует Windows PowerShell и локальный CI
 5. захватывает запущенное desktop-приложение и загружает screenshot artifact;
 6. создаёт `OPlague-windows-x64.zip` с executable, README и license.
 
-Screenshot artifact хранится 30 дней. Git-тег формата `v*` запускает публикацию GitHub Release. Workflow artifact — скачиваемый файл, а не hosted web demo.
+Screenshot artifact хранится 30 дней. Git-тег формата `v*` собирает Windows-архив, проверяет SHA-256 sidecar и создаёт черновой GitHub Release за барьером `release-review`. Черновик должен вручную опубликовать сопровождающий. Workflow artifact — скачиваемый файл, а не hosted web demo.
 
 Для отката распространяемой сборки выберите предыдущий известный рабочий tagged release/archive. Серверного deployment для отката нет. Логи workflow и тестов доступны в GitHub Actions.
 
