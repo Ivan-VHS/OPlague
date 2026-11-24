@@ -126,7 +126,7 @@ def _query_text(value: Any, label: str) -> bytes:
         return b""
     if not isinstance(value, str):
         raise TypeError(f"{label} must be text or None")
-    if "\\x00" in value:
+    if "\x00" in value:
         raise ValueError(f"{label} must not contain NUL")
     encoded = value.encode("utf-8")
     if len(encoded) >= _METRIC_QUERY_TEXT_CAP:
