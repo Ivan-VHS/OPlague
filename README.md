@@ -206,7 +206,7 @@ The [Windows desktop workflow](.github/workflows/desktop-build.yml):
 5. captures the running desktop app and uploads the screenshot artifact;
 6. creates `OPlague-windows-x64.zip` with the executable, README and license.
 
-The screenshot artifact is retained for 30 days. A Git tag matching `v*` triggers GitHub Release publication. A workflow artifact is a downloadable build, not a hosted web demo.
+The screenshot artifact is retained for 30 days. A Git tag matching `v*` builds the Windows archive, verifies its SHA-256 sidecar and creates a draft GitHub Release behind the `release-review` environment. A maintainer must publish the draft manually. A workflow artifact is a downloadable build, not a hosted web demo.
 
 For rollback of a distributed build, select the previous known-good tagged release/archive. There is no server deployment to roll back. Workflow logs and test output are available in GitHub Actions.
 

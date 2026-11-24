@@ -205,7 +205,7 @@ UDRV v1 检查器有独立合同：manifest 最大 4 MiB，最多 10,000 个条�
 5. 截取正在运行的桌面应用并上传截图 Artifact；
 6. 创建包含 executable、README 和 license 的 `OPlague-windows-x64.zip`。
 
-截图 Artifact 保留 30 天。匹配 `v*` 的 Git Tag 会触发 GitHub Release 发布。Workflow Artifact 是可下载文件，不是托管 Web Demo。
+截图 Artifact 保留 30 天。匹配 `v*` 的 Git Tag 会构建 Windows 压缩包、验证 SHA-256 校验文件，并在 `release-review` 环境门禁后创建 GitHub 草稿 Release。维护者必须手动发布草稿。Workflow Artifact 是可下载文件，不是托管 Web Demo。
 
 回滚已分发构建时，选择上一个已知正常的带标签 Release/Archive。没有需要回滚的服务器部署。Workflow 日志和测试输出可在 GitHub Actions 中查看。
 
