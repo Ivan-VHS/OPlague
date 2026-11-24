@@ -97,6 +97,27 @@ class ReportEnvelopeTests(unittest.TestCase):
                 with self.assertRaisesRegex(report_envelope.EnvelopeError, "non-finite"):
                     report_envelope._read_result(io.StringIO('{"metric":' + value + "}"))
 
+    def test_json_result_rejects_exponent_overflow(self):
+        with self.assertRaisesRegex(report_envelope.EnvelopeError, "non-finite"):
+            report_envelope._read_result(io.StringIO('{"metric":1e999}'))
+
+    def test_json_result_bounds_integer_token_length(self):
+        oversized = "1" * (report_envelope.MAX_JSON_INTEGER_DIGITS + 1)
+        with self.assertRaisesRegex(report_envelope.EnvelopeError, "digit limit"):
+            report_envelope._read_result(io.StringIO('{"count":' + oversized + "}"))
+
+    def test_json_result_translates_excessive_nesting(self):
+        deeply_nested = "[" * 2000 + "0" + "]" * 2000
+        with self.assertRaisesRegex(report_envelope.EnvelopeError, "nesting"):
+            report_envelope._read_result(io.StringIO(deeply_nested))
+
+    def test_programmatic_envelope_rejects_non_finite_result_values(self):
+        with self.assertRaisesRegex(report_envelope.EnvelopeError, "finite JSON-compatible"):
+            report_envelope.build_envelope(
+                tool="oplague", version="1", commit=None,
+                result={"metric": float("inf")},
+            )
+
     def test_project_limitations_are_added_once(self):
         report = report_envelope.build_envelope(
             tool="oplague", version="1", commit=None, result={},
