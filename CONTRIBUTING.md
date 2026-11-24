@@ -1,27 +1,32 @@
 # Contributing to OPlague
 
-OPlague is a local, read-only Windows device and driver evidence workbench. Keep observations separate from conclusions, and keep dry-run planning separate from system changes.
+OPlague is a local Windows device/driver evidence workbench with a separate, reversible gaming power-plan workflow. Contributions must preserve bounded inspection, clear evidence provenance and safe system boundaries.
 
 ## Before opening a pull request
 
-1. Provide a minimal INF, ZIP metadata or synthetic hardware-ID fixture. Remove serial numbers and other personal identifiers.
-2. Keep package inspection bounded and metadata-only. Never extract or execute submitted driver payloads during analysis.
-3. Do not add driver installation, removal, service control, registry edits, firmware changes or privileged host mutation.
-4. Exact ID matches are candidates, not proof of compatibility or safety. Structural heuristics are not malware verdicts.
-5. Add deterministic tests and document input limits and known false positives.
+1. Use synthetic or sanitized fixtures; remove serial numbers, private paths and personal identifiers.
+2. Keep INF/ZIP/UDRV inspection metadata-only and bounded. Do not extract or execute driver payloads.
+3. Do not add driver installation, removal, service control, registry mutation, firmware changes or privileged host writes.
+4. Treat exact hardware-ID matches as candidates, not compatibility or safety verdicts.
+5. Keep gaming-session system changes explicit, snapshot-backed and guarded on restore.
+6. Update the English, Ukrainian, Russian and Simplified Chinese documentation when public behavior changes.
 
 ## Local verification
 
-```sh
+~~~sh
+python -m compileall -q oplague_app.py oplage_app.py tests
+python tools/validate_visual_canon.py ui_theme.py
 python -m unittest discover -s tests -v
-python tools/hardware_id_lint.py "PCI\VEN_8086&DEV_15F3" --json
-python tools/validate_project_contract.py
-```
+python -m oplague --verify
+git diff --check
+~~~
+
+For UDRV changes, also run the relevant inspector tests and validate against the versioned schema.
 
 ## Pull request expectations
 
-Describe evidence sources, resource limits, privacy handling and the exact scope of each conclusion. Do not include live machine serials, private inventory exports or proprietary driver payloads. Avoid issue-closing keywords in PR descriptions; maintainers close issues after review.
+Describe the input format, bounds, evidence source, safety implications, platform limitations and test cases. Label desktop screenshots and authored architecture illustrations accurately. Keep docs aligned with [FEATURES.md](docs/FEATURES.md) and [DOCUMENTATION_CONTROL.md](docs/DOCUMENTATION_CONTROL.md).
 
-## Shared report format
+## Security
 
-To wrap an existing JSON result in the common report metadata contract, run python tools/report_envelope.py --tool oplague --version VERSION < result.json. Keep the tool-specific payload unchanged. The optional input-file flag records a SHA-256 digest without disclosing the local path. Tests live in tests/test_report_envelope.py.
+Do not submit private driver packages or identifying hardware data. See [SECURITY.md](SECURITY.md) for reporting guidance.
