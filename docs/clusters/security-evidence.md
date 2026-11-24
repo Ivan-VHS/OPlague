@@ -26,6 +26,8 @@ This hub is the topic-level entry point. Treat the linked contracts as authorita
 - [REPORT ENVELOPE](../REPORT_ENVELOPE.md)
 - [SECURITY](../../SECURITY.md)
 
+- [Red Sparrow Guard](../RED_SPARROW_GUARD.md) — local content-topic and operational-language triage with human review; no automatic block or quarantine.
+
 ## Navigation rules
 
 - Keep read-only inspection, trust evaluation and device mutation as distinct concepts.
