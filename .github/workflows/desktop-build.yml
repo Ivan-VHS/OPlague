@@ -72,10 +72,13 @@ jobs:
           Compress-Archive -Path dist/OPlague.exe, dist/README.md, dist/LICENSE -DestinationPath OPlague-windows-x64.zip -Force
           $hash = (Get-FileHash OPlague-windows-x64.zip -Algorithm SHA256).Hash.ToLowerInvariant()
           "$hash  OPlague-windows-x64.zip" | Set-Content -Encoding ascii dist/SHA256SUMS.txt
+          Copy-Item dist/SHA256SUMS.txt SHA256SUMS.txt
       - uses: actions/upload-artifact@v7
         with:
           name: OPlague-windows-x64
-          path: OPlague-windows-x64.zip
+          path: |
+            OPlague-windows-x64.zip
+            SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 30
   publish-release:
