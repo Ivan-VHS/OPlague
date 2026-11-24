@@ -87,6 +87,7 @@ jobs:
   readme:
     name: README
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       contents: read
     steps:
@@ -100,6 +101,7 @@ jobs:
   license:
     name: LICENSE
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       contents: read
     steps:
@@ -119,6 +121,7 @@ jobs:
     needs: [linux-validation, windows-desktop-build, readme, license]
     if: github.event_name != 'workflow_dispatch' && github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       contents: write
       pull-requests: write
