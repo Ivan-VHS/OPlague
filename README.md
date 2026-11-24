@@ -13,6 +13,10 @@ OPlague is a local workbench for Windows device inventory, read-only driver-pack
 > **Status:** Active development. Tkinter desktop workbench, local package inspectors, CLI tools, tests and Windows packaging workflow are present. Live Plug and Play inventory is Windows-only.
 > **Requirements:** Python 3.10+, Tkinter for desktop UI and Git. Live PnP collection additionally requires Windows and PowerShell/CIM.
 
+## Reaper integration
+
+OPlague optionally delegates a narrow, validated integer-expression operation to Reaper's versioned C17 ABI. Reaper is not used to inspect or modify drivers, authorize installation, or produce device-compatibility verdicts. The Python device/package workbench remains authoritative; the ABI bridge is opt-in and uses an explicitly selected trusted library. See [Reaper runtime integration](docs/REAPER_RUNTIME_INTEGRATION.md).
+
 ## Quick Start
 
 Launch the desktop workbench:

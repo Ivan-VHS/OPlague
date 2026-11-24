@@ -13,6 +13,12 @@ OPlague 是用于 Windows 设备清单、只读驱动包检查和兼容性证据
 > **状态：** 活跃开发。仓库包含 Tkinter 桌面工作台、本地包检查器、CLI 工具、测试和 Windows 打包工作流。实时 Plug and Play 清单仅在 Windows 可用。
 > **要求：** Python 3.10+、Tkinter 和 Git；实时 PnP 需要 Windows 与 PowerShell/CIM。
 
+## Reaper 集成
+
+OPlague 可通过版本化的 Reaper C17 ABI，对已验证数据执行受限整数表达式计算。这不会将驱动控制、软件包安装或兼容性结论交给 Reaper。
+
+详见 [Reaper 集成说明](docs/REAPER_RUNTIME_INTEGRATION.md)。
+
 ## 快速开始
 
 启动桌面程序：
