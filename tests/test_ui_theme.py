@@ -89,10 +89,6 @@ class OPlagueThemeTests(unittest.TestCase):
             palette_for("neon")
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 
     def test_native_backdrop_uses_windows_mica_with_portable_fallback(self):
         self.assertEqual(native_backdrop_policy("win32"), "mica")
@@ -100,3 +96,9 @@ if __name__ == "__main__":
         self.assertEqual(native_backdrop_policy("darwin"), "opaque")
         if __import__("sys").platform != "win32":
             self.assertFalse(apply_native_backdrop(object()))
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
