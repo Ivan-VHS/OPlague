@@ -19,6 +19,7 @@ from typing import Any
 
 MAX_RESULT_BYTES = 16 * 1024 * 1024
 MAX_JSON_INTEGER_DIGITS = 1024
+MAX_JSON_NESTING_DEPTH = 128
 PROJECT_LIMITATIONS = {
     "pytyliki": (
         "hardware inspection is read-only",
@@ -173,6 +174,32 @@ def _parse_bounded_json_integer(value: str) -> int:
     return int(value)
 
 
+def _validate_json_nesting(raw: str) -> None:
+    """Enforce a portable structural depth limit while ignoring string contents."""
+    depth = 0
+    in_string = False
+    escaped = False
+    for character in raw:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif character == "\\\\":
+                escaped = True
+            elif character == '"':
+                in_string = False
+            continue
+        if character == '"':
+            in_string = True
+        elif character in "[{":
+            depth += 1
+            if depth > MAX_JSON_NESTING_DEPTH:
+                raise EnvelopeError(
+                    f"JSON nesting exceeds the {MAX_JSON_NESTING_DEPTH}-level limit"
+                )
+        elif character in "]}":
+            depth -= 1
+
+
 def _read_result(stream: Any) -> Any:
     """Read UTF-8 text in bounded chunks, enforcing the limit on encoded bytes."""
     chunks: list[str] = []
@@ -189,6 +216,7 @@ def _read_result(stream: Any) -> Any:
             raise EnvelopeError(f"JSON result exceeds the {MAX_RESULT_BYTES}-byte limit")
         chunks.append(chunk)
     raw = "".join(chunks)
+    _validate_json_nesting(raw)
     try:
         return json.loads(
             raw,
