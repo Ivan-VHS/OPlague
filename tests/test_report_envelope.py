@@ -107,7 +107,7 @@ class ReportEnvelopeTests(unittest.TestCase):
             report_envelope._read_result(io.StringIO('{"count":' + oversized + "}"))
 
     def test_json_result_translates_excessive_nesting(self):
-        deeply_nested = "[" * 2000 + "0" + "]" * 2000
+        deeply_nested = "[" * (report_envelope.MAX_JSON_NESTING_DEPTH + 1) + "0" + "]" * (report_envelope.MAX_JSON_NESTING_DEPTH + 1)
         with self.assertRaisesRegex(report_envelope.EnvelopeError, "nesting"):
             report_envelope._read_result(io.StringIO(deeply_nested))
 
