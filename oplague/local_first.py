@@ -10,6 +10,7 @@ import json
 import re
 import sqlite3
 import threading
+import time
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
@@ -112,7 +113,7 @@ class LocalFirstStore:
             raise LocalFirstError("SQLite could not enable WAL journaling")
         self._db.execute("PRAGMA user_version")
         version = int(self._db.execute("PRAGMA user_version").fetchone()[0])
-        if version not in (0, 1):
+        if version not in (0, 1, 2):
             self._db.close()
             self._closed = True
             raise LocalFirstError(f"unsupported local-first schema version: {version}")
@@ -130,7 +131,23 @@ class LocalFirstStore:
             );
             CREATE INDEX IF NOT EXISTS operations_key_order
                 ON operations(key, lamport DESC, actor DESC, counter DESC, op_id DESC);
-            PRAGMA user_version=1;
+            CREATE TABLE IF NOT EXISTS state_history (
+                revision_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                parent_revision INTEGER REFERENCES state_history(revision_id),
+                branch TEXT NOT NULL,
+                action TEXT NOT NULL,
+                snapshot_json TEXT NOT NULL,
+                created_ns INTEGER NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS state_history_branch_revision
+                ON state_history(branch, revision_id DESC);
+            CREATE TABLE IF NOT EXISTS history_branches (
+                branch TEXT PRIMARY KEY,
+                head_revision INTEGER REFERENCES state_history(revision_id)
+            );
+            INSERT OR IGNORE INTO history_branches(branch, head_revision)
+                VALUES ('main', NULL);
+            PRAGMA user_version=2;
             """
         )
 
@@ -304,6 +321,208 @@ class LocalFirstStore:
                 self._db.execute("ROLLBACK")
                 raise
         return inserted
+
+
+    @staticmethod
+    def _validate_history_branch(branch: Any) -> str:
+        if not isinstance(branch, str) or not _ACTOR_RE.fullmatch(branch):
+            raise LocalFirstError("history branch must use 1..64 ASCII letters, digits, dot, underscore, or dash")
+        return branch
+
+    def commit_history(
+        self,
+        branch: str = "main",
+        action: str = "checkpoint",
+        state: Mapping[str, Any] | None = None,
+    ) -> int:
+        """Append an immutable workspace snapshot to a branch and advance its head."""
+        branch = self._validate_history_branch(branch)
+        if not isinstance(action, str) or not 1 <= len(action) <= 128 or "\x00" in action:
+            raise LocalFirstError("history action must contain 1..128 non-NUL characters")
+        if state is None:
+            materialized = self.snapshot()
+        else:
+            if not isinstance(state, Mapping):
+                raise LocalFirstError("history state must be a key/value mapping")
+            materialized = {_validate_key(key): value for key, value in state.items()}
+        snapshot_json = _canonical_json(materialized)
+
+        with self._lock:
+            self._ensure_open()
+            self._begin()
+            try:
+                row = self._db.execute(
+                    "SELECT head_revision FROM history_branches WHERE branch=?",
+                    (branch,),
+                ).fetchone()
+                if row is None:
+                    raise LocalFirstError(f"unknown history branch: {branch}")
+                parent = row[0]
+                cursor = self._db.execute(
+                    """INSERT INTO state_history
+                       (parent_revision, branch, action, snapshot_json, created_ns)
+                       VALUES (?, ?, ?, ?, ?)""",
+                    (parent, branch, action, snapshot_json, time.time_ns()),
+                )
+                revision_id = int(cursor.lastrowid)
+                self._db.execute(
+                    "UPDATE history_branches SET head_revision=? WHERE branch=?",
+                    (revision_id, branch),
+                )
+                self._db.execute("COMMIT")
+                return revision_id
+            except Exception:
+                self._db.execute("ROLLBACK")
+                raise
+
+    def create_history_branch(self, branch: str, from_revision: int) -> None:
+        """Create an isolated history head at any existing immutable revision."""
+        branch = self._validate_history_branch(branch)
+        if branch == "main":
+            raise LocalFirstError("the main history branch already exists")
+        from_revision = _positive_integer(from_revision, "from_revision")
+        with self._lock:
+            self._ensure_open()
+            self._begin()
+            try:
+                exists = self._db.execute(
+                    "SELECT 1 FROM state_history WHERE revision_id=?",
+                    (from_revision,),
+                ).fetchone()
+                if exists is None:
+                    raise LocalFirstError(f"unknown history revision: {from_revision}")
+                try:
+                    self._db.execute(
+                        "INSERT INTO history_branches(branch, head_revision) VALUES (?, ?)",
+                        (branch, from_revision),
+                    )
+                except sqlite3.IntegrityError as error:
+                    raise LocalFirstError(f"history branch already exists: {branch}") from error
+                self._db.execute("COMMIT")
+            except Exception:
+                self._db.execute("ROLLBACK")
+                raise
+
+    def history_checkout(self, branch: str = "main", revision_id: int | None = None) -> dict[str, Any]:
+        """Read the branch head or one of its ancestors without mutating live data."""
+        branch = self._validate_history_branch(branch)
+        if revision_id is not None:
+            revision_id = _positive_integer(revision_id, "revision_id")
+        with self._lock:
+            self._ensure_open()
+            branch_row = self._db.execute(
+                "SELECT head_revision FROM history_branches WHERE branch=?",
+                (branch,),
+            ).fetchone()
+            if branch_row is None:
+                raise LocalFirstError(f"unknown history branch: {branch}")
+            head = branch_row[0]
+            target = head if revision_id is None else revision_id
+            if target is None:
+                raise LocalFirstError(f"history branch has no revisions: {branch}")
+            row = self._db.execute(
+                """WITH RECURSIVE lineage(revision_id, parent_revision) AS (
+                       SELECT revision_id, parent_revision
+                       FROM state_history WHERE revision_id=?
+                       UNION ALL
+                       SELECT parent.revision_id, parent.parent_revision
+                       FROM state_history AS parent
+                       JOIN lineage ON parent.revision_id=lineage.parent_revision
+                   )
+                   SELECT snapshot_json FROM state_history
+                   WHERE revision_id=?
+                     AND revision_id IN (SELECT revision_id FROM lineage)""",
+                (head, target),
+            ).fetchone()
+            if row is None:
+                raise LocalFirstError(
+                    f"revision {target} is not in the ancestry of history branch {branch}"
+                )
+            try:
+                decoded = json.loads(row[0])
+            except (TypeError, ValueError) as error:
+                raise LocalFirstError("stored history snapshot is invalid JSON") from error
+            if not isinstance(decoded, dict):
+                raise LocalFirstError("stored history snapshot is not a key/value object")
+            return decoded
+
+    def history_diff(self, before_revision: int, after_revision: int) -> dict[str, list[dict[str, Any]]]:
+        """Return a deterministic key-level diff between two immutable revisions."""
+        before_revision = _positive_integer(before_revision, "before_revision")
+        after_revision = _positive_integer(after_revision, "after_revision")
+        with self._lock:
+            self._ensure_open()
+            rows = self._db.execute(
+                "SELECT revision_id, snapshot_json FROM state_history WHERE revision_id IN (?, ?)",
+                (before_revision, after_revision),
+            ).fetchall()
+        snapshots = {int(row[0]): json.loads(row[1]) for row in rows}
+        if before_revision not in snapshots or after_revision not in snapshots:
+            raise LocalFirstError("history diff references an unknown revision")
+        before, after = snapshots[before_revision], snapshots[after_revision]
+        before_keys, after_keys = set(before), set(after)
+        added = [{"key": key, "value": after[key]} for key in sorted(after_keys - before_keys)]
+        removed = [{"key": key, "value": before[key]} for key in sorted(before_keys - after_keys)]
+        changed = [
+            {"key": key, "before": before[key], "after": after[key]}
+            for key in sorted(before_keys & after_keys)
+            if before[key] != after[key]
+        ]
+        return {"added": added, "removed": removed, "changed": changed}
+
+    def history_restore_key(
+        self, key: str, revision_id: int, branch: str = "main"
+    ) -> dict[str, Any]:
+        """Restore one historical key as a new CRDT operation; preserve later keys."""
+        key = _validate_key(key)
+        historical = self.history_checkout(branch, revision_id)
+        if key in historical:
+            operation = self.put(key, historical[key])
+        else:
+            operation = self.delete(key)
+        self.commit_history(branch, "restore-key", self.snapshot())
+        return operation
+
+    def history_log(self, branch: str = "main", limit: int = 100) -> list[dict[str, Any]]:
+        """Return newest-first revision metadata along a branch's parent chain."""
+        branch = self._validate_history_branch(branch)
+        limit = _positive_integer(limit, "limit")
+        if limit > 1000:
+            raise LocalFirstError("history log limit must not exceed 1000")
+        with self._lock:
+            self._ensure_open()
+            row = self._db.execute(
+                "SELECT head_revision FROM history_branches WHERE branch=?",
+                (branch,),
+            ).fetchone()
+            if row is None:
+                raise LocalFirstError(f"unknown history branch: {branch}")
+            if row[0] is None:
+                return []
+            rows = self._db.execute(
+                """WITH RECURSIVE lineage(revision_id, parent_revision, branch, action, created_ns) AS (
+                       SELECT revision_id, parent_revision, branch, action, created_ns
+                       FROM state_history WHERE revision_id=?
+                       UNION ALL
+                       SELECT parent.revision_id, parent.parent_revision,
+                              parent.branch, parent.action, parent.created_ns
+                       FROM state_history AS parent
+                       JOIN lineage ON parent.revision_id=lineage.parent_revision
+                   )
+                   SELECT revision_id, parent_revision, branch, action, created_ns
+                   FROM lineage ORDER BY revision_id DESC LIMIT ?""",
+                (row[0], limit),
+            ).fetchall()
+            return [
+                {
+                    "revision_id": int(item[0]),
+                    "parent_revision": None if item[1] is None else int(item[1]),
+                    "branch": str(item[2]),
+                    "action": str(item[3]),
+                    "created_ns": int(item[4]),
+                }
+                for item in rows
+            ]
 
     def checkpoint(self) -> tuple[int, int, int]:
         """Request a passive WAL checkpoint and return SQLite's result tuple."""
