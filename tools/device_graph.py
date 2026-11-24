@@ -47,7 +47,9 @@ def _as_ids(value: Any) -> list[str]:
     else:
         return []
     if len(values) > MAX_IDS_PER_RECORD:
-        return []
+        raise ValueError(
+            f"hardware identifier list exceeds the {MAX_IDS_PER_RECORD}-item limit"
+        )
     result = []
     for item in values:
         normalized = normalize_hardware_id(item)
@@ -97,8 +99,12 @@ def extract_inf_compatibility(content: str) -> dict[str, Any]:
             if normalized.startswith(_ID_PREFIXES):
                 ids.add(normalized)
 
+    if len(ids) > MAX_IDS_PER_RECORD:
+        raise ValueError(
+            f"INF Models section exceeds the {MAX_IDS_PER_RECORD}-identifier limit"
+        )
     return {
-        "hardware_ids": sorted(ids)[:MAX_IDS_PER_RECORD],
+        "hardware_ids": sorted(ids),
         "architectures": sorted(architectures) or ["unspecified"],
         "evidence": "INF Models section; identifiers only",
     }
@@ -195,7 +201,11 @@ def build_compatibility_graph(
             if isinstance(value, str):
                 raw_device_ids.append(value)
             elif isinstance(value, (list, tuple)):
-                raw_device_ids.extend(value[:MAX_IDS_PER_RECORD])
+                if len(value) > MAX_IDS_PER_RECORD:
+                    raise ValueError(
+                        f"device {device_id} {field} exceeds the {MAX_IDS_PER_RECORD}-item limit"
+                    )
+                raw_device_ids.extend(value)
         device_ids = _as_ids(raw_device_ids)
         device_name = str(device.get("name") or device_id)
         nodes.append({
