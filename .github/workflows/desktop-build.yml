@@ -88,11 +88,18 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: write
+    environment: release-review
     steps:
       - uses: actions/download-artifact@v8
         with:
           name: OPlague-windows-x64
           path: release-assets
+      - name: Verify release archive checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd release-assets
+          sha256sum --check SHA256SUMS.txt
       - uses: softprops/action-gh-release@v3
         with:
           generate_release_notes: true
