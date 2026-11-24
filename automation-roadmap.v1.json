@@ -598,22 +598,25 @@
         "Авторазвертывание"
       ],
       "priority": "P2",
-      "status": "planned",
-      "objective": "Prepare reproducible release packaging and publication after release criteria are explicitly defined.",
-      "target": "No unattended publication, signing, firmware installation, or production release.",
+      "status": "extend",
+      "objective": "Maintain a checksum-verified Windows distribution with explicit reviewer approval and human-controlled publication.",
+      "target": "Build only from a reviewed v-prefixed tag, verify the Windows archive checksum and create a draft GitHub Release behind a protected review environment.",
       "trigger": [
         "workflow_dispatch",
         "protected-release-review"
       ],
       "current_controls": [
-        ".github/workflows/verified-auto-merge.yml",
+        ".github/workflows/desktop-build.yml",
+        "docs/RELEASE.md",
         "project-contract.json"
       ],
       "guardrails": [
-        "Publishing requires a protected release ref and explicit approval.",
-        "No unattended signing, external publication, or deployment."
+        "The release job uses the release-review GitHub Environment; repository administrators must configure required reviewers.",
+        "The workflow creates a draft GitHub Release only; a maintainer must inspect and publish it manually.",
+        "SHA-256 validates archive integrity but does not authenticate the publisher.",
+        "OPlague release operations remain read-only with respect to devices and drivers."
       ],
-      "acceptance": "Publication runs only from a protected release ref with verified artifacts and an approved release gate."
+      "acceptance": "A tag build passes the Windows build/test suite, packages the executable and metadata, verifies the uploaded SHA-256 sidecar and creates only a draft release behind the configured release-review approval gate. Promote to active only after required reviewers are configured and signing/provenance policy is reviewed."
     }
   ]
 }
