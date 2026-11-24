@@ -65,6 +65,10 @@ PE inspection reads headers only. The SPDX export records hashes and leaves unve
 
 The seven-app **Mora** suite (Cockos, Kavun, Ka-bon, Gloverty, Po, Illidia and Unify) is specified in the separate [DuckOS project](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/PREINSTALLED_APPLICATIONS.md). It is an operating-system application layer, not a component of OPlague. This repository does not claim to ship those applications or provide their OS services. Its own capabilities and interfaces remain independently defined by this repository's source, tests and versioned contracts.
 
+## Reaper integration
+
+OPlague optionally delegates a narrow, validated integer-expression operation to Reaper's versioned C17 ABI. Reaper is not used to inspect or modify drivers, authorize installation, or produce device-compatibility verdicts. The Python device/package workbench remains authoritative; the ABI bridge is opt-in and uses an explicitly selected trusted library. See [Reaper runtime integration](docs/REAPER_RUNTIME_INTEGRATION.md).
+
 ## Quick Start
 
 ### Requirements

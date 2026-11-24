@@ -26,3 +26,9 @@ The bridge in `tools/reaper_ffi.py` checks ABI version 1, rejects relative and s
 The optional operation is purely ordinal: it sums five prevalidated integers in the range 1..5. It is not a hardware measurement, driver score, compatibility verdict, installation decision or authorization. All device and package operations remain read-only.
 
 Without the optional call, all existing OPlague functions continue to use their existing Python implementations. There is no runtime download and no required shared-library dependency.
+
+## Shared language/toolchain contract
+
+Reaper's source frontend, МОСТ aliases, Python reference runtime, source-span model and canonical IR belong to the Reaper repository. OPlague deliberately consumes only the separately documented ABI v1 scalar-expression and exact selfhood-lookup entry points. It does not parse `.rpr` files itself and does not embed Reaper Studio or the general Python runtime.
+
+The ABI functions used here do not expose the native AST/IR structs, so adding source provenance to the compiler frontend does not expand the OPlague call surface. The operator-selected library path, ABI version check, source-size limits and ordinal input validation remain mandatory. The expression result is a deterministic arithmetic total over already validated dimensions, not a hardware score, measurement, security assessment or driver recommendation.
