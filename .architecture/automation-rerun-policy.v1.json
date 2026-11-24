@@ -1,0 +1,25 @@
+{
+  "schema": "anatidae.safe-ci-rerun.v1",
+  "repository": "Ivan-VHS/OPlague",
+  "max_attempts": 2,
+  "allowed_events": [
+    "push",
+    "pull_request",
+    "schedule",
+    "workflow_dispatch"
+  ],
+  "allowed_conclusions": [
+    "failure",
+    "timed_out"
+  ],
+  "allowed_workflow_names": [
+    "OPlague Desktop Build",
+    "Quality, Repeatability and Native Contract",
+    "Automation Roadmap Contract",
+    "Architecture Contract",
+    "System capability profile",
+    "Backend engineering contract",
+    "Repository completeness gate"
+  ],
+  "same_repository_only": true
+}
