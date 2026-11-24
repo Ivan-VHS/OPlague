@@ -69,6 +69,10 @@ The seven-app **Mora** suite (Cockos, Kavun, Ka-bon, Gloverty, Po, Illidia and U
 
 OPlague optionally delegates a narrow, validated integer-expression operation to Reaper's versioned C17 ABI. Reaper is not used to inspect or modify drivers, authorize installation, or produce device-compatibility verdicts. The Python device/package workbench remains authoritative; the ABI bridge is opt-in and uses an explicitly selected trusted library. See [Reaper runtime integration](docs/REAPER_RUNTIME_INTEGRATION.md).
 
+## Plugin runtime policy
+
+The local plugin host now has bounded input/output, per-plugin concurrency admission, observed deadlines and Actuator-style readiness/metrics. See [Plugin execution policy](docs/PLUGIN_EXECUTION_POLICY.md). These are in-process controls; they do not turn OPlague into a remote service or guarantee hard cancellation of synchronous Python handlers.
+
 ## Quick Start
 
 ### Requirements
