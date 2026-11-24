@@ -37,6 +37,17 @@ All built-ins remain static/read-only adapters. No plugin loads arbitrary
 Python modules, installs drivers, invokes a shell, writes hardware state or
 turns this workbench into a remote service.
 
+## Opt-in Pytyliki metric catalogue bridge
+
+`tools.pytyliki_ffi.metric_registry_search(..., library_path=...)` can query
+the static Pytyliki metric catalogue through the additive
+`pytyliki_v1_metric_registry_search` C ABI v1 entrypoint. The shared-library
+path must remain an explicit absolute path, exactly like the existing vector
+distance bridge. Query strings are bounded UTF-8, masks are checked for
+contradictions, and offset/limit/result capacity are independently bounded.
+The returned envelope contains metadata only; it never executes a metric
+operation or retains native pointers.
+
 ## Java framework crosswalk
 
 | Framework capability | OPlague implementation |
