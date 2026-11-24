@@ -12,6 +12,9 @@
 | `active` | Existing implementation/control, valid evidence paths, regression verification and an executable acceptance gate | The scoped control exists and its stated checks run |
 | `extend` | Existing partial control, explicit gap and a next measurable acceptance gate | The target is only partially delivered |
 | `planned` | Explicit blocker, owner/dependency and exit criteria | Not implemented; no shipped-capability claim is permitted |
+| `not_applicable` | Explicit product-scope rationale, owner and a trigger that would change the product boundary | The capability is outside this product's current scope; it is not an unfinished feature |
+
+A `not_applicable` status is valid only when the machine-readable roadmap includes a specific reason and the validator tests that reason. Use it for capability areas outside the approved product boundary; do not use it to hide incomplete implementation.
 
 A Markdown checkbox, schema, interface declaration or passing documentation validator is not runtime implementation evidence. OPlague is an evidence-first, read-only system tool; the word “driver” in a plan does not authorize driver installation or hardware writes.
 
