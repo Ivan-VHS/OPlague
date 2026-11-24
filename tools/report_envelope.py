@@ -7,7 +7,7 @@ and never writes to the input file or records the input path in the report.
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import hashlib
 import json
 import os
@@ -95,6 +95,14 @@ def build_envelope(
         _non_empty_text(created, "created timestamp")
         if not created.endswith("Z"):
             raise EnvelopeError("created timestamp must be an ISO-8601 UTC timestamp ending in 'Z'")
+        try:
+            parsed_created = datetime.fromisoformat(created[:-1] + "+00:00")
+        except ValueError as error:
+            raise EnvelopeError(
+                "created timestamp must be a valid ISO-8601 UTC timestamp ending in 'Z'"
+            ) from error
+        if parsed_created.tzinfo is None or parsed_created.utcoffset() != timedelta(0):
+            raise EnvelopeError("created timestamp must use the UTC timezone")
 
     supplied_limitations = list(limitations or [])
     defaults = list(PROJECT_LIMITATIONS.get(tool_name, ()))
@@ -126,9 +134,21 @@ def build_envelope(
 
 
 def _read_result(stream: Any) -> Any:
-    raw = stream.read(MAX_RESULT_BYTES + 1)
-    if len(raw.encode("utf-8")) > MAX_RESULT_BYTES:
-        raise EnvelopeError(f"JSON result exceeds the {MAX_RESULT_BYTES}-byte limit")
+    """Read UTF-8 text in bounded chunks, enforcing the limit on encoded bytes."""
+    chunks: list[str] = []
+    total_bytes = 0
+    while True:
+        remaining = MAX_RESULT_BYTES - total_bytes
+        chunk = stream.read(min(64 * 1024, remaining + 1))
+        if not chunk:
+            break
+        if not isinstance(chunk, str):
+            raise EnvelopeError("JSON result stream must provide decoded text")
+        total_bytes += len(chunk.encode("utf-8"))
+        if total_bytes > MAX_RESULT_BYTES:
+            raise EnvelopeError(f"JSON result exceeds the {MAX_RESULT_BYTES}-byte limit")
+        chunks.append(chunk)
+    raw = "".join(chunks)
     try:
         return json.loads(raw)
     except json.JSONDecodeError as error:

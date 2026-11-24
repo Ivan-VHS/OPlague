@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import io
 import json
 from pathlib import Path
 import tempfile
@@ -68,6 +69,23 @@ class ReportEnvelopeTests(unittest.TestCase):
             report_envelope.build_envelope(
                 tool="pytyliki", version="1", commit=None, result={}, limitations=["  "]
             )
+
+    def test_timestamp_must_be_a_real_iso8601_utc_datetime(self):
+        with self.assertRaisesRegex(report_envelope.EnvelopeError, "valid ISO-8601"):
+            report_envelope.build_envelope(
+                tool="oplague", version="1", commit=None, result={},
+                created="not-a-timestampZ",
+            )
+
+    def test_result_limit_counts_utf8_bytes_not_characters(self):
+        previous_limit = report_envelope.MAX_RESULT_BYTES
+        report_envelope.MAX_RESULT_BYTES = 4
+        try:
+            self.assertEqual(report_envelope._read_result(io.StringIO('"é"')), "é")
+            with self.assertRaisesRegex(report_envelope.EnvelopeError, "4-byte limit"):
+                report_envelope._read_result(io.StringIO('"éé"'))
+        finally:
+            report_envelope.MAX_RESULT_BYTES = previous_limit
 
     def test_project_limitations_are_added_once(self):
         report = report_envelope.build_envelope(
