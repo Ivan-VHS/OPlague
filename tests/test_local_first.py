@@ -100,6 +100,90 @@ class LocalFirstStoreTests(unittest.TestCase):
             }])
         self.assertEqual(store.snapshot(), {})
 
+    def test_history_checkpoints_and_branches_are_persistent(self) -> None:
+        path = self.root / "history.db"
+        with LocalFirstStore(path, "desktop") as store:
+            first = store.commit_history(
+                "main", "initial", {"layout": "compact", "grid": 8}
+            )
+            second = store.commit_history(
+                "main", "resize", {"layout": "wide", "grid": 4}
+            )
+            store.create_history_branch("experiment", first)
+            experimental = store.commit_history(
+                "experiment", "try-canvas", {"layout": "canvas", "grid": 8}
+            )
+            self.assertEqual(
+                store.history_checkout("main"),
+                {"layout": "wide", "grid": 4},
+            )
+            self.assertEqual(
+                store.history_checkout("experiment"),
+                {"layout": "canvas", "grid": 8},
+            )
+            self.assertEqual(
+                store.history_checkout("experiment", first),
+                {"layout": "compact", "grid": 8},
+            )
+            with self.assertRaisesRegex(LocalFirstError, "not in the ancestry"):
+                store.history_checkout("experiment", second)
+            log = store.history_log("experiment")
+            self.assertEqual([row["revision_id"] for row in log], [experimental, first])
+        with LocalFirstStore(path, "desktop") as reopened:
+            self.assertEqual(
+                reopened.history_checkout("experiment"),
+                {"layout": "canvas", "grid": 8},
+            )
+
+    def test_history_diff_and_single_key_restore_preserve_later_work(self) -> None:
+        store = LocalFirstStore(self.root / "restore.db", "desktop")
+        self.addCleanup(store.close)
+        baseline = store.commit_history(
+            "main", "baseline", {"theme": "dark", "layout": "compact"}
+        )
+        store.put("theme", "light")
+        store.put("layout", "wide")
+        current = store.commit_history("main", "edit")
+        self.assertEqual(
+            store.history_diff(baseline, current),
+            {
+                "added": [],
+                "removed": [],
+                "changed": [
+                    {"key": "layout", "before": "compact", "after": "wide"},
+                    {"key": "theme", "before": "dark", "after": "light"},
+                ],
+            },
+        )
+        operation = store.history_restore_key("theme", baseline)
+        self.assertTrue(operation["op_id"].startswith("desktop:"))
+        self.assertEqual(store.get("theme"), "dark")
+        self.assertEqual(store.get("layout"), "wide")
+        self.assertEqual(
+            store.history_checkout("main"),
+            {"layout": "wide", "theme": "dark"},
+        )
+        self.assertEqual(
+            store.history_checkout("main", current),
+            {"layout": "wide", "theme": "light"},
+        )
+
+    def test_history_rejects_invalid_branches_revisions_and_limits(self) -> None:
+        store = LocalFirstStore(self.root / "validation.db", "desktop")
+        self.addCleanup(store.close)
+        with self.assertRaisesRegex(LocalFirstError, "unknown history branch"):
+            store.commit_history("missing", "edit", {})
+        with self.assertRaisesRegex(LocalFirstError, "unknown history revision"):
+            store.create_history_branch("broken", 404)
+        revision = store.commit_history("main", "initial", {"mode": "safe"})
+        store.create_history_branch("sandbox", revision)
+        with self.assertRaisesRegex(LocalFirstError, "already exists"):
+            store.create_history_branch("sandbox", revision)
+        with self.assertRaisesRegex(LocalFirstError, "not exceed 1000"):
+            store.history_log("main", 1001)
+        with self.assertRaisesRegex(LocalFirstError, "history state"):
+            store.commit_history("main", "invalid", ["not", "a", "mapping"])
+
     def test_closed_store_rejects_reads(self) -> None:
         store = LocalFirstStore(self.root / "state.db", "desktop")
         store.close()
