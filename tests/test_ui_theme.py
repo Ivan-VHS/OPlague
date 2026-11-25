@@ -46,7 +46,7 @@ class OPlagueThemeTests(unittest.TestCase):
         self.assertGreaterEqual(contrast_ratio(palette["muted"], palette["bg"]), 4.5)
         self.assertEqual(palette_contrast_issues(palette), [])
 
-    def test_semantic_statuses_share_yellow_without_losing_text_labels(self):
+    def test_semantic_statuses_use_distinct_hues_and_explicit_labels(self):
         palette = palette_for()
         for token in ("success", "warning", "error", "info", "brand", "blue", "red"):
             with self.subTest(token=token):
