@@ -49,6 +49,7 @@ python -m PyInstaller --noconfirm --clean --onefile --windowed --name OPlague op
 - [Індекс документації](docs/README.md) · [Інтеграція runtime Reaper](docs/REAPER_RUNTIME_INTEGRATION.md)
 - [Інтеграція DuckOS та Mora](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/GAMING_PERFORMANCE_INTEGRATION.md)
 - [Спільні стандарти екосистеми](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/SHARED_STANDARDS.md)
+- [Сходи еволюції проєкту](docs/PROJECT_LADDER.md) · [Поточний рівень](.github/project-ladder.v1.json)
 
 Поточну поведінку визначають вихідний код, схеми й тести. Станція не прошиває пристрої, не встановлює драйвери й не сертифікує сумісність автоматично.
 

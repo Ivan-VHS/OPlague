@@ -50,6 +50,7 @@ python -m PyInstaller --noconfirm --clean --onefile --windowed --name OPlague op
 - [Documentation index](docs/README.md) · [Reaper runtime integration](docs/REAPER_RUNTIME_INTEGRATION.md)
 - [DuckOS and Mora integration](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/GAMING_PERFORMANCE_INTEGRATION.md)
 - [Shared ecosystem standards](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/SHARED_STANDARDS.md)
+- [Project Evolution Ladder](docs/PROJECT_LADDER.md) · [Machine-readable rung](.github/project-ladder.v1.json)
 
 Source, schemas and tests define current behavior. The workbench does not flash firmware, install drivers or automatically certify hardware compatibility.
 
