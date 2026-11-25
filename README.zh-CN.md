@@ -18,7 +18,7 @@ OPlague 是一款用于设备与驱动检查、软件包分析、兼容性证据
 - 设备兼容性证据、UDRV 软件包验证和结构化报告。
 - 本地游戏遥测、帧时间分析和可撤销的用户级性能配置。
 
-详细资料：[功能](docs/FEATURES.md) · [架构](docs/ARCHITECTURE.md) · [Authenticode](docs/AUTHENTICODE.md) · [驱动目标架构](docs/DRIVER_TARGET_ARCHITECTURE.md) · [UDRV 格式](docs/UDRV_FORMAT_V1.md) · [游戏工作台](docs/GAMING_PERFORMANCE_WORKBENCH.md)。
+详细资料：[功能](docs/FEATURES.md) · [架构](docs/ARCHITECTURE.md) · [Authenticode](docs/AUTHENTICODE.md) · [驱动目标架构](docs/DRIVER_TARGET_ARCHITECTURE.md) · [UDRV 格式](docs/UDRV_FORMAT_V1.md) · [游戏工作台](docs/GAMING_PERFORMANCE_WORKBENCH.md) · [GPU telemetry bridge v1](docs/GPU_TELEMETRY_BRIDGE_V1.md)。
 
 ## 运行与测试
 

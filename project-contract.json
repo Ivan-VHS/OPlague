@@ -4,7 +4,7 @@
     "id": "oplague",
     "name": "OPlague",
     "repository": "Ivan-VHS/OPlague",
-    "summary": "Windows-first driver-management workbench for read-only hardware discovery, bounded package inspection, integrity reports, normalized metrics and federated device snapshots.",
+    "summary": "Windows-first driver-management workbench for read-only hardware discovery, bounded package inspection, integrity reports, normalized metrics, gaming telemetry and federated device/GPU snapshots.",
     "documentation": "docs/UNIFIED_PROJECT_CONTRACT.md"
   },
   "implementation": {
@@ -120,6 +120,18 @@
         "tests/test_octa_pyramid.py",
         "docs/OCTA_PYRAMID_FEDERATION.md"
       ]
+    },
+    {
+      "id": "telemetry.gpu-read-only-export",
+      "status": "implemented",
+      "summary": "Exports bounded NVIDIA GPU sensor snapshots with explicit unknown values, read-only source metadata and a canonical SHA-256 payload digest.",
+      "evidence": [
+        "tools/game_optimizer.py",
+        "tools/gpu_telemetry_export.py",
+        "schemas/oplage.gpu-telemetry.v1.schema.json",
+        "tests/test_game_optimizer.py",
+        "docs/GPU_TELEMETRY_BRIDGE_V1.md"
+      ]
     }
   ],
   "interfaces": [
@@ -184,6 +196,17 @@
         "tests/test_reaper_report.py",
         "docs/FEDERATED_INTEGRATION.md"
       ]
+    },
+    {
+      "id": "oplage.gpu-telemetry.v1",
+      "format": "Versioned read-only GPU telemetry JSON snapshot",
+      "direction": "provides",
+      "status": "implemented",
+      "evidence": [
+        "tools/game_optimizer.py",
+        "schemas/oplage.gpu-telemetry.v1.schema.json",
+        "docs/GPU_TELEMETRY_BRIDGE_V1.md"
+      ]
     }
   ],
   "integrations": [
@@ -234,6 +257,14 @@
       "status": "not_applicable",
       "opt_in": false,
       "summary": "Audio-pack generation is outside OPlague's Windows device and driver-package inspection domain; no device actions are coupled to VentuSample."
+    },
+    {
+      "project": "reaper",
+      "interface": "oplage.gpu-telemetry.v1",
+      "mode": "json-file",
+      "status": "implemented",
+      "opt_in": true,
+      "summary": "Exports a caller-selected read-only GPU sensor snapshot for offline Reaper/DuckOS ingestion; no control or driver action is performed."
     }
   ],
   "safety_boundaries": [
@@ -241,7 +272,8 @@
     "Imported INF, ZIP, UDRV and other package content is treated as untrusted and is never executed by the inspector.",
     "Compatibility output is candidate evidence, not a trust, signing, OS-support or installation verdict.",
     "No driver is installed, removed, enabled, disabled, extracted or modified by the federated inspection workflow.",
-    "Raw PnP instance IDs are omitted from snapshots in favor of linkable SHA-256 fingerprints; this is pseudonymization, not anonymization."
+    "Raw PnP instance IDs are omitted from snapshots in favor of linkable SHA-256 fingerprints; this is pseudonymization, not anonymization.",
+    "GPU telemetry export is NVIDIA nvidia-smi read-only only; unavailable fields remain null, and the SHA-256 digest is integrity metadata rather than a digital signature."
   ],
   "extension_points": [
     "Versioned JSON device and inspection-bundle interfaces.",
