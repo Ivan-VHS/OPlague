@@ -1,0 +1,82 @@
+# Reaper-side policy contract for hardware inventory and device inspection.
+# Decisions are pure and read-only; firmware, driver and device mutation stay disabled.
+# Author: Ivan-VHS
+
+craft valid_device_descriptor(device) {
+    when kind(device) != "list" or size(device) != 6 {
+        yield false
+    }
+    when kind(device[0]) != "text" or device[0] == "" {
+        yield false
+    }
+    when kind(device[1]) != "text" or device[1] == "" {
+        yield false
+    }
+    when kind(device[2]) != "boolean" or kind(device[3]) != "boolean" {
+        yield false
+    }
+    when kind(device[4]) != "number" or kind(device[5]) != "boolean" {
+        yield false
+    }
+    yield true
+}
+
+craft disposition(device) {
+    when not valid_device_descriptor(device) {
+        yield "INVALID_DESCRIPTOR"
+    }
+    when device[4] < 0 or device[4] > 100 {
+        yield "INVALID_RISK_SCORE"
+    }
+    when device[5] {
+        yield "BLOCKED_MUTATION"
+    }
+    when device[2] and device[3] and device[4] <= 35 {
+        yield "READ_ONLY_APPROVED"
+    }
+    yield "QUARANTINE"
+}
+
+craft grants_read_only_permission(device, permission) {
+    when disposition(device) != "READ_ONLY_APPROVED" {
+        yield false
+    }
+    when kind(permission) != "text" {
+        yield false
+    }
+    yield permission == "inventory.read" or permission == "report.emit"
+}
+
+make trusted_device := ["pci-0001", "PCI", true, true, 12, false]
+make unsigned_device := ["usb-0002", "USB", false, true, 10, false]
+make high_risk_device := ["nvme-0003", "NVME", true, true, 82, false]
+make firmware_request := ["pci-0004", "PCI", true, true, 5, true]
+make malformed_device := ["", "USB", true, true, 5, false]
+make malformed_type := ["pci-0005", "PCI", "true", true, 5, false]
+make malformed_risk_type := ["pci-0006", "PCI", true, true, "5", false]
+make invalid_risk := ["pci-0007", "PCI", true, true, 101, false]
+make malformed_container := "not-a-device"
+
+make trusted_result := disposition(trusted_device)
+make unsigned_result := disposition(unsigned_device)
+make high_risk_result := disposition(high_risk_device)
+make firmware_result := disposition(firmware_request)
+make malformed_result := disposition(malformed_device)
+
+assert(trusted_result == "READ_ONLY_APPROVED", "trusted device should be inspected read-only")
+assert(unsigned_result == "QUARANTINE", "unsigned device must be quarantined")
+assert(high_risk_result == "QUARANTINE", "high-risk device must be quarantined")
+assert(firmware_result == "BLOCKED_MUTATION", "firmware mutation must remain blocked")
+assert(malformed_result == "INVALID_DESCRIPTOR", "empty device identity must be rejected")
+assert(disposition(malformed_type) == "INVALID_DESCRIPTOR", "boolean field type must be checked")
+assert(disposition(malformed_risk_type) == "INVALID_DESCRIPTOR", "risk score type must be checked")
+assert(disposition(invalid_risk) == "INVALID_RISK_SCORE", "out-of-range risk score must be rejected")
+assert(disposition(malformed_container) == "INVALID_DESCRIPTOR", "descriptor container type must be checked")
+assert(grants_read_only_permission(trusted_device, "inventory.read"), "read capability is missing")
+assert(grants_read_only_permission(trusted_device, "report.emit"), "report capability is missing")
+assert(not grants_read_only_permission(trusted_device, "firmware.write"), "firmware write must never be granted")
+assert(not grants_read_only_permission(trusted_device, "network.connect"), "network access must never be granted")
+assert(not grants_read_only_permission(trusted_device, 123), "non-text permission must be rejected")
+assert(not grants_read_only_permission(unsigned_device, "inventory.read"), "quarantine must grant no capabilities")
+
+emit "OPLAGUE_REAPER_DEVICE_POLICY:PASS"
