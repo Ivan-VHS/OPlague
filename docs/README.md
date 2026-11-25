@@ -3,6 +3,7 @@
 Start with the [project README](../README.md) for the workbench overview, supported platforms and build instructions. The [documentation map](INFORMATION_ARCHITECTURE.md) is the full catalogue.
 
 ## Key pages
+- [NEXUS system-service boundaries](NEXUS_SYSTEM_SERVICE_BOUNDARIES_V1.md) — service ownership and integration limits.
 
 - [Features and limits](FEATURES.md)
 - [Architecture](ARCHITECTURE.md)
