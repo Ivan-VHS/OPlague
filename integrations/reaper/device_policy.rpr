@@ -1,0 +1,51 @@
+# Reaper-side policy contract for hardware inventory and device inspection.
+# Decisions are pure and read-only; firmware, driver and device mutation stay disabled.
+
+craft disposition(device) {
+    when size(device) != 6 {
+        yield "INVALID_DESCRIPTOR"
+    }
+    when device[0] == "" {
+        yield "INVALID_DESCRIPTOR"
+    }
+    when device[4] < 0 or device[4] > 100 {
+        yield "INVALID_RISK_SCORE"
+    }
+    when device[5] {
+        yield "BLOCKED_MUTATION"
+    }
+    when device[2] and device[3] and device[4] <= 35 {
+        yield "READ_ONLY_APPROVED"
+    }
+    yield "QUARANTINE"
+}
+
+craft granted_capabilities(result) {
+    when result == "READ_ONLY_APPROVED" {
+        yield ["inventory.read", "report.emit"]
+    }
+    yield []
+}
+
+make trusted_device := ["pci-0001", "PCI", true, true, 12, false]
+make unsigned_device := ["usb-0002", "USB", false, true, 10, false]
+make high_risk_device := ["nvme-0003", "NVME", true, true, 82, false]
+make firmware_request := ["pci-0004", "PCI", true, true, 5, true]
+make malformed_device := ["", "USB", true, true, 5, false]
+
+make trusted_result := disposition(trusted_device)
+make unsigned_result := disposition(unsigned_device)
+make high_risk_result := disposition(high_risk_device)
+make firmware_result := disposition(firmware_request)
+make malformed_result := disposition(malformed_device)
+
+assert(trusted_result == "READ_ONLY_APPROVED", "trusted device should be inspected read-only")
+assert(unsigned_result == "QUARANTINE", "unsigned device must be quarantined")
+assert(high_risk_result == "QUARANTINE", "high-risk device must be quarantined")
+assert(firmware_result == "BLOCKED_MUTATION", "firmware mutation must remain blocked")
+assert(malformed_result == "INVALID_DESCRIPTOR", "empty device identity must be rejected")
+assert(contains(granted_capabilities(trusted_result), "inventory.read"), "read capability is missing")
+assert(not contains(granted_capabilities(trusted_result), "firmware.write"), "firmware write must never be granted")
+assert(size(granted_capabilities(unsigned_result)) == 0, "quarantine must grant no capabilities")
+
+emit "OPLAGUE_REAPER_DEVICE_POLICY:PASS"
