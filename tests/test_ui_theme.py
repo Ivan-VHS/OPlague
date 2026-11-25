@@ -18,16 +18,16 @@ class OPlagueThemeTests(unittest.TestCase):
     def test_only_the_duck_palette_is_available(self):
         self.assertEqual(set(PALETTES), {"duck"})
         palette = palette_for("duck")
-        self.assertEqual(palette["bg"], "#080808")
-        self.assertEqual(palette["surface"], "#151515")
-        self.assertEqual(palette["elevated"], "#242424")
+        self.assertEqual(palette["bg"], "#050505")
+        self.assertEqual(palette["surface"], "#101010")
+        self.assertEqual(palette["elevated"], "#181818")
         self.assertEqual(palette["fg"], "#FFFFFF")
-        self.assertEqual(palette["secondary"], "#E5E5E5")
-        self.assertEqual(palette["muted"], "#A6A6A6")
-        self.assertEqual(palette["brand"], "#FFD400")
-        self.assertEqual(palette["brand_hover"], "#FFE45C")
-        self.assertEqual(palette["border"], "#3A3A3A")
-        self.assertEqual(palette["selection"], "#3A3100")
+        self.assertEqual(palette["secondary"], "#D8D8D8")
+        self.assertEqual(palette["muted"], "#A3A3A3")
+        self.assertEqual(palette["brand"], "#FFD700")
+        self.assertEqual(palette["brand_hover"], "#FFE36E")
+        self.assertEqual(palette["border"], "#343434")
+        self.assertEqual(palette["selection"], "#3B3000")
 
     def test_legacy_modes_all_resolve_to_the_same_duck_palette(self):
         expected = palette_for("duck")
@@ -46,13 +46,17 @@ class OPlagueThemeTests(unittest.TestCase):
         self.assertGreaterEqual(contrast_ratio(palette["muted"], palette["bg"]), 4.5)
         self.assertEqual(palette_contrast_issues(palette), [])
 
-    def test_semantic_statuses_share_yellow_without_losing_text_labels(self):
+    def test_semantic_statuses_use_distinct_hues_and_explicit_labels(self):
         palette = palette_for()
-        for token in ("success", "warning", "error", "info", "brand", "blue", "red"):
-            with self.subTest(token=token):
-                self.assertEqual(palette[token], "#FFD400")
-        self.assertEqual(palette["on_blue"], "#080808")
-        self.assertEqual(palette["on_red"], "#080808")
+        self.assertEqual(palette["success"], "#6EDAA3")
+        self.assertEqual(palette["warning"], "#FFD700")
+        self.assertEqual(palette["error"], "#FF7777")
+        self.assertEqual(palette["info"], "#79B8FF")
+        self.assertEqual(palette["brand"], "#FFD700")
+        self.assertEqual(palette["blue"], "#79B8FF")
+        self.assertEqual(palette["red"], "#FF7777")
+        self.assertEqual(palette["on_blue"], "#070707")
+        self.assertEqual(palette["on_red"], "#070707")
 
     def test_legacy_user_settings_are_normalized_to_duck(self):
         for old_mode in ("system", "light", "dark", "amber", "duck"):
