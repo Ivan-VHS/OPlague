@@ -16,19 +16,19 @@ from typing import Iterator
 THEME_ENV = "OPLAGUE_UI_THEME"
 PALETTES: dict[str, dict[str, str]] = {
     "duck": {
-        "bg": "#080808", "surface": "#151515", "elevated": "#242424",
-        "fg": "#FFFFFF", "secondary": "#E5E5E5", "muted": "#A6A6A6",
-        "heading": "#FFFFFF", "blue": "#FFD400", "blue_hover": "#FFE45C", "on_blue": "#080808",
-        "red": "#FFD400", "red_hover": "#FFE45C", "on_red": "#080808",
-        "border": "#3A3A3A", "focus": "#FFE45C", "selection": "#3A3100",
-        "selection_fg": "#FFFFFF", "disabled": "#A6A6A6", "log": "#080808",
+        "bg": "#050505", "surface": "#101010", "elevated": "#181818",
+        "fg": "#FFFFFF", "secondary": "#D8D8D8", "muted": "#A3A3A3",
+        "heading": "#FFFFFF", "blue": "#79B8FF", "blue_hover": "#9ACBFF", "on_blue": "#070707",
+        "red": "#FF7777", "red_hover": "#FF9A9A", "on_red": "#070707",
+        "border": "#343434", "focus": "#FFD700", "selection": "#3B3000",
+        "selection_fg": "#FFFFFF", "disabled": "#858585", "log": "#070707",
         "log_text": "#FFFFFF", "mode": "duck",
-        "success": "#FFD400", "warning": "#FFD400", "error": "#FFD400", "info": "#FFD400",
-        "brand": "#FFD400", "brand_hover": "#FFE45C", "on_brand": "#080808",
-        "brand_secondary": "#FFD400", "on_brand_secondary": "#080808",
-        "page": "#080808", "surface_alt": "#242424", "text": "#FFFFFF",
-        "accent": "#FFD400", "accent_hover": "#FFE45C", "danger": "#FFD400",
-        "editor": "#151515", "editor_text": "#FFFFFF",
+        "success": "#6EDAA3", "warning": "#FFD700", "error": "#FF7777", "info": "#79B8FF",
+        "brand": "#FFD700", "brand_hover": "#FFE36E", "on_brand": "#070707",
+        "brand_secondary": "#79B8FF", "on_brand_secondary": "#070707",
+        "page": "#050505", "surface_alt": "#181818", "text": "#FFFFFF",
+        "accent": "#FFD700", "accent_hover": "#FFE36E", "danger": "#FF7777",
+        "editor": "#101010", "editor_text": "#FFFFFF",
     },
 }
 
