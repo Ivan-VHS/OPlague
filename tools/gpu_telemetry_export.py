@@ -1,4 +1,4 @@
-"""Export one read-only OPlague GPU telemetry snapshot for DuckOS/Reaper."""
+"""Export one read-only OPlague GPU telemetry snapshot for DAK/Reaper."""
 
 from __future__ import annotations
 
