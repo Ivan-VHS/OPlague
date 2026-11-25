@@ -17,8 +17,9 @@ OPlague is a local desktop workbench for device and driver inspection, compatibi
 - PE and Authenticode inspection, normalized hardware IDs, hashes and SPDX inventory.
 - Device compatibility evidence, UDRV package validation and structured reports.
 - Local gaming telemetry, frametime analysis and reversible per-user performance sessions.
+- Versioned, read-only NVIDIA GPU telemetry export for DuckOS/Reaper; unsupported readings remain unknown.
 
-See [Features](docs/FEATURES.md), [Architecture](docs/ARCHITECTURE.md), [Authenticode](docs/AUTHENTICODE.md), [Driver target architecture](docs/DRIVER_TARGET_ARCHITECTURE.md), [UDRV format](docs/UDRV_FORMAT_V1.md) and [Gaming workbench](docs/GAMING_PERFORMANCE_WORKBENCH.md).
+See [Features](docs/FEATURES.md), [Architecture](docs/ARCHITECTURE.md), [Authenticode](docs/AUTHENTICODE.md), [Driver target architecture](docs/DRIVER_TARGET_ARCHITECTURE.md), [UDRV format](docs/UDRV_FORMAT_V1.md) and [Gaming workbench](docs/GAMING_PERFORMANCE_WORKBENCH.md) and [GPU telemetry bridge v1](docs/GPU_TELEMETRY_BRIDGE_V1.md).
 
 ## Run and test
 

@@ -8,6 +8,7 @@ Start with the [project README](../README.md) for the workbench overview, suppor
 - [Architecture](ARCHITECTURE.md)
 - [Authenticode inspection](AUTHENTICODE.md)
 - [Gaming performance workbench](GAMING_PERFORMANCE_WORKBENCH.md)
+- [Read-only GPU telemetry bridge v1](GPU_TELEMETRY_BRIDGE_V1.md)
 - [Driver target architecture](DRIVER_TARGET_ARCHITECTURE.md)
 - [UDRV package format](UDRV_FORMAT_V1.md)
 
