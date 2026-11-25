@@ -15,11 +15,16 @@ craft plugin_disposition(plugin) {
     yield "APPROVED_SANDBOXED"
 }
 
-craft effective_permissions(plugin) {
-    when plugin_disposition(plugin) == "APPROVED_SANDBOXED" {
-        yield plugin[3]
+craft allows_permission(plugin, permission) {
+    when plugin_disposition(plugin) != "APPROVED_SANDBOXED" {
+        yield false
     }
-    yield []
+    each granted in plugin[3] {
+        when granted == permission {
+            yield true
+        }
+    }
+    yield false
 }
 
 make trusted_plugin := ["inventory-summary", true, true, ["inventory.read", "report.emit"]]
@@ -31,7 +36,8 @@ assert(plugin_disposition(trusted_plugin) == "APPROVED_SANDBOXED", "trusted read
 assert(plugin_disposition(unsigned_plugin) == "QUARANTINE", "unsigned plugin must be quarantined")
 assert(plugin_disposition(writer_plugin) == "BLOCKED_PERMISSION", "firmware write must be blocked")
 assert(plugin_disposition(unknown_permission) == "BLOCKED_PERMISSION", "unknown permission must be denied")
-assert(not contains(effective_permissions(trusted_plugin), "firmware.write"), "write permission must not appear in effective grants")
-assert(size(effective_permissions(writer_plugin)) == 0, "blocked plugin must receive no capabilities")
+assert(allows_permission(trusted_plugin, "inventory.read"), "read permission must be granted to trusted plugin")
+assert(not allows_permission(trusted_plugin, "firmware.write"), "write permission must never be granted")
+assert(not allows_permission(writer_plugin, "device.read"), "blocked plugin must receive no capabilities")
 
 emit "OPLAGUE_REAPER_PLUGIN_TRUST:PASS"
