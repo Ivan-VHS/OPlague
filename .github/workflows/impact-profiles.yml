@@ -1,0 +1,35 @@
+name: Impact profile tests
+
+on:
+  push:
+    branches: ['**']
+    paths:
+      - "oplague/**"
+      - "tests/**"
+      - "impact_profiles.json"
+      - ".github/workflows/impact-profiles.yml"
+  pull_request:
+    paths:
+      - "oplague/**"
+      - "tests/**"
+      - "impact_profiles.json"
+      - ".github/workflows/impact-profiles.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Compile and test impact profiles
+        run: |
+          python -m compileall -q oplague tests
+          python -m unittest discover -s tests -v
+      - name: Verify registry CLI
+        run: python -m oplague --catalog

@@ -1,0 +1,33 @@
+name: UDRV inspector
+
+on:
+  push:
+    branches: ["main", "feat/**"]
+    paths:
+      - "tools/udrv_inspector.py"
+      - "tests/test_udrv_inspector.py"
+      - ".github/workflows/udrv-inspector.yml"
+  pull_request:
+    paths:
+      - "tools/udrv_inspector.py"
+      - "tests/test_udrv_inspector.py"
+      - ".github/workflows/udrv-inspector.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Compile inspector and tests
+        run: python -m compileall -q tools tests
+      - name: Run UDRV inspector tests
+        run: python -m unittest discover -s tests -p 'test_udrv_inspector.py' -v
+      - name: Check CLI help
+        run: python tools/udrv_inspector.py --help

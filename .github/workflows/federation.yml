@@ -1,0 +1,53 @@
+name: Federated integration CI
+
+on:
+  push:
+    branches: [main, "feat/**"]
+    paths:
+      - "tools/federation.py"
+      - "tools/reaper_report.py"
+      - "tools/validate_octa_pyramid.py"
+      - "federation/octa-pyramid.v1.json"
+      - "schemas/octa-pyramid.v1.schema.json"
+      - "tests/test_reaper_report.py"
+      - "tests/test_octa_pyramid.py"
+      - "tools/pytyliki_ffi.py"
+      - "tests/test_federation.py"
+      - "tests/test_pytyliki_ffi.py"
+      - "schemas/oplage.device-snapshot.v1.schema.json"
+      - ".github/workflows/federation.yml"
+  pull_request:
+    paths:
+      - "tools/federation.py"
+      - "tools/reaper_report.py"
+      - "tools/validate_octa_pyramid.py"
+      - "federation/octa-pyramid.v1.json"
+      - "schemas/octa-pyramid.v1.schema.json"
+      - "tests/test_reaper_report.py"
+      - "tests/test_octa_pyramid.py"
+      - "tools/pytyliki_ffi.py"
+      - "tests/test_federation.py"
+      - "tests/test_pytyliki_ffi.py"
+      - "schemas/oplage.device-snapshot.v1.schema.json"
+      - ".github/workflows/federation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Compile modules and tests
+        run: python -m compileall -q tools tests
+      - name: Run full OPlague test suite
+        run: python -m unittest discover -s tests -v
+      - name: Validate snapshot JSON schema
+        run: python -c "import json; json.load(open('schemas/oplage.device-snapshot.v1.schema.json', encoding='utf-8'))"
+      - name: Check federation CLI
+        run: python -m tools.federation --help

@@ -1,68 +1,55 @@
-# OPlague
+# OPlague — 设备、驱动与游戏性能工作台
 
-**原生桌面驱动管理、驱动包工程与硬件诊断平台。**
+[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
 
-[English](README.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [简体中文](README.zh-CN.md)
+[![Windows build](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&label=Windows%20build)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml) [![文档检查](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/docs.yml?branch=main&label=Docs%20checks)](https://github.com/Ivan-VHS/OPlague/actions/workflows/docs.yml) [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/OPlague)](LICENSE)
 
-OPlague 是一个原生桌面应用项目，旨在构建 **DuckDriver OmniCore (DDO)**：以更安全的方式发现硬件、检查驱动程序包并创建可移植驱动容器。
+<p align="center"><img src="assets/readme/dashboard.svg" alt="OPlague 项目概览" width="100%"></p>
+<p align="center"><a href="assets/screenshots/oplague-workbench.png"><img src="assets/screenshots/oplague-workbench.png" alt="OPlague Windows 工作台" width="100%"></a></p>
 
-> **状态：** 正在积极早期开发。默认分支 `main` 尚不是可发布的完整应用。本文档描述产品目标和计划架构，并不表示所有功能都已实现。
+OPlague 是一款用于设备与驱动检查、软件包分析、兼容性证据和游戏性能诊断的本地桌面工作台。
 
-## 产品愿景
+**默认边界：**检查仅执行只读操作。设备发现和用户选定文件分析不会安装、启用、卸载或修改驱动。兼容性候选和遥测数据仅供审查，不构成认证。
 
-- **硬件清单：** 发现设备，并展示硬件标识、设备关系和驱动状态。
-- **驱动工作区：** 在安装前导入、检查、验证、编目和比较驱动包。
-- **通用驱动容器（.udrv）：** 规划中的可移植格式，用于封装驱动文件、清单、元数据、兼容性信息和完整性数据。
-- **DuckDriver OmniCore：** 协调硬件发现、分析、验证、打包和部署准备。
-- **配置档案与恢复：** 保存已知可用配置，并提供明确的回滚流程。
-- **诊断：** 展示设备状态和受支持的系统指标；在平台 API 允许时计划提供 DPC/ISR 延迟分析。
-- **原生桌面体验：** 采用统一的白、蓝、红视觉体系。
+## 功能
 
-## 安全原则
+- Windows Plug-and-Play 设备盘点及受限 INF/ZIP 软件包检查。
+- PE 与 Authenticode 检查、标准化硬件 ID、哈希和 SPDX 清单。
+- 设备兼容性证据、UDRV 软件包验证和结构化报告。
+- 本地游戏遥测、帧时间分析和可撤销的用户级性能配置。
 
-1. 在信任驱动包之前先检查清单、结构、元数据和可用的哈希信息。
-2. 将导入的驱动包、脚本和二进制文件视为不可信输入。
-3. 不为了识别或检查硬件而执行外部内核代码。
-4. 将只读发现和包分析与特权安装分离。
-5. 使高权限操作明确、可审查，并在平台允许时可撤销。
-6. 对证据不足和验证失败给出报告，不猜测兼容性。
+详细资料：[功能](docs/FEATURES.md) · [架构](docs/ARCHITECTURE.md) · [Authenticode](docs/AUTHENTICODE.md) · [驱动目标架构](docs/DRIVER_TARGET_ARCHITECTURE.md) · [UDRV 格式](docs/UDRV_FORMAT_V1.md) · [游戏工作台](docs/GAMING_PERFORMANCE_WORKBENCH.md) · [GPU telemetry bridge v1](docs/GPU_TELEMETRY_BRIDGE_V1.md)。
 
-`.udrv` 是一种打包方案，并不保证任意驱动都具有通用兼容性或安全性。实际安装取决于操作系统、硬件、签名策略和供应商要求。
+## 运行与测试
 
-## 架构
+当前桌面工具和验证脚本需要 Python 3.10–3.12。
 
-| 层 | 职责 |
-| --- | --- |
-| 原生桌面外壳 | 生命周期、导航、设置和用户流程 |
-| 硬件发现 | 设备枚举和稳定的硬件标识 |
-| 驱动目录 | 驱动包、版本、供应商及兼容性索引 |
-| 包验证器 | 清单、内容、哈希和一致性检查 |
-| UDRV 容器 | 可移植包结构与元数据规范 |
-| OmniCore 编排器 | 协调分析、打包和部署准备 |
-| 诊断模块 | 设备状态和受支持的性能指标 |
-| 恢复管理器 | 配置档案、快照和回滚计划 |
+```sh
+python oplague_app.py
+python -m unittest discover -s tests -v
+python -m oplague --verify
+python -m oplague --catalog
+```
 
-以上是计划中的架构边界，并不表示所有模块都已存在于 `main` 分支。
+检查软件包：
 
-## 路线图
+```sh
+python tools/udrv_inspector.py path/to/package.udrv --json
+```
 
-- [ ] 原生桌面应用外壳和设计系统
-- [ ] 硬件发现及可搜索的设备清单
-- [ ] 版本化的 `.udrv` 容器规范
-- [ ] 驱动包导入、检查和验证
-- [ ] 驱动目录及兼容性依据
-- [ ] 配置档案快照和受保护的恢复流程
-- [ ] 诊断功能，包括受支持平台上的 DPC/ISR 分析
-- [ ] 自动化测试、签名发布和平台打包
+使用 PyInstaller 构建独立 Windows 程序：
 
-## 截图
+```sh
+python -m pip install --upgrade pyinstaller
+python -m PyInstaller --noconfirm --clean --onefile --windowed --name OPlague oplague_app.py
+```
 
-待应用拥有可运行的界面后再添加真实截图。概念图和模型图不会被标注为已实现软件的截图。
+## 集成与证据
 
-## 参与贡献
+- [文档索引](docs/README.md) · [Reaper 运行时集成](docs/REAPER_RUNTIME_INTEGRATION.md)
+- [DuckOS 与 Mora 集成](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/GAMING_PERFORMANCE_INTEGRATION.md)
+- [生态共享标准](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/SHARED_STANDARDS.md)
 
-请提交范围明确且可复现的改动，并在适当情况下附上测试或验证记录。请说明操作系统和硬件假设；不要提交专有驱动二进制文件、凭据、私人设备数据或未经许可的供应商资料。特权操作必须保持隔离且可审查。
+当前行为以源码、Schema 和测试为准。工作台不会刷写固件、安装驱动或自动认证硬件兼容性。
 
-## 许可证
-
-许可条款请参阅 [LICENSE](LICENSE)。
+[贡献指南](CONTRIBUTING.md) · [安全策略](SECURITY.md) · [Apache-2.0 许可证](LICENSE)

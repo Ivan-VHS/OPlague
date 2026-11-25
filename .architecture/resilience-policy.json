@@ -1,0 +1,104 @@
+{
+  "policy_version": "1.0",
+  "project": {
+    "name": "OPlague",
+    "scope": "Planned native desktop driver-management application: verified catalog and package handling, staging, installation workflow and recovery controls."
+  },
+  "implementation_status": "contract_only",
+  "architecture": {
+    "deployment_model": "single_machine",
+    "offline_capable": true,
+    "network_access": "allowlisted_signed_artifacts_only",
+    "distributed_execution": "not_exposed",
+    "external_dependency_policy": "verified_only",
+    "cache_fallback": true
+  },
+  "trust": {
+    "default_decision": "deny",
+    "tls_verification_required": true,
+    "artifact_signature_required": true,
+    "schema_validation_required": true,
+    "allow_unverified_upstream": false,
+    "policy_bypass_allowed": false,
+    "privileged_actions_require_human_approval": true
+  },
+  "resilience": {
+    "timeout_ms": 60000,
+    "retry": {
+      "max_attempts": 3,
+      "exponential_backoff": true,
+      "jitter": true
+    },
+    "circuit_breaker": {
+      "enabled": true,
+      "failure_threshold": 5,
+      "window_seconds": 60,
+      "cooldown_seconds": 120
+    },
+    "degraded_mode": "safe_read_only",
+    "resource_limits_required": true
+  },
+  "escalation": {
+    "levels": [
+      "observe",
+      "throttle",
+      "isolate",
+      "operator_review"
+    ],
+    "hard_stop_on_integrity_failure": true,
+    "automatic_credential_revocation": false,
+    "automatic_network_block": false,
+    "destructive_action_human_approval": true,
+    "thresholds": {
+      "window_seconds": 60,
+      "events_before_operator_review": 5
+    }
+  },
+  "migration": {
+    "backup_before_migration": true,
+    "rollback_plan_required": true,
+    "staged_rollout_required": true,
+    "api_compatibility_check_required": true
+  },
+  "supply_chain": {
+    "dependency_lock_required": true,
+    "sbom_required_for_release": true,
+    "provenance_required": true,
+    "release_signing_required": true,
+    "reproducible_builds_targeted": true,
+    "unverified_sources_rejected": true
+  },
+  "observability": {
+    "structured_events": true,
+    "audit_trail": true,
+    "secret_redaction": true,
+    "telemetry_default": "local_only",
+    "evidence_labels": [
+      "measured",
+      "derived",
+      "estimated",
+      "unknown"
+    ]
+  },
+  "manual_override": {
+    "enabled": true,
+    "reason_required": true,
+    "audit_required": true,
+    "expiry_seconds": 1800,
+    "configuration_drift_detection": true
+  },
+  "compatibility": {
+    "api_contract_versioning": true,
+    "schema_validation": true,
+    "allow_unreviewed_exceptions": false,
+    "exception_expiry_required": true
+  },
+  "domain_guardrails": [
+    "Driver catalogs, metadata and package payloads are untrusted until source and signature verification succeeds.",
+    "Driver installation and rollback operations are privileged and require explicit operator confirmation.",
+    "Retain the previous known-good driver package and a recoverable installation record before changing active drivers.",
+    "If verification or staging fails, remain in a safe read-only state and do not install the package.",
+    "Offline inventory and cached verified packages remain available without weakening trust checks.",
+    "Do not disable operating-system driver-signature enforcement or bypass platform security controls."
+  ]
+}

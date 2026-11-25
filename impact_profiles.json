@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "description": "Semantic impact lexicon. Ranks are ordinal lexical weights (1..5), not measurements or physical predictions.",
+  "dimensions": {
+    "acoustic": "Lexical prominence of sound or audible presence",
+    "scale": "Lexical magnitude or scale",
+    "kinetic": "Lexical motion or energy emphasis",
+    "reach": "Lexical reach or distance emphasis",
+    "impulse": "Lexical abruptness or impact emphasis"
+  },
+  "profiles": [
+    {
+      "id": 1,
+      "sound": "Грохот",
+      "scale": "Массивный",
+      "motion": "Баллистический",
+      "ranks": {
+        "acoustic": 5,
+        "scale": 5,
+        "kinetic": 4,
+        "reach": 3,
+        "impulse": 4
+      }
+    },
+    {
+      "id": 2,
+      "sound": "Громыхание",
+      "scale": "Громоздкий",
+      "motion": "Ракетный",
+      "ranks": {
+        "acoustic": 5,
+        "scale": 5,
+        "kinetic": 5,
+        "reach": 4,
+        "impulse": 5
+      }
+    },
+    {
+      "id": 3,
+      "sound": "Раскат",
+      "scale": "Объёмный",
+      "motion": "Снарядный",
+      "ranks": {
+        "acoustic": 4,
+        "scale": 4,
+        "kinetic": 4,
+        "reach": 3,
+        "impulse": 4
+      }
+    },
+    {
+      "id": 4,
+      "sound": "Рокот",
+      "scale": "Крупный",
+      "motion": "Артиллерийский",
+      "ranks": {
+        "acoustic": 5,
+        "scale": 4,
+        "kinetic": 4,
+        "reach": 4,
+        "impulse": 4
+      }
+    },
+    {
+      "id": 5,
+      "sound": "Гул",
+      "scale": "Гигантский",
+      "motion": "Гиперзвуковой",
+      "ranks": {
+        "acoustic": 5,
+        "scale": 5,
+        "kinetic": 5,
+        "reach": 5,
+        "impulse": 5
+      }
+    },
+    {
+      "id": 6,
+      "sound": "Рёв",
+      "scale": "Исполинский",
+      "motion": "Сверхзвуковой",
+      "ranks": {
+        "acoustic": 5,
+        "scale": 5,
+        "kinetic": 5,
+        "reach": 4,
+        "impulse": 5
+      }
+    },
+    {
+      "id": 7,
+      "sound": "Рев",
+      "scale": "Огромный",
+      "motion": "Ударный",
+      "ranks": {
+        "acoustic": 4,
+        "scale": 5,
+        "kinetic": 4,
+        "reach": 3,
+        "impulse": 5
+      }
+    },
+    {
+      "id": 8,
+      "sound": "Бум",
+      "scale": "Могучий",
+      "motion": "Импульсный",
+      "ranks": {
+        "acoustic": 4,
+        "scale": 4,
+        "kinetic": 5,
+        "reach": 3,
+        "impulse": 5
+      }
+    },
+    {
+      "id": 9,
+      "sound": "Удар",
+      "scale": "Мощный",
+      "motion": "Кинетический",
+      "ranks": {
+        "acoustic": 4,
+        "scale": 4,
+        "kinetic": 5,
+        "reach": 3,
+        "impulse": 5
+      }
+    },
+    {
+      "id": 10,
+      "sound": "Треск",
+      "scale": "Тяжеловесный",
+      "motion": "Реактивный",
+      "ranks": {
+        "acoustic": 4,
+        "scale": 4,
+        "kinetic": 5,
+        "reach": 3,
+        "impulse": 4
+      }
+    },
+    {
+      "id": 11,
+      "sound": "Трещание",
+      "scale": "Основательный",
+      "motion": "Траекторный",
+      "ranks": {
+        "acoustic": 3,
+        "scale": 4,
+        "kinetic": 4,
+        "reach": 4,
+        "impulse": 3
+      }
+    },
+    {
+      "id": 12,
+      "sound": "Бах",
+      "scale": "Монументальный",
+      "motion": "Динамический",
+      "ranks": {
+        "acoustic": 5,
+        "scale": 5,
+        "kinetic": 5,
+        "reach": 4,
+        "impulse": 5
+      }
+    },
+    {
+      "id": 13,
+      "sound": "Грохотание",
+      "scale": "Колоссальный",
+      "motion": "Разгонный",
+      "ranks": {
+        "acoustic": 5,
+        "scale": 5,
+        "kinetic": 5,
+        "reach": 4,
+        "impulse": 5
+      }
+    },
+    {
+      "id": 14,
+      "sound": "Раскатистость",
+      "scale": "Внушительный",
+      "motion": "Ускоренный",
+      "ranks": {
+        "acoustic": 4,
+        "scale": 4,
+        "kinetic": 5,
+        "reach": 3,
+        "impulse": 4
+      }
+    },
+    {
+      "id": 15,
+      "sound": "Громогласие",
+      "scale": "Габаритный",
+      "motion": "Снарядоподобный",
+      "ranks": {
+        "acoustic": 5,
+        "scale": 5,
+        "kinetic": 4,
+        "reach": 4,
+        "impulse": 4
+      }
+    },
+    {
+      "id": 16,
+      "sound": "Громоподобие",
+      "scale": "Тяжёлый",
+      "motion": "Пробивной",
+      "ranks": {
+        "acoustic": 5,
+        "scale": 5,
+        "kinetic": 4,
+        "reach": 3,
+        "impulse": 5
+      }
+    },
+    {
+      "id": 17,
+      "sound": "Шум",
+      "scale": "Дородный",
+      "motion": "Разрушительный",
+      "ranks": {
+        "acoustic": 3,
+        "scale": 4,
+        "kinetic": 3,
+        "reach": 2,
+        "impulse": 3
+      }
+    },
+    {
+      "id": 18,
+      "sound": "Резонанс",
+      "scale": "Крепкий",
+      "motion": "Мощностной",
+      "ranks": {
+        "acoustic": 4,
+        "scale": 4,
+        "kinetic": 3,
+        "reach": 3,
+        "impulse": 4
+      }
+    },
+    {
+      "id": 19,
+      "sound": "Рокотание",
+      "scale": "Масштабный",
+      "motion": "Дальнобойный",
+      "ranks": {
+        "acoustic": 4,
+        "scale": 5,
+        "kinetic": 4,
+        "reach": 5,
+        "impulse": 4
+      }
+    },
+    {
+      "id": 20,
+      "sound": "Оглушительность",
+      "scale": "Великолепный",
+      "motion": "Гиперскоростной",
+      "ranks": {
+        "acoustic": 5,
+        "scale": 5,
+        "kinetic": 5,
+        "reach": 5,
+        "impulse": 5
+      }
+    }
+  ]
+}

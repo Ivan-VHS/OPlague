@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "oplague",
+  "name": "OPlague",
+  "summary": "Проверка устройств и драйверов",
+  "description": "Read-only инвентаризация устройств, инспекция INF/ZIP и PE/COFF, сопоставление hardware ID и evidence reports.",
+  "category": "system",
+  "accent": "#C52A45",
+  "capabilities": ["PnP inventory", "INF / ZIP inspection", "PE / COFF inspection", "Compatibility review", "Evidence reports"],
+  "entrypoint": {
+    "kind": "python",
+    "path": "oplague_app.py",
+    "platforms": ["windows", "linux", "macos"],
+    "requires": ["Python 3.10+", "Tkinter"]
+  },
+  "integration": {
+    "theme_environment": "MORA_THEME_MODE",
+    "themes": ["dark", "light"],
+    "window_mode": "separate-native-window",
+    "local_only": true
+  }
+}
