@@ -4,10 +4,12 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import statistics
 import sys
+import tempfile
 from collections.abc import Mapping, Sequence
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -26,13 +28,18 @@ def _timestamp(snapshot: Mapping[str, Any], label: str) -> datetime:
         raise ValueError(f"{label}.captured_utc must be ISO 8601") from error
     if parsed.tzinfo is None or parsed.utcoffset() is None:
         raise ValueError(f"{label}.captured_utc must include a timezone")
+    if parsed.utcoffset() != timedelta(0):
+        raise ValueError(f"{label}.captured_utc must be normalized to UTC")
     return parsed
 
 
 def _finite_number(value: Any, label: str) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise TypeError(f"{label} must be a real number")
-    number = float(value)
+    try:
+        number = float(value)
+    except OverflowError as error:
+        raise ValueError(f"{label} exceeds the float64 range") from error
     if not math.isfinite(number):
         raise ValueError(f"{label} must be finite")
     return number
@@ -150,6 +157,45 @@ def analyze_snapshot_history(
     }
 
 
+def _write_report_atomically(destination: Path, rendered: str) -> None:
+    """Replace a report atomically without following or overwriting a symlink."""
+    if destination.is_symlink():
+        raise ValueError(f"refusing to write through a symbolic link: {destination}")
+    if destination.exists() and not destination.is_file():
+        raise ValueError(f"report destination must be a regular file: {destination}")
+    if not destination.parent.is_dir():
+        raise ValueError(f"output directory does not exist: {destination.parent}")
+
+    temporary_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            newline="\n",
+            prefix=f".{destination.name}.",
+            suffix=".tmp",
+            dir=destination.parent,
+            delete=False,
+        ) as handle:
+            temporary_path = Path(handle.name)
+            handle.write(rendered)
+            handle.flush()
+            os.fsync(handle.fileno())
+        if os.name == "posix":
+            temporary_path.chmod(0o600)
+        os.replace(temporary_path, destination)
+        temporary_path = None
+        if os.name == "posix":
+            directory_fd = os.open(destination.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Validate and analyze a chronological series of OPlague snapshots"
@@ -173,9 +219,7 @@ def main(argv: list[str] | None = None) -> int:
         rendered = json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False) + "\n"
         if args.output:
             destination = Path(args.output)
-            if not destination.parent.is_dir():
-                raise ValueError(f"output directory does not exist: {destination.parent}")
-            destination.write_text(rendered, encoding="utf-8", newline="\n")
+            _write_report_atomically(destination, rendered)
         sys.stdout.write(rendered)
     except (OSError, ValueError, TypeError, OverflowError) as error:
         print(f"OPlague snapshot history: {error}", file=sys.stderr)
