@@ -18,9 +18,7 @@
   [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/OPlague)](LICENSE)
 </p>
 
-<p align="center">
-  [English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
-</p>
+[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
 
 **Default boundary:** inspection is read-only. Device discovery and user-selected file analysis do not install, enable, unload or modify drivers. Compatibility candidates and telemetry are evidence for review, not certification.
 
