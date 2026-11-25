@@ -1,55 +1,132 @@
-# OPlague — робоча станція пристроїв, драйверів та ігрової продуктивності
+# OPlague — робоча станція пристроїв, драйверів та ігор
 
-[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
+<p align="center">[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)</p>
 
-[![Windows build](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&label=Windows%20build)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml) [![Перевірка документації](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/docs.yml?branch=main&label=Docs%20checks)](https://github.com/Ivan-VHS/OPlague/actions/workflows/docs.yml) [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/OPlague)](LICENSE)
+[![Windows build](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&label=Windows%20build)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml) [![Docs checks](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/docs.yml?branch=main&label=Docs%20checks)](https://github.com/Ivan-VHS/OPlague/actions/workflows/docs.yml) [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/OPlague)](LICENSE)
 
-<p align="center"><img src="assets/readme/dashboard.svg" alt="Огляд OPlague" width="100%"></p>
-<p align="center"><a href="assets/screenshots/oplague-workbench.png"><img src="assets/screenshots/oplague-workbench.png" alt="Робоча станція OPlague у Windows" width="100%"></a></p>
+> **Перевіряй пристрої та пакунки. Не змінюй систему. Публікуй докази, а не дії з драйверами.**
 
-OPlague — локальна desktop-станція для перевірки пристроїв і драйверів, аналізу пакетів, доказів сумісності та ігрової продуктивності.
+**Стан:** Розробка · інструменти перевірки з пріоритетом Windows · **Версія:** версію не оголошено в контракті проєкту · **License:** [Apache-2.0](LICENSE) · **Стандарт README:** Psychoporter 666 v1.0 · **Дата перевірки:** 2026-11-25 · UTC · **Source:** [Ivan-VHS/OPlague](https://github.com/Ivan-VHS/OPlague)
 
-**Базова межа:** перевірка працює лише на читання. Виявлення пристроїв і аналіз вибраних файлів не встановлюють, не вмикають, не вимикають і не змінюють драйвери. Кандидати сумісності й телеметрія є даними для перевірки, а не сертифікацією.
+<p align="center"><img src="assets/oplague-workbench-preview.svg" alt="OPlague — робоча станція пристроїв, драйверів та ігор — project overview" width="100%"></p>
+<p align="center"><a href="assets/screenshots/oplague-workbench.png"><img src="assets/screenshots/oplague-workbench.png" alt="OPlague — робоча станція пристроїв, драйверів та ігор — application screenshot" width="100%"></a></p>
+
+## Швидка навігація
+
+[🚀 Demo: workbench screenshot](assets/screenshots/oplague-workbench.png) · [Documentation](docs/README.md) · [Source repository](https://github.com/Ivan-VHS/OPlague) · [Issues](https://github.com/Ivan-VHS/OPlague/issues)
+
+## Призначення та межі
+
+Локальна робоча станція для виявлення пристроїв лише на читання, обмеженої перевірки пакетів INF/ZIP/UDRV, аналізу сумісності та ігрової телеметрії. Поточне виявлення Windows Plug-and-Play доступне лише у Windows; аналіз збережених файлів і звітів переносний. Застосунок не встановлює, не вмикає, не вивантажує й не змінює драйвери.
 
 ## Можливості
 
-- Інвентаризація Windows Plug-and-Play та обмежений аналіз INF/ZIP-пакетів.
-- Перевірка PE й Authenticode, нормалізовані hardware ID, хеші та SPDX-інвентаризація.
-- Докази сумісності пристроїв, перевірка пакетів UDRV і структуровані звіти.
-- Локальна ігрова телеметрія, аналіз frametime та зворотні користувацькі профілі продуктивності.
+- Інвентаризація Windows Plug-and-Play через запити лише на читання.
+- Обмежений аналіз INF/ZIP, метадані PE та Authenticode, SHA-256 і SPDX-інвентаризація.
+- Перевірка маніфесту UDRV v1, розмірів файлів, хешів і шляхів; payload не встановлюється й не запускається.
+- Кандидати зв’язків за точним нормалізованим hardware ID; це не сертифікація сумісності.
+- Локальний аналіз ігрової продуктивності/frametime та read-only телеметрія NVIDIA через nvidia-smi, якщо доступна.
+- Версіоновані JSON-знімки пристроїв і необов’язкова перевірка через довірений C ABI Pytyliki.
 
-Докладніше: [Можливості](docs/FEATURES.md) · [Архітектура](docs/ARCHITECTURE.md) · [Authenticode](docs/AUTHENTICODE.md) · [Архітектура драйверів](docs/DRIVER_TARGET_ARCHITECTURE.md) · [UDRV](docs/UDRV_FORMAT_V1.md) · [Ігрова станція](docs/GAMING_PERFORMANCE_WORKBENCH.md) · [GPU telemetry bridge v1](docs/GPU_TELEMETRY_BRIDGE_V1.md).
+## Архітектура та потік даних
 
-## Запуск і тести
+~~~mermaid
+flowchart TB
+  U["User-selected device or file"] --> I["Bounded inspector"]
+  I --> N["Normalize IDs / metadata / hashes"]
+  N --> E["Evidence and candidate graph"]
+  E --> R["Local report / JSON snapshot"]
+  G["nvidia-smi — read only"] --> T["GPU telemetry snapshot"]
+  T --> R
+  R -.-> X["No driver install, load or certification"]
+~~~
 
-Для поточних desktop-інструментів і перевірок потрібен Python 3.10–3.12.
+Вихідний код, схеми, конфігурація збирання, тести та CI підтверджують реалізовану поведінку. Дорожня карта й каталоги описують плани та переліки, а не готові функції.
 
-```sh
+## Вимоги
+
+Python 3.10–3.12 для поточних desktop-інструментів і перевірок. Для поточної інвентаризації Plug-and-Play потрібна Windows; offline-аналіз файлів і звітів не потребує доступу до пристроїв. Доступність Tk-інтерфейсу залежить від локальної інсталяції Python.
+
+## Збирання
+
+~~~sh
+python -m venv .venv
+. .venv/bin/activate
+python -m pip install --upgrade pip
 python oplague_app.py
+~~~
+
+
+## Перші перевірки
+
+~~~sh
 python -m unittest discover -s tests -v
-python -m oplague --verify
-python -m oplague --catalog
-```
-
-Перевірка пакета:
-
-```sh
 python tools/udrv_inspector.py path/to/package.udrv --json
-```
+~~~
 
-Збирання окремого Windows executable через PyInstaller:
+Запускайте desktop-точку входу після перевірки тестів і виводу інспектора. Інспектор не розпаковує та не запускає вміст пакунка.
 
-```sh
-python -m pip install --upgrade pyinstaller
-python -m PyInstaller --noconfirm --clean --onefile --windowed --name OPlague oplague_app.py
-```
+## Запуск
 
-## Інтеграція та докази
+Поточна точка входу графічного застосунку — `oplague_app.py`. Інспектор приймає вибраний користувачем локальний файл і не виконує вміст пакунка.
 
-- [Індекс документації](docs/README.md) · [Інтеграція runtime Reaper](docs/REAPER_RUNTIME_INTEGRATION.md)
-- [Інтеграція DAK та Mora](https://github.com/Ivan-VHS/DAK/blob/main/docs/GAMING_PERFORMANCE_INTEGRATION.md)
-- [Спільні стандарти екосистеми](https://github.com/Ivan-VHS/DAK/blob/main/docs/SHARED_STANDARDS.md)
+## Інтерфейси
 
-Поточну поведінку визначають вихідний код, схеми й тести. Станція не прошиває пристрої, не встановлює драйвери й не сертифікує сумісність автоматично.
+| Surface | Contract / entry point | Boundary |
+|---|---|---|
+| Device snapshot | `oplage.device-snapshot.v1` | Versioned JSON; pseudonymous device fingerprint. |
+| GPU telemetry | `oplage.gpu-telemetry.v1` | Read-only NVIDIA sensor export; unavailable values remain unknown. |
+| UDRV inspector | `tools/udrv_inspector.py` | Manifest, size, hash and path checks; no install/load. |
+| Native metrics | `Optional pytyliki.c-abi.v1` | Only through an explicitly selected trusted library. |
 
-[Внесок у проєкт](CONTRIBUTING.md) · [Безпека](SECURITY.md) · [Apache-2.0](LICENSE)
+REST/GraphQL, WebSocket, OAuth, хмарний deployment і cookie-механізми не описуються як можливості, якщо в репозиторії немає версіонованої реалізації та тестів.
+
+## Безпека та межі довіри
+
+Імпортовані файли та пакунки вважаються недовіреними. Кількість записів архіву, шляхи, розміри й ступінь стиснення обмежені; payload не розпаковується та не виконується. Збіги hardware ID — лише кандидати, а не висновки щодо підпису, безпеки чи підтримки ОС. Виявлення пристроїв працює на читання; драйвери, прошивки й стан пристроїв не змінюються.
+
+Політика безпеки: [SECURITY.md](SECURITY.md). Не публікуйте секрети, ідентифікатори пристроїв і приватні журнали у відкритих задачах.
+
+## Перевірка якості
+
+~~~sh
+python -m unittest discover -s tests -v
+~~~
+
+Склад тестів визначається зареєстрованими CTest/unittest цілями та workflow. Відсоток покриття, fuzz-результат і звіт навантаження не заявляються без опублікованого артефакту.
+
+## Докази продуктивності
+
+Ігрові та GPU-метрики — локальні спостереження, а не універсальні бенчмарки. Телеметрія NVIDIA працює лише на читання й містить джерело даних; відсутні вимірювання залишаються unknown. Фіксовані значення затримки та споживання пам’яті не заявляються.
+
+## Сумісність
+
+Поточна інвентаризація Windows Plug-and-Play доступна лише у Windows. Offline-перевірка пакунків, хешів, схем і звітів переносна з урахуванням локального середовища Python та необов’язкових платформних джерел даних.
+
+## Документація та екосистема
+
+- [Можливості та обмеження](docs/FEATURES.md)
+- [Архітектура](docs/ARCHITECTURE.md)
+- [Перевірка Authenticode](docs/AUTHENTICODE.md)
+- [Формат UDRV v1](docs/UDRV_FORMAT_V1.md)
+- [Міст телеметрії GPU](docs/GPU_TELEMETRY_BRIDGE_V1.md)
+- [Ігрова робоча станція](docs/GAMING_PERFORMANCE_WORKBENCH.md)
+- [Індекс документації](docs/README.md)
+
+Основні технічні джерела — межі можливостей, формат UDRV, перевірка Authenticode та міст телеметрії GPU в режимі читання.
+
+Інтеграції між проєктами використовують документовані версіоновані інтерфейси та явні адаптери. Необов’язковий адаптер не надає іншому проєкту привілеїв середовища виконання чи доступу до обладнання.
+
+## Участь у розробці
+
+Ознайомтеся з [CONTRIBUTING.md](CONTRIBUTING.md) перед зміною коду або контрактів. Робіть зміни невеликими й перевірними, додавайте детерміновані тести та використовуйте Conventional Commits, якщо цього вимагає посібник.
+
+## Ліцензія та правові умови
+
+Поширюється за ліцензією [Apache-2.0](LICENSE). Програмне забезпечення надається «ЯК Є» в межах умов ліцензії. Назви сторонніх проєктів і торговельні марки належать їхнім правовласникам.
+
+Репозиторій описує локальні програмні інтерфейси. Умови хмарного сервісу, згода на cookies, OAuth і CORS не стосуються зазначених компонентів, доки окремо не буде впроваджено й задокументовано мережевий сервіс.
+
+---
+
+<p align="center"><sub>Psychoporter 666 README Standard v1.0 · Ivan-VHS · 2026-11-25 · UTC</sub></p>
