@@ -11,9 +11,9 @@
 
 Themes: System / Light / Dark. Keep tables resizable, data surfaces opaque, keyboard focus visible and status text explicit. Live PnP is Windows-only; saved-file analysis is portable.
 
-## 40026 Codex
+## Current UI/UX contract
 
-The normative six-cycle / 666-rule contract is maintained in [UI/UX Codex 40026](UI_UX_CODEX_40026.md). Light/Dark themes expose brand-compliant Success/Warning/Error/Info text roles and validate all semantic text pairs against 4.5:1 WCAG AA. Inventory and inspection remain read-only by default; no status style implies that a driver has been changed. Keyboard-only and 200% scaling remain release-level manual checks.
+The shared interface, accessibility, responsive-layout and motion budgets are documented in [UI/UX 2026 convergence](UI_UX_2026_CONVERGENCE.md). OPlague-specific implementation boundaries are recorded in the [Stage 0.5 profile](UI_UX_PROFILE_STAGE_0_5.md). The retired Codex 40026 document is not part of the current documentation set. Inventory and inspection remain read-only by default; no status style implies that a driver has been changed. Keyboard-only and 200% scaling remain release-level manual checks.
 
 ## UI/UX 2026 convergence
 
