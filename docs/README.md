@@ -9,6 +9,7 @@ Start with the [project README](../README.md) for the workbench overview, suppor
 - [Authenticode inspection](AUTHENTICODE.md)
 - [Gaming performance workbench](GAMING_PERFORMANCE_WORKBENCH.md)
 - [Read-only GPU telemetry bridge v1](GPU_TELEMETRY_BRIDGE_V1.md)
+- [NEXUS device evidence profile](NEXUS_DEVICE_PROFILE_V1.md) — evidence ownership, telemetry provenance and non-mutating integration.
 - [Driver target architecture](DRIVER_TARGET_ARCHITECTURE.md)
 - [UDRV package format](UDRV_FORMAT_V1.md)
 
