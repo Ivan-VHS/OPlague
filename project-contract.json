@@ -264,7 +264,7 @@
       "mode": "json-file",
       "status": "implemented",
       "opt_in": true,
-      "summary": "Exports a caller-selected read-only GPU sensor snapshot for offline Reaper/DuckOS ingestion; no control or driver action is performed."
+      "summary": "Exports a caller-selected read-only GPU sensor snapshot for offline Reaper/DAK ingestion; no control or driver action is performed."
     }
   ],
   "safety_boundaries": [
