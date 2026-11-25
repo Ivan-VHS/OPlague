@@ -27,7 +27,7 @@ These repositories have separate responsibilities and release cycles. Follow a p
 - [Pytyliki documentation map](https://github.com/Ivan-VHS/Pytyliki/blob/main/docs/INFORMATION_ARCHITECTURE.md) — processor-system inspection and bounded computational utilities.
 - [Reaper documentation map](https://github.com/Ivan-VHS/Reaper/blob/main/docs/INFORMATION_ARCHITECTURE.md) — language, compiler and runtime integration.
 - [VentuSample documentation map](https://github.com/Ivan-VHS/VentuSample/blob/main/docs/INFORMATION_ARCHITECTURE.md) — audio workstation and DSP contracts.
-- [DuckOS documentation map](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/INFORMATION_ARCHITECTURE.md) — repository entry-point map.
+- [DAK documentation map](https://github.com/Ivan-VHS/DAK/blob/main/docs/INFORMATION_ARCHITECTURE.md) — repository entry-point map.
 
 ## Full document catalog
 
