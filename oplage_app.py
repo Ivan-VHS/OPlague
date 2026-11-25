@@ -14,6 +14,7 @@ from tkinter import filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
 from tools.authenticode_inspector import inspect_signatures
 from ui_theme import apply_ui_theme, set_dpi_awareness
+from tools.i18n import LocaleContext
 from ui_motion import MotionController, MotionPreferences, fade_in_window
 from budget_planner import open_budget_planner
 from typing import Any
@@ -232,7 +233,8 @@ class OPlagueApp(tk.Tk):
     def __init__(self) -> None:
         set_dpi_awareness()
         super().__init__()
-        self.title("OPlague — мастерская оборудования и драйверов · Ivan-VHS")
+        self.locale = LocaleContext.load()
+        self.title(self.locale.message("oplague.window.title") + " · Ivan-VHS")
         self.geometry("1120x720")
         self.minsize(760, 520)
         self._theme_mode = "duck"
@@ -241,7 +243,7 @@ class OPlagueApp(tk.Tk):
         self._device_sort_state: dict[str, bool] = {}
         header = ttk.Frame(self, padding=(16, 12)); header.pack(fill="x")
         ttk.Label(header, text="OPLAGUE", style="Title.TLabel").pack(side="left")
-        ttk.Label(header, text="Инвентаризация оборудования  /  Проверка пакетов драйверов", style="Muted.TLabel").pack(side="left", padx=16)
+        ttk.Label(header, text=self.locale.message("oplague.header.subtitle"), style="Muted.TLabel").pack(side="left", padx=16)
         ttk.Label(header, text="DUCK", style="Brand.TLabel").pack(side="right")
         self.motion_button = ttk.Button(header, text="Движение · Ctrl+,", command=self.show_motion_settings)
         self.motion_button.pack(side="right", padx=(0, 8))
@@ -332,7 +334,7 @@ class OPlagueApp(tk.Tk):
         self.report = ScrolledText(packages, wrap="word", font=self._mono_font, state="disabled")
         self.report.pack(fill="both", expand=True)
         footer = ttk.Frame(self, padding=(14, 4, 14, 10)); footer.pack(fill="x")
-        self.status = tk.StringVar(value="Только локальная проверка — установка и развёртывание драйверов не выполняются")
+        self.status = tk.StringVar(value=self.locale.message("oplague.status.readOnly"))
         ttk.Label(footer, textvariable=self.status, style="Muted.TLabel").pack(side="left")
         ttk.Label(footer, text="Разработчик: Ivan-VHS", style="Muted.TLabel").pack(side="right")
         self.apply_visual_theme()
