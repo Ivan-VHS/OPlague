@@ -20,11 +20,11 @@ craft disposition(device) {
     yield "QUARANTINE"
 }
 
-craft granted_capabilities(result) {
-    when result == "READ_ONLY_APPROVED" {
-        yield ["inventory.read", "report.emit"]
+craft grants_read_only_permission(device, permission) {
+    when disposition(device) != "READ_ONLY_APPROVED" {
+        yield false
     }
-    yield []
+    yield permission == "inventory.read" or permission == "report.emit"
 }
 
 make trusted_device := ["pci-0001", "PCI", true, true, 12, false]
@@ -44,8 +44,8 @@ assert(unsigned_result == "QUARANTINE", "unsigned device must be quarantined")
 assert(high_risk_result == "QUARANTINE", "high-risk device must be quarantined")
 assert(firmware_result == "BLOCKED_MUTATION", "firmware mutation must remain blocked")
 assert(malformed_result == "INVALID_DESCRIPTOR", "empty device identity must be rejected")
-assert(contains(granted_capabilities(trusted_result), "inventory.read"), "read capability is missing")
-assert(not contains(granted_capabilities(trusted_result), "firmware.write"), "firmware write must never be granted")
-assert(size(granted_capabilities(unsigned_result)) == 0, "quarantine must grant no capabilities")
+assert(grants_read_only_permission(trusted_device, "inventory.read"), "read capability is missing")
+assert(not grants_read_only_permission(trusted_device, "firmware.write"), "firmware write must never be granted")
+assert(not grants_read_only_permission(unsigned_device, "inventory.read"), "quarantine must grant no capabilities")
 
 emit "OPLAGUE_REAPER_DEVICE_POLICY:PASS"
