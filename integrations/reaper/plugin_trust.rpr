@@ -1,0 +1,37 @@
+# Reaper-side plugin trust gate for OPlague inventory extensions.
+# Only read-only inventory/report permissions are eligible for this policy.
+# Plugin loading and sandbox creation remain host responsibilities.
+
+craft plugin_disposition(plugin) {
+    when size(plugin) != 4 { yield "INVALID_DESCRIPTOR" }
+    when plugin[0] == "" { yield "INVALID_DESCRIPTOR" }
+    when not plugin[1] or not plugin[2] { yield "QUARANTINE" }
+
+    each permission in plugin[3] {
+        when not contains(["inventory.read", "device.read", "report.emit"], permission) {
+            yield "BLOCKED_PERMISSION"
+        }
+    }
+    yield "APPROVED_SANDBOXED"
+}
+
+craft effective_permissions(plugin) {
+    when plugin_disposition(plugin) == "APPROVED_SANDBOXED" {
+        yield plugin[3]
+    }
+    yield []
+}
+
+make trusted_plugin := ["inventory-summary", true, true, ["inventory.read", "report.emit"]]
+make unsigned_plugin := ["unknown-plugin", false, true, ["inventory.read"]]
+make writer_plugin := ["driver-helper", true, true, ["device.read", "firmware.write"]]
+make unknown_permission := ["extra-plugin", true, true, ["network.connect"]]
+
+assert(plugin_disposition(trusted_plugin) == "APPROVED_SANDBOXED", "trusted read-only plugin must pass")
+assert(plugin_disposition(unsigned_plugin) == "QUARANTINE", "unsigned plugin must be quarantined")
+assert(plugin_disposition(writer_plugin) == "BLOCKED_PERMISSION", "firmware write must be blocked")
+assert(plugin_disposition(unknown_permission) == "BLOCKED_PERMISSION", "unknown permission must be denied")
+assert(not contains(effective_permissions(trusted_plugin), "firmware.write"), "write permission must not appear in effective grants")
+assert(size(effective_permissions(writer_plugin)) == 0, "blocked plugin must receive no capabilities")
+
+emit "OPLAGUE_REAPER_PLUGIN_TRUST:PASS"
