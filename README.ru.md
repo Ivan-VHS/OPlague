@@ -47,8 +47,8 @@ python -m PyInstaller --noconfirm --clean --onefile --windowed --name OPlague op
 ## Интеграция и доказательства
 
 - [Индекс документации](docs/README.md) · [Интеграция runtime Reaper](docs/REAPER_RUNTIME_INTEGRATION.md)
-- [Интеграция DuckOS и Mora](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/GAMING_PERFORMANCE_INTEGRATION.md)
-- [Общие стандарты экосистемы](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/SHARED_STANDARDS.md)
+- [Интеграция DAK и Mora](https://github.com/Ivan-VHS/DAK/blob/main/docs/GAMING_PERFORMANCE_INTEGRATION.md)
+- [Общие стандарты экосистемы](https://github.com/Ivan-VHS/DAK/blob/main/docs/SHARED_STANDARDS.md)
 
 Текущее поведение определяют исходники, схемы и тесты. Станция не прошивает устройства, не устанавливает драйверы и не выдаёт автоматическую сертификацию совместимости.
 
