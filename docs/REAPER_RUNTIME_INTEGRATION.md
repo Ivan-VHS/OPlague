@@ -32,3 +32,10 @@ Without the optional call, all existing OPlague functions continue to use their 
 Reaper's source frontend, МОСТ aliases, Python reference runtime, source-span model and canonical IR belong to the Reaper repository. OPlague deliberately consumes only the separately documented ABI v1 scalar-expression and exact selfhood-lookup entry points. It does not parse `.rpr` files itself and does not embed Reaper Studio or the general Python runtime.
 
 The ABI functions used here do not expose the native AST/IR structs, so adding source provenance to the compiler frontend does not expand the OPlague call surface. The operator-selected library path, ABI version check, source-size limits and ordinal input validation remain mandatory. The expression result is a deterministic arithmetic total over already validated dimensions, not a hardware score, measurement, security assessment or driver recommendation.
+
+
+## Reaper source-policy example
+
+The additive example [examples/reaper_device_evidence_policy.rpr](../examples/reaper_device_evidence_policy.rpr) validates a normalized snapshot envelope, provider/source identity, capture age, payload bounds, comparability and read-only action names. Its trust label deliberately separates digest integrity, signature validity, publisher trust and compatibility verification.
+
+This is a Reaper policy example, not a replacement for the existing OPlague evidence collectors or the optional Reaper C17 scalar ABI bridge. The sample fixtures are synthetic. A caller must verify that provider metadata, capture time and digest correspond to the artifact being reviewed. No driver is loaded or modified and no package is executed.
