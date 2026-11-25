@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import tempfile
 import unittest
@@ -227,6 +228,102 @@ class GameOptimizerTests(unittest.TestCase):
         self.assertEqual(saved["profile"]["validation"], "operator_confirmed")
         self.assertIsNotNone(found)
         self.assertIsNone(missed)
+
+
+
+class GpuTelemetryExportTests(unittest.TestCase):
+    def _sample(self):
+        return {
+            "provider": "nvidia-smi",
+            "captured_at": "2026-11-25T12:00:00+00:00",
+            "available": True,
+            "reason": None,
+            "gpus": [{
+                "name": "NVIDIA GeForce RTX 5070",
+                "driver_version": "572.16",
+                "temperature_c": 43,
+                "utilization_pct": 24,
+                "memory_used_mib": 4096,
+                "memory_total_mib": 12282,
+                "power_w": 93.5,
+                "graphics_clock_mhz": 2505,
+                "memory_clock_mhz": 9001,
+            }],
+        }
+
+    def test_exports_canonical_hashed_read_only_snapshot(self):
+        with tempfile.TemporaryDirectory() as folder:
+            destination = Path(folder) / "gpu.json"
+            result = gaming.create_gpu_telemetry_snapshot(
+                telemetry=self._sample(), output_path=destination
+            )
+            stored = json.loads(destination.read_text(encoding="utf-8"))
+        digest = stored.pop("snapshot_sha256")
+        canonical = json.dumps(stored, ensure_ascii=True, sort_keys=True, separators=(",", ":"))
+        self.assertEqual(hashlib.sha256(canonical.encode("utf-8")).hexdigest(), digest)
+        self.assertEqual(result["schema"], "oplage.gpu-telemetry.v1")
+        self.assertFalse(result["controls_performed"])
+        self.assertEqual(result["source"]["mode"], "read_only")
+        self.assertEqual(result["gpus"][0]["memory_total_mib"], 12282)
+        self.assertNotIn("voltage", result["gpus"][0])
+
+    def test_keeps_unsupported_sensors_as_null(self):
+        sample = self._sample()
+        sample["gpus"][0]["temperature_c"] = "N/A"
+        sample["gpus"][0]["power_w"] = None
+        with tempfile.TemporaryDirectory() as folder:
+            result = gaming.create_gpu_telemetry_snapshot(
+                telemetry=sample, output_path=Path(folder) / "gpu.json"
+            )
+        self.assertIsNone(result["gpus"][0]["temperature_c"])
+        self.assertIsNone(result["gpus"][0]["power_w"])
+        self.assertTrue(result["available"])
+
+    def test_rejects_out_of_range_telemetry(self):
+        for field, value in (("temperature_c", 250), ("utilization_pct", 101)):
+            sample = self._sample()
+            sample["gpus"][0][field] = value
+            with self.subTest(field=field), tempfile.TemporaryDirectory() as folder:
+                with self.assertRaises(ValueError):
+                    gaming.create_gpu_telemetry_snapshot(
+                        telemetry=sample, output_path=Path(folder) / "gpu.json"
+                    )
+
+    def test_rejects_memory_use_above_physical_total(self):
+        sample = self._sample()
+        sample["gpus"][0]["memory_used_mib"] = 13000
+        with tempfile.TemporaryDirectory() as folder:
+            with self.assertRaises(ValueError):
+                gaming.create_gpu_telemetry_snapshot(
+                    telemetry=sample, output_path=Path(folder) / "gpu.json"
+                )
+
+    def test_unavailable_provider_exports_explicit_unknown_state(self):
+        sample = {
+            "provider": "nvidia-smi",
+            "captured_at": "2026-11-25T12:00:00+00:00",
+            "available": False,
+            "reason": "nvidia-smi was not found",
+            "gpus": [],
+        }
+        with tempfile.TemporaryDirectory() as folder:
+            result = gaming.create_gpu_telemetry_snapshot(
+                telemetry=sample, output_path=Path(folder) / "gpu.json"
+            )
+        self.assertFalse(result["available"])
+        self.assertEqual(result["gpus"], [])
+        self.assertEqual(result["reason"], "nvidia-smi was not found")
+
+    def test_rejects_ambiguous_destination_arguments(self):
+        with tempfile.TemporaryDirectory() as folder:
+            with self.assertRaises(ValueError):
+                gaming.create_gpu_telemetry_snapshot(
+                    telemetry=self._sample(),
+                    output_path=Path(folder) / "gpu.json",
+                    directory=Path(folder),
+                )
+
+
 
 
 if __name__ == "__main__":
