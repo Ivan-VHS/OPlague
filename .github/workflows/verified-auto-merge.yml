@@ -118,7 +118,7 @@ jobs:
 
   assurance:
     name: All pull-request workflows green
-    needs: [linux-validation, windows-desktop-build, readme, license, assurance]
+    needs: [linux-validation, windows-desktop-build, readme, license]
     if: github.event_name != 'workflow_dispatch' && github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -170,7 +170,7 @@ jobs:
 
   auto-merge:
     name: Enable native GitHub auto-merge
-    needs: [linux-validation, windows-desktop-build, readme, license]
+    needs: [linux-validation, windows-desktop-build, readme, license, assurance]
     if: github.event_name != 'workflow_dispatch' && github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 5
