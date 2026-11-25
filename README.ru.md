@@ -18,7 +18,7 @@ OPlague — локальная desktop-станция для проверки у
 - Доказательства совместимости устройств, проверка пакетов UDRV и структурированные отчёты.
 - Локальная игровая телеметрия, анализ frametime и обратимые пользовательские профили производительности.
 
-Подробнее: [Возможности](docs/FEATURES.md) · [Архитектура](docs/ARCHITECTURE.md) · [Authenticode](docs/AUTHENTICODE.md) · [Архитектура драйверов](docs/DRIVER_TARGET_ARCHITECTURE.md) · [UDRV](docs/UDRV_FORMAT_V1.md) · [Игровая станция](docs/GAMING_PERFORMANCE_WORKBENCH.md).
+Подробнее: [Возможности](docs/FEATURES.md) · [Архитектура](docs/ARCHITECTURE.md) · [Authenticode](docs/AUTHENTICODE.md) · [Архитектура драйверов](docs/DRIVER_TARGET_ARCHITECTURE.md) · [UDRV](docs/UDRV_FORMAT_V1.md) · [Игровая станция](docs/GAMING_PERFORMANCE_WORKBENCH.md) · [GPU telemetry bridge v1](docs/GPU_TELEMETRY_BRIDGE_V1.md).
 
 ## Запуск и тесты
 
