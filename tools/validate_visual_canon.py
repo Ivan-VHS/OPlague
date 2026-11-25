@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate UI source colors against the fixed DuckOS palette."""
+"""Validate UI source colors against the fixed DAK palette."""
 
 from __future__ import annotations
 

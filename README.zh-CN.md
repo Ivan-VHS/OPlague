@@ -47,8 +47,8 @@ python -m PyInstaller --noconfirm --clean --onefile --windowed --name OPlague op
 ## 集成与证据
 
 - [文档索引](docs/README.md) · [Reaper 运行时集成](docs/REAPER_RUNTIME_INTEGRATION.md)
-- [DuckOS 与 Mora 集成](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/GAMING_PERFORMANCE_INTEGRATION.md)
-- [生态共享标准](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/SHARED_STANDARDS.md)
+- [DAK 与 Mora 集成](https://github.com/Ivan-VHS/DAK/blob/main/docs/GAMING_PERFORMANCE_INTEGRATION.md)
+- [生态共享标准](https://github.com/Ivan-VHS/DAK/blob/main/docs/SHARED_STANDARDS.md)
 
 当前行为以源码、Schema 和测试为准。工作台不会刷写固件、安装驱动或自动认证硬件兼容性。
 

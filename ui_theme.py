@@ -1,4 +1,4 @@
-"""Single-palette DuckOS theme for the OPlague read-only workbench."""
+"""Single-palette DAK theme for the OPlague read-only workbench."""
 from __future__ import annotations
 
 import ctypes

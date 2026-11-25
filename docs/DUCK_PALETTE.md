@@ -1,6 +1,6 @@
 # OPlague visual system — Imperial Noir workbench
 
-OPlague shares the DuckOS black/white/gold foundation for window chrome and navigation, while keeping its domain status colors distinct. The workbench remains read-only by default: visual state never suggests that a driver was installed, a device changed, or a performance setting was applied.
+OPlague shares the DAK black/white/gold foundation for window chrome and navigation, while keeping its domain status colors distinct. The workbench remains read-only by default: visual state never suggests that a driver was installed, a device changed, or a performance setting was applied.
 
 | Role | Value | Use |
 |---|---|---|
