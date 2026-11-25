@@ -1,0 +1,55 @@
+# OPlague device-evidence policy in Reaper.
+# All clocks are supplied by the caller. This program never probes hardware,
+# loads a driver, executes a package or changes device state.
+# Evidence layout: [schema, provider, source_id, captured_ms, max_age_ms,
+#                   payload_bytes, digest, validation_state].
+
+craft evidence_envelope_valid(evidence) {
+    when size(evidence) != 8 { yield false }
+    when evidence[0] != "oplage.device-snapshot.v1" { yield false }
+    when evidence[1] == "" or evidence[2] == "" { yield false }
+    when evidence[3] <= 0 or evidence[4] <= 0 or evidence[4] > 86400000 { yield false }
+    when evidence[5] < 0 or evidence[5] > 16777216 { yield false }
+    when evidence[6] == "" or evidence[7] != "valid" { yield false }
+    yield true
+}
+
+craft evidence_fresh(evidence, now_ms) {
+    when not evidence_envelope_valid(evidence) { yield false }
+    when now_ms < evidence[3] { yield false }
+    yield now_ms - evidence[3] <= evidence[4]
+}
+
+craft evidence_pair_comparable(left, right) {
+    when not evidence_envelope_valid(left) or not evidence_envelope_valid(right) {
+        yield false
+    }
+    yield left[0] == right[0] and left[1] == right[1] and left[2] == right[2]
+}
+
+craft read_only_action_allowed(action) {
+    when action == "inspect" or action == "compare" or action == "export-report" or action == "validate-package" {
+        yield true
+    }
+    yield false
+}
+
+craft evidence_trust_label(digest_valid, signature_valid, publisher_trusted, compatibility_verified) {
+    when not digest_valid { yield "invalid-digest" }
+    when not signature_valid { yield "unsigned-or-invalid-signature" }
+    when not publisher_trusted { yield "publisher-not-trusted" }
+    when not compatibility_verified { yield "compatibility-not-verified" }
+    yield "evidence-valid-review-required"
+}
+
+make sample := ["oplage.device-snapshot.v1", "OPlague", "device-set-a", 100000, 60000, 4096, "sha256:fixture", "valid"]
+make second := ["oplage.device-snapshot.v1", "OPlague", "device-set-a", 110000, 60000, 4096, "sha256:next", "valid"]
+
+assert(evidence_envelope_valid(sample), "valid evidence envelope")
+assert(evidence_fresh(sample, 120000), "fresh evidence within provider window")
+assert(not evidence_fresh(sample, 200001), "stale evidence is rejected")
+assert(evidence_pair_comparable(sample, second), "same provider and source can be compared")
+assert(not read_only_action_allowed("install-driver"), "driver installation remains outside OPlague evidence policy")
+assert(evidence_trust_label(true, true, true, false) == "compatibility-not-verified", "hash and signature do not imply compatibility")
+
+emit "OPLAGUE_REAPER_EVIDENCE_POLICY:PASS"
