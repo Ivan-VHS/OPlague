@@ -13,7 +13,7 @@ Themes: System / Light / Dark. Keep tables resizable, data surfaces opaque, keyb
 
 ## 40026 Codex
 
-The normative six-cycle / 666-rule contract is maintained in [OPlague UI/UX Profile — Stage 0.5](UI_UX_PROFILE_STAGE_0_5.md). Light/Dark themes expose brand-compliant Success/Warning/Error/Info text roles and validate all semantic text pairs against 4.5:1 WCAG AA. Inventory and inspection remain read-only by default; no status style implies that a driver has been changed. Keyboard-only and 200% scaling remain release-level manual checks.
+The shared interaction contract is maintained in [Duck UI/UX Foundation — Stage 0.1](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/UI_UX_STAGE_0_1.md); the [OPlague UI/UX Profile — Stage 0.5](UI_UX_PROFILE_STAGE_0_5.md) records only this product's implementation notes and boundaries. Light/Dark themes expose brand-compliant Success/Warning/Error/Info text roles and validate all semantic text pairs against 4.5:1 WCAG AA. Inventory and inspection remain read-only by default; no status style implies that a driver has been changed. Keyboard-only and 200% scaling remain release-level manual checks.
 
 ## UI/UX 2026 convergence
 
