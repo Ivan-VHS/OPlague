@@ -6,7 +6,7 @@
 
 > **Проверяй устройства и пакеты. Не меняй систему. Публикуй доказательства, а не действия с драйверами.**
 
-**Состояние:** Разработка · инструменты проверки с приоритетом Windows · **Версия:** Version not declared in project contract · **License:** [Apache-2.0](LICENSE) · **Стандарт README:** Psychoporter 666 v1.0 · **Дата проверки:** 2026-11-25 · UTC · **Source:** [Ivan-VHS/OPlague](https://github.com/Ivan-VHS/OPlague)
+**Состояние:** Разработка · инструменты проверки с приоритетом Windows · **Версия:** версия не объявлена в контракте проекта · **License:** [Apache-2.0](LICENSE) · **Стандарт README:** Psychoporter 666 v1.0 · **Дата проверки:** 2026-11-25 · UTC · **Source:** [Ivan-VHS/OPlague](https://github.com/Ivan-VHS/OPlague)
 
 <p align="center"><img src="assets/oplague-workbench-preview.svg" alt="OPlague — рабочая станция устройств, драйверов и игр — project overview" width="100%"></p>
 <p align="center"><a href="assets/screenshots/oplague-workbench.png"><img src="assets/screenshots/oplague-workbench.png" alt="OPlague — рабочая станция устройств, драйверов и игр — application screenshot" width="100%"></a></p>
@@ -41,7 +41,7 @@ flowchart TB
   R -.-> X["No driver install, load or certification"]
 ~~~
 
-Source code, schemas, build files, tests and CI are the evidence for implemented behavior. Roadmap entries and catalogue records describe plans or inventories, not shipped functionality.
+Исходный код, схемы, конфигурация сборки, тесты и CI подтверждают реализованное поведение. Дорожная карта и каталоги описывают планы и перечни, а не поставляемые функции.
 
 ## Требования
 
@@ -68,7 +68,7 @@ python tools/udrv_inspector.py path/to/package.udrv --json
 
 ## Запуск
 
-The current desktop entry point is oplague_app.py. The package inspector accepts a user-selected local file; it does not execute package payloads.
+Текущая точка входа графического приложения — `oplague_app.py`. Инспектор принимает выбранный пользователем локальный файл и не выполняет содержимое пакета.
 
 ## Интерфейсы
 
@@ -85,7 +85,7 @@ REST/GraphQL, WebSocket, OAuth, облачный deployment и cookie-механ
 
 Импортируемые файлы и пакеты считаются недоверенными. Число записей архивов, пути, размеры и степень сжатия ограничены; payload не распаковывается и не исполняется. Совпадения hardware ID — лишь кандидаты, а не выводы о подписи, безопасности или поддержке ОС. Обнаружение устройств работает на чтение; драйверы, прошивки и состояние устройств не меняются.
 
-Security reporting: [SECURITY.md](SECURITY.md). Do not publish secrets, device identifiers or private logs in public issues.
+Политика безопасности: [SECURITY.md](SECURITY.md). Не публикуйте секреты, идентификаторы устройств и приватные журналы в открытых задачах.
 
 ## Проверка качества
 
@@ -105,17 +105,17 @@ python -m unittest discover -s tests -v
 
 ## Документация и экосистема
 
-- [Features and limits](docs/FEATURES.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Authenticode inspection](docs/AUTHENTICODE.md)
-- [UDRV v1 format](docs/UDRV_FORMAT_V1.md)
-- [GPU telemetry bridge](docs/GPU_TELEMETRY_BRIDGE_V1.md)
-- [Gaming workbench](docs/GAMING_PERFORMANCE_WORKBENCH.md)
-- [Documentation index](docs/README.md)
+- [Возможности и ограничения](docs/FEATURES.md)
+- [Архитектура](docs/ARCHITECTURE.md)
+- [Проверка Authenticode](docs/AUTHENTICODE.md)
+- [Формат UDRV v1](docs/UDRV_FORMAT_V1.md)
+- [Мост телеметрии GPU](docs/GPU_TELEMETRY_BRIDGE_V1.md)
+- [Игровая рабочая станция](docs/GAMING_PERFORMANCE_WORKBENCH.md)
+- [Индекс документации](docs/README.md)
 
-Основные технические источники — границы возможностей, схема UDRV, проверка Authenticode и read-only GPU telemetry bridge.
+Основные технические источники — границы возможностей, формат UDRV, проверка Authenticode и мост телеметрии GPU в режиме чтения.
 
-Cross-project integrations use documented versioned interfaces and explicit adapters. An optional adapter does not grant another project runtime or hardware privileges.
+Интеграции между проектами используют документированные версионированные интерфейсы и явные адаптеры. Необязательный адаптер не предоставляет другому проекту привилегий среды выполнения или доступа к оборудованию.
 
 ## Участие в разработке
 
@@ -125,7 +125,7 @@ Cross-project integrations use documented versioned interfaces and explicit adap
 
 Распространяется по лицензии [Apache-2.0](LICENSE). Программное обеспечение предоставляется «КАК ЕСТЬ» в пределах условий лицензии. Названия сторонних проектов и товарные знаки принадлежат их правообладателям.
 
-This repository documents local software interfaces. Hosted-service terms, cookie consent, OAuth and CORS are not applicable to the runtime surfaces described above unless a separate hosted component is introduced and documented.
+Репозиторий описывает локальные программные интерфейсы. Условия облачного сервиса, согласие на cookies, OAuth и CORS не относятся к указанным компонентам, пока отдельно не будет внедрён и документирован сетевой сервис.
 
 ---
 
