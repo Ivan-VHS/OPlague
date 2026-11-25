@@ -1,6 +1,6 @@
-<p align="center">[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)</p>
+# OPlague — Device, Driver & Gaming Workbench
 
-<h1 align="center"><strong>🛡️ OPlague — Device, Driver & Gaming Workbench</strong></h1>
+<p align="center">[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)</p>
 
 [![Windows build](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&label=Windows%20build)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml) [![Docs checks](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/docs.yml?branch=main&label=Docs%20checks)](https://github.com/Ivan-VHS/OPlague/actions/workflows/docs.yml) [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/OPlague)](LICENSE)
 
@@ -119,7 +119,7 @@ Cross-project integrations use documented versioned interfaces and explicit adap
 
 ## Contributing
 
-Read CONTRIBUTING.md before changing code or contracts. Keep changes reviewable, add deterministic tests and use Conventional Commits where required by the repository guide.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before changing code or contracts. Keep changes reviewable, add deterministic tests and use Conventional Commits where required by the repository guide.
 
 ## License & legal
 
