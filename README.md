@@ -21,6 +21,10 @@ OPlague is a local desktop workbench for device and driver inspection, compatibi
 
 See [Features](docs/FEATURES.md), [Architecture](docs/ARCHITECTURE.md), [Authenticode](docs/AUTHENTICODE.md), [Driver target architecture](docs/DRIVER_TARGET_ARCHITECTURE.md), [UDRV format](docs/UDRV_FORMAT_V1.md) and [Gaming workbench](docs/GAMING_PERFORMANCE_WORKBENCH.md) and [GPU telemetry bridge v1](docs/GPU_TELEMETRY_BRIDGE_V1.md).
 
+## Package composition contract
+
+The [concatenation and package composition contract](docs/CONCATENATION_ENGINE.md) defines bounded byte/text joining, provenance-preserving manifest composition, payload conflict rules, deterministic assembly and validation gates. It is an architecture contract; the application workflow is not yet implemented.
+
 ## Run and test
 
 Requirements: Python 3.10–3.12 for the current desktop tools and validation scripts.
