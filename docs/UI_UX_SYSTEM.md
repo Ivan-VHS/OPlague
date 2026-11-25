@@ -13,7 +13,7 @@ Theme: one fixed Duck palette with legacy preferences normalized on application.
 
 ## 40026 Codex
 
-The normative six-cycle / 666-rule contract is maintained in [OPlague UI/UX Profile — Stage 0.5](UI_UX_PROFILE_STAGE_0_5.md). The fixed palette exposes distinct Success/Warning/Error/Info text roles and validates all semantic text pairs against 4.5:1 WCAG AA. Inventory and inspection remain read-only by default; no status style implies that a driver has been changed. Keyboard-only and 200% scaling remain release-level manual checks.
+The normative six-cycle engineering contract is maintained in [OPlague UI/UX Profile — Stage 0.5](UI_UX_PROFILE_STAGE_0_5.md). The fixed palette exposes distinct Success/Warning/Error/Info text roles and validates all semantic text pairs against 4.5:1 WCAG AA. Inventory and inspection remain read-only by default; no status style implies that a driver has been changed. Keyboard-only and 200% scaling remain release-level manual checks.
 
 ## UI/UX 2026 convergence
 
