@@ -1,6 +1,6 @@
 # OPlague GPU telemetry bridge v1
 
-OPlague can export a bounded, read-only GPU sensor snapshot for ingestion by DuckOS. The first provider is the existing local NVIDIA `nvidia-smi` collector. Unsupported values remain JSON `null`; the exporter never fills missing sensors with estimates.
+OPlague can export a bounded, read-only GPU sensor snapshot for ingestion by DAK. The first provider is the existing local NVIDIA `nvidia-smi` collector. Unsupported values remain JSON `null`; the exporter never fills missing sensors with estimates.
 
 ## Export
 
@@ -18,9 +18,9 @@ The output follows [oplage.gpu-telemetry.v1.schema.json](../schemas/oplage.gpu-t
 
 The snapshot does not contain user identifiers, voltage requests, clock writes, fan controls, memory contents, driver binaries or shader data. The current provider is NVIDIA-only. An unavailable or unsupported provider produces an explicit unavailable snapshot, not fabricated metrics.
 
-## DuckOS / Reaper integration
+## DAK / Reaper integration
 
-DuckOS's `duckos/gpu/oplage_bridge.rpr` accepts a parsed record only after the trusted file-ingest layer has validated the JSON schema and snapshot digest. It converts values into a monotonic Reaper sample; UTC timestamps are not treated as monotonic clocks.
+DAK's `dak/gpu/oplage_bridge.rpr` accepts a parsed record only after the trusted file-ingest layer has validated the JSON schema and snapshot digest. It converts values into a monotonic Reaper sample; UTC timestamps are not treated as monotonic clocks.
 
 The bridge keeps the following rules:
 - missing sensors remain unknown;
