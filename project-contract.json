@@ -10,7 +10,8 @@
   "implementation": {
     "languages": [
       "Python 3.10+",
-      "JSON Schema"
+      "JSON Schema",
+      "Rust 2021 (Pytyliki native diagnostics ABI consumer)"
     ],
     "runtime_platforms": [
       "Windows",
@@ -132,6 +133,16 @@
         "tests/test_game_optimizer.py",
         "docs/GPU_TELEMETRY_BRIDGE_V1.md"
       ]
+    },
+    {
+      "id": "interop.pytyliki-diagnostics-rust",
+      "status": "partial",
+      "summary": "A Rust 2021 native consumer checks and calls the caller-owned Pytyliki diagnostics ABI v1 record through an explicit shared-library path; this is a bounded integration component, not a full OPlague Rust/Slint migration.",
+      "evidence": [
+        "crates/pytyliki-diagnostics-abi/Cargo.toml",
+        "crates/pytyliki-diagnostics-abi/src/lib.rs",
+        "docs/PYTYLIKI_DIAGNOSTICS_ABI.md"
+      ]
     }
   ],
   "interfaces": [
@@ -207,6 +218,16 @@
         "schemas/oplage.gpu-telemetry.v1.schema.json",
         "docs/GPU_TELEMETRY_BRIDGE_V1.md"
       ]
+    },
+    {
+      "id": "pytyliki.diagnostics-abi.v1",
+      "format": "C ABI v1 diagnostics record; 144-byte, 8-byte-aligned, caller-owned buffer",
+      "direction": "consumes",
+      "status": "partial",
+      "evidence": [
+        "crates/pytyliki-diagnostics-abi/src/lib.rs",
+        "docs/PYTYLIKI_DIAGNOSTICS_ABI.md"
+      ]
     }
   ],
   "integrations": [
@@ -264,7 +285,15 @@
       "mode": "json-file",
       "status": "implemented",
       "opt_in": true,
-      "summary": "Exports a caller-selected read-only GPU sensor snapshot for offline Reaper/DuckOS ingestion; no control or driver action is performed."
+      "summary": "Exports a caller-selected read-only GPU sensor snapshot for offline Reaper/DAK ingestion; no control or driver action is performed."
+    },
+    {
+      "project": "pytyliki",
+      "interface": "pytyliki.diagnostics-abi.v1",
+      "mode": "native-ffi",
+      "status": "planned",
+      "opt_in": true,
+      "summary": "A Rust consumer is under review and pins the exact Pytyliki ABI proposal commit; the integration remains unproven until C11 and Rust checks pass on the pinned SHA."
     }
   ],
   "safety_boundaries": [

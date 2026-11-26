@@ -279,7 +279,7 @@ def create_gpu_telemetry_snapshot(
     output_path: Path | None = None,
     directory: Path | None = None,
 ) -> dict[str, Any]:
-    """Export one bounded, read-only GPU sensor snapshot for DuckOS/Reaper.
+    """Export one bounded, read-only GPU sensor snapshot for DAK/Reaper.
 
     The exporter preserves unsupported sensors as null. It never reads or writes
     GPU registers and never applies clocks, voltage, fan or power changes.
