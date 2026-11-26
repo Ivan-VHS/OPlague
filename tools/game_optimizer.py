@@ -273,6 +273,105 @@ def collect_nvidia_telemetry(
     }
 
 
+def create_gpu_telemetry_snapshot(
+    *,
+    telemetry: dict[str, Any] | None = None,
+    output_path: Path | None = None,
+    directory: Path | None = None,
+) -> dict[str, Any]:
+    """Export one bounded, read-only GPU sensor snapshot for DAK/Reaper.
+
+    The exporter preserves unsupported sensors as null. It never reads or writes
+    GPU registers and never applies clocks, voltage, fan or power changes.
+    """
+    if output_path is not None and directory is not None:
+        raise ValueError("Pass output_path or directory, not both")
+
+    source = telemetry if telemetry is not None else collect_nvidia_telemetry()
+    if not isinstance(source, dict) or source.get("provider") != "nvidia-smi":
+        raise ValueError("GPU telemetry must come from the read-only nvidia-smi provider")
+
+    captured_at = source.get("captured_at")
+    if not isinstance(captured_at, str) or not captured_at.strip():
+        captured_at = utc_now()
+
+    raw_gpus = source.get("gpus")
+    if not isinstance(raw_gpus, list) or len(raw_gpus) > 16:
+        raise ValueError("GPU telemetry must contain at most 16 device records")
+
+    normalized_gpus: list[dict[str, Any]] = []
+    for index, raw in enumerate(raw_gpus):
+        if not isinstance(raw, dict):
+            raise ValueError(f"GPU telemetry row {index} must be an object")
+        name = str(raw.get("name") or "").strip()
+        driver_version = str(raw.get("driver_version") or "").strip()
+        if not name or len(name) > 256 or not driver_version or len(driver_version) > 128:
+            raise ValueError(f"GPU telemetry row {index} has invalid device identity")
+
+        values: dict[str, int | float | None] = {
+            "temperature_c": _number_or_none(raw.get("temperature_c"), integer=True),
+            "utilization_pct": _number_or_none(raw.get("utilization_pct"), integer=True),
+            "memory_used_mib": _number_or_none(raw.get("memory_used_mib"), integer=True),
+            "memory_total_mib": _number_or_none(raw.get("memory_total_mib"), integer=True),
+            "power_w": _number_or_none(raw.get("power_w")),
+            "graphics_clock_mhz": _number_or_none(raw.get("graphics_clock_mhz"), integer=True),
+            "memory_clock_mhz": _number_or_none(raw.get("memory_clock_mhz"), integer=True),
+        }
+        bounds = {
+            "temperature_c": (-20, 150),
+            "utilization_pct": (0, 100),
+            "memory_used_mib": (0, 2**31 - 1),
+            "memory_total_mib": (1, 2**31 - 1),
+            "power_w": (0, 10000),
+            "graphics_clock_mhz": (0, 20000),
+            "memory_clock_mhz": (0, 20000),
+        }
+        for field, value in values.items():
+            lower, upper = bounds[field]
+            if value is not None and not lower <= value <= upper:
+                raise ValueError(f"GPU telemetry row {index} has out-of-range {field}")
+        used = values["memory_used_mib"]
+        total = values["memory_total_mib"]
+        if used is not None and total is not None and used > total:
+            raise ValueError(f"GPU telemetry row {index} reports memory use above total")
+
+        normalized_gpus.append({
+            "name": name,
+            "driver_version": driver_version,
+            **values,
+        })
+
+    available = bool(source.get("available")) and bool(normalized_gpus)
+    if not available and normalized_gpus:
+        raise ValueError("Unavailable telemetry cannot contain GPU samples")
+    reason = source.get("reason")
+    if not available and not isinstance(reason, str):
+        reason = "GPU telemetry provider returned no usable readings"
+
+    payload: dict[str, Any] = {
+        "schema": "oplage.gpu-telemetry.v1",
+        "snapshot_id": str(uuid.uuid4()),
+        "captured_at": captured_at,
+        "source": {"provider": "nvidia-smi", "mode": "read_only"},
+        "available": available,
+        "reason": reason if not available else None,
+        "controls_performed": False,
+        "gpus": normalized_gpus,
+    }
+    canonical = json.dumps(payload, ensure_ascii=True, sort_keys=True, separators=(",", ":"))
+    payload["snapshot_sha256"] = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+    if output_path is not None:
+        path = Path(output_path)
+    else:
+        folder = directory or (_data_directory() / "gpu-telemetry")
+        path = folder / f"{payload['snapshot_id']}.json"
+    _atomic_write_json(path, payload)
+    payload["snapshot_path"] = str(path)
+    return payload
+
+
+
 def collect_windows_reliability_events(
     hours: int = 24,
     *,
