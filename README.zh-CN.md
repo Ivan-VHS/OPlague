@@ -16,6 +16,7 @@
 | 实时设备清单 | 仅 Windows |
 | 桌面平台 | Windows |
 | 许可证 | [Apache-2.0](LICENSE) |
+| 行为准则 | 尚未发布根目录 `CODE_OF_CONDUCT.md` |
 | 文档审核日期 | 2026-11-26 |
 
 <p align="center"><img src="assets/oplague-workbench-preview.svg" alt="OPlague 工作台架构预览" width="100%"></p>
