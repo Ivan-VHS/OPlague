@@ -6,7 +6,7 @@
 
 ## Product role
 
-OPlague owns Windows device/driver inspection, bounded package analysis, Authenticode and hash evidence, compatibility candidates, gaming telemetry and read-only GPU snapshots. It is an evidence provider; it is not the DuckOS kernel driver manager and NEXUS does not authorize automatic driver installation.
+OPlague owns Windows device/driver inspection, bounded package analysis, Authenticode and hash evidence, compatibility candidates, gaming telemetry and read-only GPU snapshots. It is an evidence provider; it is not the DAK kernel driver manager and NEXUS does not authorize automatic driver installation.
 
 ## Existing evidence interfaces
 
