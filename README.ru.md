@@ -16,6 +16,7 @@
 | Live-инвентаризация устройств | Только Windows |
 | Desktop | Windows |
 | Лицензия | [Apache-2.0](LICENSE) |
+| Кодекс поведения | Отдельный `CODE_OF_CONDUCT.md` не опубликован |
 | Проверка документации | 2026-11-26 |
 
 <p align="center"><img src="assets/oplague-workbench-preview.svg" alt="Архитектура рабочей станции OPlague" width="100%"></p>
