@@ -5,16 +5,21 @@
 #                   payload_bytes, digest, validation_state].
 
 craft evidence_envelope_valid(evidence) {
-    when size(evidence) != 8 { yield false }
+    when kind(evidence) != "list" or size(evidence) != 8 { yield false }
+    when kind(evidence[0]) != "text" or kind(evidence[1]) != "text" or kind(evidence[2]) != "text" { yield false }
+    when kind(evidence[3]) != "number" or kind(evidence[4]) != "number" or kind(evidence[5]) != "number" { yield false }
+    when kind(evidence[6]) != "text" or kind(evidence[7]) != "text" { yield false }
     when evidence[0] != "oplage.device-snapshot.v1" { yield false }
-    when evidence[1] == "" or evidence[2] == "" { yield false }
-    when evidence[3] <= 0 or evidence[4] <= 0 or evidence[4] > 86400000 { yield false }
-    when evidence[5] < 0 or evidence[5] > 16777216 { yield false }
-    when evidence[6] == "" or evidence[7] != "valid" { yield false }
+    when size(evidence[1]) == 0 or size(evidence[1]) > 128 or size(evidence[2]) == 0 or size(evidence[2]) > 256 { yield false }
+    when evidence[3] % 1 != 0 or evidence[3] <= 0 { yield false }
+    when evidence[4] % 1 != 0 or evidence[4] <= 0 or evidence[4] > 86400000 { yield false }
+    when evidence[5] % 1 != 0 or evidence[5] < 0 or evidence[5] > 16777216 { yield false }
+    when size(evidence[6]) == 0 or size(evidence[6]) > 256 or evidence[7] != "valid" { yield false }
     yield true
 }
 
 craft evidence_fresh(evidence, now_ms) {
+    when kind(now_ms) != "number" or now_ms % 1 != 0 or now_ms < 0 { yield false }
     when not evidence_envelope_valid(evidence) { yield false }
     when now_ms < evidence[3] { yield false }
     yield now_ms - evidence[3] <= evidence[4]
@@ -28,6 +33,7 @@ craft evidence_pair_comparable(left, right) {
 }
 
 craft read_only_action_allowed(action) {
+    when kind(action) != "text" { yield false }
     when action == "inspect" or action == "compare" or action == "export-report" or action == "validate-package" {
         yield true
     }
@@ -35,6 +41,9 @@ craft read_only_action_allowed(action) {
 }
 
 craft evidence_trust_label(digest_valid, signature_valid, publisher_trusted, compatibility_verified) {
+    when kind(digest_valid) != "boolean" or kind(signature_valid) != "boolean" or kind(publisher_trusted) != "boolean" or kind(compatibility_verified) != "boolean" {
+        yield "invalid-trust-claims"
+    }
     when not digest_valid { yield "invalid-digest" }
     when not signature_valid { yield "unsigned-or-invalid-signature" }
     when not publisher_trusted { yield "publisher-not-trusted" }
@@ -44,12 +53,23 @@ craft evidence_trust_label(digest_valid, signature_valid, publisher_trusted, com
 
 make sample := ["oplage.device-snapshot.v1", "OPlague", "device-set-a", 100000, 60000, 4096, "sha256:fixture", "valid"]
 make second := ["oplage.device-snapshot.v1", "OPlague", "device-set-a", 110000, 60000, 4096, "sha256:next", "valid"]
+make other_provider := ["oplage.device-snapshot.v1", "unknown.provider", "device-set-a", 110000, 60000, 4096, "sha256:next", "valid"]
+make fractional_timestamp := ["oplage.device-snapshot.v1", "OPlague", "device-set-a", 100000.5, 60000, 4096, "sha256:fixture", "valid"]
+make wrong_payload_type := ["oplage.device-snapshot.v1", "OPlague", "device-set-a", 100000, 60000, "4096", "sha256:fixture", "valid"]
 
 assert(evidence_envelope_valid(sample), "valid evidence envelope")
 assert(evidence_fresh(sample, 120000), "fresh evidence within provider window")
 assert(not evidence_fresh(sample, 200001), "stale evidence is rejected")
+assert(not evidence_fresh(sample, 99999), "future-dated evidence is rejected")
+assert(not evidence_fresh(sample, "120000"), "non-numeric caller clock is rejected")
+assert(not evidence_envelope_valid(fractional_timestamp), "fractional timestamps are rejected")
+assert(not evidence_envelope_valid(wrong_payload_type), "wrong payload metadata types are rejected")
 assert(evidence_pair_comparable(sample, second), "same provider and source can be compared")
+assert(not evidence_pair_comparable(sample, other_provider), "different providers cannot be compared")
+assert(not evidence_envelope_valid("malformed-evidence"), "non-list envelopes are rejected")
 assert(not read_only_action_allowed("install-driver"), "driver installation remains outside OPlague evidence policy")
+assert(not read_only_action_allowed(7), "non-text actions are rejected")
 assert(evidence_trust_label(true, true, true, false) == "compatibility-not-verified", "hash and signature do not imply compatibility")
+assert(evidence_trust_label(true, "yes", true, true) == "invalid-trust-claims", "trust inputs must be booleans")
 
 emit "OPLAGUE_REAPER_EVIDENCE_POLICY:PASS"
