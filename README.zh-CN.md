@@ -1,105 +1,132 @@
-# OPlague — 驱动工作台
+# OPlague — 设备、驱动与游戏性能工作台
 
-[Windows 桌面构建](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml) · [CI](https://github.com/Ivan-VHS/OPlague/actions) · Python 3.10+ · Windows · Apache-2.0
-**开发者：** [Ivan-VHS](https://github.com/Ivan-VHS)
+<p align="center">[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)</p>
 
-**OPlague 是只读工作台：用于 Windows 设备盘点、驱动包检查和基于证据的比较。它不会安装、加载或修改驱动。**
+[![Windows build](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&label=Windows%20build)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml) [![Docs checks](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/docs.yml?branch=main&label=Docs%20checks)](https://github.com/Ivan-VHS/OPlague/actions/workflows/docs.yml) [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/OPlague)](LICENSE)
 
-[English](README.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [简体中文](README.zh-CN.md)
+> **检查设备与软件包，保持系统不变；输出证据，而不是驱动操作。**
 
-## Windows 实际运行截图
+**项目状态:** 开发中 · 以 Windows 为主的检查工具 · **版本:** 项目契约未声明版本号 · **License:** [Apache-2.0](LICENSE) · **README 标准:** Psychoporter 666 v1.0 · **审阅日期:** 2026-11-25 · UTC · **Source:** [Ivan-VHS/OPlague](https://github.com/Ivan-VHS/OPlague)
 
-<p align="center"><img src="assets/screenshots/oplague-workbench.png" alt="Windows 中运行的 OPlague 工作台" width="100%"></p>
+<p align="center"><img src="assets/oplague-workbench-preview.svg" alt="OPlague — 设备、驱动与游戏性能工作台 — project overview" width="100%"></p>
+<p align="center"><a href="assets/screenshots/oplague-workbench.png"><img src="assets/screenshots/oplague-workbench.png" alt="OPlague — 设备、驱动与游戏性能工作台 — application screenshot" width="100%"></a></p>
 
-<sub>应用实际截屏 · 原始图像为 1920×1080 · 保留原始像素，不进行人为放大。</sub>
+## 快速导航
 
-设备与驱动包之间的关联仅作为供操作人员审查的证据；程序不会启动驱动安装。
+[🚀 Demo: workbench screenshot](assets/screenshots/oplague-workbench.png) · [Documentation](docs/README.md) · [Source repository](https://github.com/Ivan-VHS/OPlague) · [Issues](https://github.com/Ivan-VHS/OPlague/issues)
 
-## 功能数据流
+## 目标与范围
 
-该图概述 Windows 设备记录、驱动包检查和报告生成之间已经实现的数据流转。
+本地工作台，用于只读设备发现、有界 INF/ZIP/UDRV 软件包检查、兼容性证据和游戏遥测。实时 Windows Plug-and-Play 发现仅适用于 Windows；保存文件与报告分析具有可移植性。应用不会安装、启用、卸载或修改驱动程序。
 
-```mermaid
-flowchart TD
-    A[Windows Plug and Play 记录] --> B[只读设备清单]
-    B --> C[规范化硬件 ID]
-    D[INF / ZIP 驱动包] --> E[元数据、路径和哈希检查]
-    E --> F[目标架构证据]
-    C --> G[候选兼容性关系]
-    F --> G
-    G --> H[批量比较报告]
-    H --> I[汇总与报告指纹]
-```
+## 功能
 
-## 软件包检查与指标处理
+- 通过只读查询盘点 Windows Plug-and-Play 设备。
+- 有界 INF/ZIP 检查、PE 与 Authenticode 元数据、SHA-256 和 SPDX 清单。
+- 验证 UDRV v1 清单、文件大小、哈希和路径；不会安装或执行软件包内容。
+- 按精确标准化硬件 ID 建立候选关联；候选结果不是兼容性认证。
+- 本地游戏/帧时间分析，以及在可用时通过 nvidia-smi 导出只读 NVIDIA 遥测。
+- 版本化 JSON 设备快照，以及可选的可信 Pytyliki C ABI 交叉检查。
 
-第二张图描述软件包完整性检查，以及对用户提供数值向量的分析。
+## 架构与数据流
 
-```mermaid
-flowchart LR
-    A[UDRV v1 包] --> B[Manifest 与大小检查]
-    B --> C[SHA-256 检查]
-    C --> D[完整性证据]
-    E[用户提供的数值向量] --> F[归一化与比较]
-    F --> G[加权距离和方差报告]
-```
+~~~mermaid
+flowchart TB
+  U["User-selected device or file"] --> I["Bounded inspector"]
+  I --> N["Normalize IDs / metadata / hashes"]
+  N --> E["Evidence and candidate graph"]
+  E --> R["Local report / JSON snapshot"]
+  G["nvidia-smi — read only"] --> T["GPU telemetry snapshot"]
+  T --> R
+  R -.-> X["No driver install, load or certification"]
+~~~
 
-## 工作台模块
+源码、架构模式、构建配置、测试和 CI 是已实现行为的依据。路线图和目录仅描述计划或清单，不代表已交付功能。
 
-| 模块 | 证据 / 输出 | 边界 |
-|---|---|---|
-| 设备盘点 | Plug and Play 身份、状态和硬件 ID | 只读检测 |
-| INF / ZIP 检查 | 元数据、哈希、路径和资源限制 | 不执行软件包、不安装驱动 |
-| 架构检查 | INF target 与主机架构比较 | 证据，不是兼容性结论 |
-| 兼容性图 | 精确规范化的硬件 ID 关系 | 仅为候选关系 |
-| UDRV v1 | manifest、载荷大小和 SHA-256 | 完整性检查；不安装/加载 |
-| DRIVE-LENS | 来源记录、HMAC 假名及属性/时间窗口分组 | 不自动判定 |
-| 批量报告 | 有序结果、汇总和报告 fingerprint | 不写入系统 |
-| Metric Lab | 归一化向量、加权距离和方差 | 对用户提供的数据进行分析 |
-| Clinical Systems | 120 条原则记录和 36 项遥测检查 | 操作建议，不是医疗或设备认证 |
-| Impact Profiles | 20 个可搜索语义配置及五个序数维度 | 仅词汇目录；不推断硬件信息 |
+## 环境要求
 
-## 运行与测试
+当前桌面和验证工具需要 Python 3.10–3.12。实时 Plug-and-Play 盘点需要 Windows；离线文件检查和报告分析不需要访问实时设备。Tk 桌面界面是否可用取决于本地 Python 安装。
 
-启动 Windows 桌面工作台：
+## 构建
 
-```sh
+~~~sh
+python -m venv .venv
+. .venv/bin/activate
+python -m pip install --upgrade pip
 python oplague_app.py
-```
+~~~
 
-运行测试并检查语义配置目录：
 
-```sh
+## 首次检查
+
+~~~sh
 python -m unittest discover -s tests -v
-python -m oplague --verify
-python -m oplague --catalog
-python -m oplague --search "баллистический"
-python -m oplague --profile 5
-python -m oplague --rank reach
 python tools/udrv_inspector.py path/to/package.udrv --json
-python tools/clinical_systems.py --catalog --pretty
-```
+~~~
 
-Windows 工作流会检查视觉规范并运行测试，构建独立的 `OPlague.exe`，捕获实际运行中的应用界面，并发布 Windows x64 压缩包。
+检查测试和检查器输出后再启动桌面入口。软件包检查器不会解压或执行载荷。
 
-## 数值参考
+## 运行
 
-| INF target | PE machine |
-|---|---:|
-| NTx86 | `0x014C` |
-| NTamd64 | `0x8664` |
-| NTarm | `0x01C4` |
-| NTarm64 | `0xAA64` |
-| NTia64（旧版） | `0x0200` |
+当前桌面应用入口为 `oplague_app.py`。软件包检查器接收用户选择的本地文件，不会执行软件包载荷。
 
-UDRV v1 限制：manifest ≤4 MiB · ≤10,000 项 · 单文件 ≤512 MiB · 总载荷 ≤2 GiB · SHA-256 缓冲区 1 MiB。
+## 接口
 
-ID 或哈希匹配不证明发布者可信、系统兼容、设备适用或安装安全。HMAC 假名和报告 fingerprint 有助于保持一致性与来源记录，但本身不能证明真实性。
+| Surface | Contract / entry point | Boundary |
+|---|---|---|
+| Device snapshot | `oplage.device-snapshot.v1` | Versioned JSON; pseudonymous device fingerprint. |
+| GPU telemetry | `oplage.gpu-telemetry.v1` | Read-only NVIDIA sensor export; unavailable values remain unknown. |
+| UDRV inspector | `tools/udrv_inspector.py` | Manifest, size, hash and path checks; no install/load. |
+| Native metrics | `Optional pytyliki.c-abi.v1` | Only through an explicitly selected trusted library. |
 
-[文档索引](docs/README.md) · [Apache-2.0 许可证](LICENSE)
+若仓库中没有版本化实现和测试，则不将 REST/GraphQL、WebSocket、OAuth、云部署或 Cookie 机制描述为现有功能。
 
+## 安全与信任边界
 
-## 预算分配参考
-这是一个 500 UAH 预算模型示例，包含 JSON 契约和离线模拟器。它属于文档示例，并非宿主应用运行时功能。
+导入文件和软件包均视为不可信输入。归档条目数、路径、大小和压缩率均受限制；不会解压或执行载荷。硬件 ID 匹配只是候选证据，不代表签名、安全或操作系统支持结论。设备发现为只读，不更改驱动、固件或设备状态。
 
-[多语言指南](docs/RESOURCE_ALLOCATION_500_UAH.md) · [交互式模拟器](docs/resource-allocation-500-uah.html) · [JSON 示例](examples/resource-allocation-500-uah.json) · [JSON Schema](schemas/resource-allocation.v1.schema.json)
+安全策略：[SECURITY.md](SECURITY.md)。请勿在公开问题中发布密钥、设备标识符或私人日志。
+
+## 质量验证
+
+~~~sh
+python -m unittest discover -s tests -v
+~~~
+
+测试范围由已注册的 CTest/unittest 目标和工作流定义。没有公开报告时，不声明覆盖率百分比、模糊测试结果或负载测试报告。
+
+## 性能证据
+
+游戏和 GPU 指标是本地观测，不是通用基准。NVIDIA 遥测为只读并记录数据来源；缺失测量保持未知。不声明固定延迟或内存占用。
+
+## 兼容性
+
+实时 Windows Plug-and-Play 盘点仅适用于 Windows。离线软件包、哈希、Schema 和报告检查具有可移植性，但取决于本地 Python 环境和可选的平台证据来源。
+
+## 文档与生态
+
+- [功能与限制](docs/FEATURES.md)
+- [架构](docs/ARCHITECTURE.md)
+- [Authenticode 检查](docs/AUTHENTICODE.md)
+- [UDRV v1 格式](docs/UDRV_FORMAT_V1.md)
+- [GPU 遥测桥接](docs/GPU_TELEMETRY_BRIDGE_V1.md)
+- [游戏工作台](docs/GAMING_PERFORMANCE_WORKBENCH.md)
+- [文档索引](docs/README.md)
+
+主要技术参考包括功能边界、UDRV 格式、Authenticode 检查和只读 GPU 遥测桥接。
+
+跨项目集成使用有文档说明的版本化接口和显式适配器。可选适配器不会授予其他项目运行时权限或硬件访问权限。
+
+## 参与贡献
+
+修改代码或契约前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。保持改动可审查，添加确定性测试，并按贡献指南使用 Conventional Commits。
+
+## 许可证与法律说明
+
+本项目依据 [Apache-2.0](LICENSE) 许可。软件按许可条款以“按现状”方式提供。第三方项目名称与商标归其各自权利人所有。
+
+本仓库记录的是本地软件接口。除非另行引入并记录托管服务，否则云服务条款、Cookie 同意、OAuth 和 CORS 均不适用于上述本地运行组件。
+
+---
+
+<p align="center"><sub>Psychoporter 666 README Standard v1.0 · Ivan-VHS · 2026-11-25 · UTC</sub></p>

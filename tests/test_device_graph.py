@@ -71,6 +71,38 @@ CopyFiles=Payload
         self.assertEqual(plan["candidate_coverage"]["devices_with_candidates"], 1)
 
 
+    def test_candidate_graph_uses_exact_id_index_and_stable_driver_order(self):
+        devices = [
+            {"device_id": "device-1", "hardware_ids": [
+                "USB\\VID_0001", "PCI\\VEN_1234&DEV_ABCD"
+            ]}
+        ]
+        drivers = [
+            {"driver_id": "z-driver", "hardware_ids": ["PCI\\VEN_1234&DEV_ABCD"]},
+            {"driver_id": "a-driver", "hardware_ids": ["USB\\VID_0001"]},
+        ]
+        graph = build_compatibility_graph(devices, drivers)
+        self.assertEqual(
+            [edge["driver_id"] for edge in graph["edges"]],
+            ["a-driver", "z-driver"],
+        )
+        self.assertEqual(
+            [edge["matched_ids"][0] for edge in graph["edges"]],
+            ["USB\\VID_0001", "PCI\\VEN_1234&DEV_ABCD"],
+        )
+
+    def test_candidate_graph_rejects_edge_explosion(self):
+        devices = [
+            {"device_id": f"device-{index}", "pnp_id": "USB\\VID_1234&PID_ABCD"}
+            for index in range(1001)
+        ]
+        drivers = [
+            {"driver_id": f"driver-{index:03d}", "hardware_ids": ["USB\\VID_1234&PID_ABCD"]}
+            for index in range(100)
+        ]
+        with self.assertRaisesRegex(ValueError, "100000-edge limit"):
+            build_compatibility_graph(devices, drivers)
+
     def test_candidate_coverage_is_aggregated_without_ranking(self):
         graph = build_compatibility_graph(
             [
@@ -87,6 +119,28 @@ CopyFiles=Payload
         self.assertEqual(coverage["devices_with_candidates"], 2)
         self.assertEqual(coverage["drivers"][0]["candidate_device_count"], 2)
         self.assertIn("do not rank drivers", coverage["semantics"])
+
+    def test_hardware_id_lists_over_limit_are_rejected_not_silently_dropped(self):
+        oversized = [f"USB\\VID_{index:04X}" for index in range(257)]
+        with self.assertRaisesRegex(ValueError, "256-item limit"):
+            build_compatibility_graph(
+                [{"device_id": "device-overflow", "hardware_ids": oversized}],
+                [],
+            )
+        with self.assertRaisesRegex(ValueError, "256-item limit"):
+            build_compatibility_graph(
+                [],
+                [{"driver_id": "driver-overflow", "hardware_ids": oversized}],
+            )
+
+    def test_inf_model_identifier_overflow_is_reported(self):
+        lines = ["[Models.NTamd64]"]
+        lines.extend(
+            f"%Device{index}%=Install, USB\\VID_{index:04X}"
+            for index in range(257)
+        )
+        with self.assertRaisesRegex(ValueError, "256-identifier limit"):
+            extract_inf_compatibility("\n".join(lines))
 
     def test_normalization_rejects_bad_ids(self):
         self.assertEqual(normalize_hardware_id(" pci/ven_1234 "), "PCI\\VEN_1234")
