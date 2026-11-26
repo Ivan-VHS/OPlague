@@ -21,9 +21,9 @@ OPlague is Katyuhen's read-only device and driver evidence workbench. It owns Wi
 
 ## Workspace and visual identity
 
-Mora is the ecosystem's desktop entry point. OPlague keeps its specialist workbench and evidence-first layout while native UI adapters can map semantic roles to DuckOS's `mora.theme.v1` tokens locally.
+Mora is the ecosystem's desktop entry point. OPlague keeps its specialist workbench and evidence-first layout while native UI adapters can map semantic roles to DAK's `mora.theme.v1` tokens locally.
 
-The Katyuhen registry is maintained in [DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/ecosystem/katyuhen.v1.json). The local declaration is [integrations/katyuhen/manifest.json](../integrations/katyuhen/manifest.json).
+The Katyuhen registry is maintained in [DAK](https://github.com/Ivan-VHS/DAK/blob/main/ecosystem/katyuhen.v1.json). The local declaration is [integrations/katyuhen/manifest.json](../integrations/katyuhen/manifest.json).
 
 ## Validation
 

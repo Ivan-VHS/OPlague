@@ -27,7 +27,7 @@ These repositories have separate responsibilities and release cycles. Follow a p
 - [Pytyliki documentation map](https://github.com/Ivan-VHS/Pytyliki/blob/main/docs/INFORMATION_ARCHITECTURE.md) — processor-system inspection and bounded computational utilities.
 - [Reaper documentation map](https://github.com/Ivan-VHS/Reaper/blob/main/docs/INFORMATION_ARCHITECTURE.md) — language, compiler and runtime integration.
 - [VentuSample documentation map](https://github.com/Ivan-VHS/VentuSample/blob/main/docs/INFORMATION_ARCHITECTURE.md) — audio workstation and DSP contracts.
-- [DuckOS documentation map](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/INFORMATION_ARCHITECTURE.md) — repository entry-point map.
+- [DAK documentation map](https://github.com/Ivan-VHS/DAK/blob/main/docs/INFORMATION_ARCHITECTURE.md) — repository entry-point map.
 
 ## Full document catalog
 
@@ -79,7 +79,7 @@ Every Markdown page below has a direct catalog link as well as a topic-level rou
 
 - [UI MOTION](UI_MOTION.md)
 - [UI UX 2026 CONVERGENCE](UI_UX_2026_CONVERGENCE.md)
-- [UI UX CODEX 40026](UI_UX_CODEX_40026.md)
+- [UI/UX Profile — Stage 0.5](UI_UX_PROFILE_STAGE_0_5.md)
 - [UI UX SYSTEM](UI_UX_SYSTEM.md)
 - [VISUAL DOCUMENTATION](VISUAL_DOCUMENTATION.md)
 
