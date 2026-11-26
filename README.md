@@ -1,262 +1,132 @@
-# OPlague — device, driver and gaming performance workbench
+# OPlague — Device, Driver & Gaming Workbench
 
-[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
+<p align="center">[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)</p>
 
-<p align="center"><img src="assets/readme/dashboard.svg" alt="OPlague project overview" width="100%"></p>
+[![Windows build](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&label=Windows%20build)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml) [![Docs checks](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/docs.yml?branch=main&label=Docs%20checks)](https://github.com/Ivan-VHS/OPlague/actions/workflows/docs.yml) [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/OPlague)](LICENSE)
 
-[Source](https://github.com/Ivan-VHS/OPlague) · [Windows desktop workflow](.github/workflows/desktop-build.yml) · [Documentation index](docs/README.md) · [Apache-2.0](LICENSE)
+> **Inspect devices and packages. Preserve the machine. Publish evidence, never driver actions.**
 
-## Live Windows workbench capture
+**State:** Development · Windows-first inspection tools · **Version:** Version not declared in project contract · **License:** [Apache-2.0](LICENSE) · **README standard:** Psychoporter 666 v1.0 · **Last reviewed:** 2026-11-25 · UTC · **Source:** [Ivan-VHS/OPlague](https://github.com/Ivan-VHS/OPlague)
 
-<p align="center"><a href="assets/screenshots/oplague-workbench.png"><img src="assets/screenshots/oplague-workbench.png" alt="Real Windows desktop capture of OPlague" width="100%"></a></p>
-<p align="center"><sub>1920×1080 · Click the image to open the original PNG.</sub></p>
+<p align="center"><img src="assets/oplague-workbench-preview.svg" alt="OPlague — Device, Driver & Gaming Workbench — project overview" width="100%"></p>
+<p align="center"><a href="assets/screenshots/oplague-workbench.png"><img src="assets/screenshots/oplague-workbench.png" alt="OPlague — Device, Driver & Gaming Workbench — application screenshot" width="100%"></a></p>
 
-Genuine screenshot of the running OPlague desktop application, captured by the Windows packaging workflow. The banner and process diagram are original SVG illustrations; the UI image is not generated or composited.
+## Quick navigation
 
-### Architecture at a glance
+[🚀 Demo: workbench screenshot](assets/screenshots/oplague-workbench.png) · [Documentation](docs/README.md) · [Source repository](https://github.com/Ivan-VHS/OPlague) · [Issues](https://github.com/Ivan-VHS/OPlague/issues)
 
-<p align="center"><img src="assets/readme/workflow.svg" alt="OPlague implemented data flow" width="100%"></p>
+## Mission & scope
 
-Implemented path: Windows PnP and user-selected files → bounded INF/ZIP inspection → normalized IDs and hashes → candidate evidence report.
+A local workbench for read-only device discovery, bounded INF/ZIP/UDRV package inspection, compatibility evidence and gaming telemetry. Live Windows Plug-and-Play discovery is Windows-only; saved-file and report analysis is portable. The application does not install, enable, unload or modify drivers.
 
+## Capabilities
 
-[![Windows build](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&label=Windows%20build)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml)  [![Docs checks](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/docs.yml?branch=main&label=Docs%20checks)](https://github.com/Ivan-VHS/OPlague/actions/workflows/docs.yml)  [![License](https://img.shields.io/github/license/Ivan-VHS/OPlague)](LICENSE)
+- Windows Plug-and-Play inventory with read-only queries.
+- Bounded INF/ZIP inspection, PE and Authenticode metadata, SHA-256 and SPDX inventory.
+- UDRV v1 manifest, file-size, hash and path validation; payloads are not installed or executed.
+- Exact normalized hardware-ID candidate edges; candidates are not compatibility certification.
+- Local gaming/frametime analysis and NVIDIA nvidia-smi read-only telemetry export when available.
+- Versioned JSON device snapshots and optional trusted Pytyliki C ABI cross-checks.
 
+## Architecture & data flow
 
-> **Scope:** OPlague is a local Windows desktop workbench with read-only Plug and Play and driver-package inspection plus explicitly user-started, reversible game-session power profiles. It does **not** install, load, extract or modify driver payloads. This repository does not publish a hosted web demo, remote API or production device-management service. Documentation was checked against `main` on **2026-11-22**.
+~~~mermaid
+flowchart TB
+  U["User-selected device or file"] --> I["Bounded inspector"]
+  I --> N["Normalize IDs / metadata / hashes"]
+  N --> E["Evidence and candidate graph"]
+  E --> R["Local report / JSON snapshot"]
+  G["nvidia-smi — read only"] --> T["GPU telemetry snapshot"]
+  T --> R
+  R -.-> X["No driver install, load or certification"]
+~~~
 
-## Purpose and boundaries
+Source code, schemas, build files, tests and CI are the evidence for implemented behavior. Roadmap entries and catalogue records describe plans or inventories, not shipped functionality.
 
-OPlague helps an operator inspect the current machine's device records, read driver-package metadata and compare normalized hardware identifiers. It is intended for Windows support engineers, hardware reviewers, QA and developers investigating package contents or compatibility evidence.
+## Requirements
 
-The result is an evidence record and candidate comparison, not a final safety or compatibility verdict. An exact hardware-ID match does not prove publisher trust, OS compatibility, device suitability or safe installation. Driver deployment remains outside the product.
+Python 3.10–3.12 for the current desktop and validation tools. Windows is required for live Plug-and-Play inventory; offline file inspection and report analysis do not require live device access. Tk-based desktop UI availability depends on the local Python installation.
 
-The **Игровая лаборатория** adds reversible Windows power-plan sessions, hardware/driver snapshots, benchmark CSV analysis and a local profile cache; it does not deploy or patch driver binaries.
+## Build
 
-### What the workbench actually does
-
-| Area | Implemented behavior | Boundary |
-|---|---|---|
-| Device inventory | reads Windows Plug and Play identity, status, manufacturer and PNPDeviceID | live collection is Windows-only and read-only |
-| INF inspection | reads selected metadata, hardware-ID declarations and target architecture | does not run INF directives |
-| ZIP inspection | checks paths, sizes, compression ratios, hashes and INF metadata | does not extract or execute package payloads |
-| PE/COFF inspection | reads machine type, optional header, sections, entry point and certificate-table location | header parsing only; no image loading or signature verdict |
-| SPDX file inventory | creates deterministic SPDX 2.3 file/hash reports | no dependency graph or inferred license conclusions |
-| Compatibility graph | forms candidate relationships from exact normalized hardware IDs | candidate links only; manual review remains required |
-| Metric Lab | compares user-supplied normalized profiles with weighted distance/variance | advisory analysis, not a device verdict |
-| UDRV v1 | validates manifest, sizes and SHA-256 evidence | integrity check, not publisher authentication |
-| Reports | produces structured evidence, totals and fingerprints | no system write and no driver installation |
-
-The application has four principal tabs: **Devices**, **Package Inspection**, **Metric Lab** and **Compatibility Review**. The workbench uses one fixed DuckOS black/white/yellow palette; motion preferences include Reduce Motion and Eco Visuals.
-
-The screenshot is a captured desktop application, not a browser preview.
-
-The binary and supply-chain helpers can also be used locally:
-
-```sh
-python tools/pe_inspector.py driver.sys --output driver-pe-report.json
-python tools/sbom_inventory.py ./staging --output staging.spdx.json
-```
-
-PE inspection reads headers only. The SPDX export records hashes and leaves unverified licence information as `NOASSERTION`.
-
-
-## Related OS product: DuckOS
-
-The seven-app **Mora** suite (Cockos, Kavun, Ka-bon, Gloverty, Po, Illidia and Unify) is specified in the separate [DuckOS project](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/PREINSTALLED_APPLICATIONS.md). It is an operating-system application layer, not a component of OPlague. This repository does not claim to ship those applications or provide their OS services. Its own capabilities and interfaces remain independently defined by this repository's source, tests and versioned contracts.
-
-## Quick Start
-
-### Requirements
-
-- Python **3.10 or newer**.
-- Tkinter for the desktop UI.
-- Windows and `powershell.exe` for live Plug and Play inventory. The inventory uses a fixed local PowerShell/CIM query.
-- Git.
-
-The application imports its own repository modules and Python standard-library facilities; a third-party runtime package install is not required for the source launch. PyInstaller is only needed when packaging a standalone executable.
-
-On Linux and macOS, saved data can be inspected, but live Windows PnP inventory is unavailable.
-
-### Run the desktop workbench
-
-From the repository root:
-
-```sh
+~~~sh
+python -m venv .venv
+. .venv/bin/activate
+python -m pip install --upgrade pip
 python oplague_app.py
-```
+~~~
 
-`oplague_app.py` is the correctly spelled entry point; it delegates to the existing `oplage_app.py` implementation module.
 
-### Run tests and CLI checks
+## First checks
 
-```sh
-python -m compileall -q oplague_app.py oplage_app.py tests
-python tools/validate_visual_canon.py ui_theme.py
+~~~sh
 python -m unittest discover -s tests -v
-```
-
-The project CLI examples:
-
-```sh
-python -m oplague --verify
-python -m oplague --catalog
-python -m oplague --search "ballistic"
-python -m oplague --profile 5
-python -m oplague --rank reach
 python tools/udrv_inspector.py path/to/package.udrv --json
-python tools/clinical_systems.py --catalog --pretty
-python tools/hardware_id_lint.py "PCI\VEN_8086&DEV_15F3&SUBSYS_00008086&REV_03" --json
-```
+~~~
 
-The optional native Reaper C17 calculation requires an explicit trusted library path:
+Run the desktop entry point after reviewing the tests and inspector output. The package inspector does not extract or execute payloads.
 
-```sh
-python -m oplague --rank-total-native --reaper-library /absolute/path/to/libreaper_ffi.so
-```
+## Run
 
-This is local execution. OPlague does not start an HTTP listener, web UI, API endpoint or localhost preview.
+The current desktop entry point is oplague_app.py. The package inspector accepts a user-selected local file; it does not execute package payloads.
 
-### Build a Windows executable
+## Interfaces
 
-The desktop workflow uses Python 3.12 and PyInstaller. To package locally:
+| Surface | Contract / entry point | Boundary |
+|---|---|---|
+| Device snapshot | `oplage.device-snapshot.v1` | Versioned JSON; pseudonymous device fingerprint. |
+| GPU telemetry | `oplage.gpu-telemetry.v1` | Read-only NVIDIA sensor export; unavailable values remain unknown. |
+| UDRV inspector | `tools/udrv_inspector.py` | Manifest, size, hash and path checks; no install/load. |
+| Native metrics | `Optional pytyliki.c-abi.v1` | Only through an explicitly selected trusted library. |
 
-```sh
-python -m pip install --upgrade pyinstaller
-python -m PyInstaller --noconfirm --clean --onefile --windowed --name OPlague oplague_app.py
-```
+REST/GraphQL, WebSocket, OAuth, cloud deployment and cookie mechanisms are not advertised without a versioned implementation and tests.
 
-The standalone executable is written under `dist/OPlague.exe`. First packaging may take longer while PyInstaller collects the application; no fixed build duration is promised.
+## Security & trust boundaries
 
-## Data, limits and verification scenarios
+Imported files and packages are untrusted input. Archive entry counts, paths, sizes and compression are bounded; payloads are not extracted or executed. Hardware-ID matches are candidate evidence, not signing, safety or operating-system support verdicts. Device discovery is read-only; no driver, firmware or device state is changed.
 
-OPlague has no shared database, login, demo account, remote mock API or hosted fixture service. The data sources are distinct:
+Security reporting: [SECURITY.md](SECURITY.md). Do not publish secrets, device identifiers or private logs in public issues.
 
-- **Device inventory:** actual local Windows Plug and Play records read through `Get-CimInstance`.
-- **Package inspection:** a file explicitly selected by the operator.
-- **Metric Lab:** JSON entered by the operator. The initial reference/candidate JSON values in the UI are illustrative sample inputs normalized to `[0, 1]`, not live measurements.
-- **Automated tests:** local test fixtures and synthetic inputs, not installed drivers or a real driver catalogue.
+## Verification
 
-Try these scenarios:
+~~~sh
+python -m unittest discover -s tests -v
+~~~
 
-1. **Refresh devices on Windows:** click **Refresh device list**. The app reads local PnP information and displays name, status, manufacturer and hardware ID.
-2. **Inspect a package:** choose an `.inf` or `.zip` file. Review metadata, SHA-256, architecture hints and package bounds; no payload is installed or executed.
-3. **Batch inspection:** select multiple local packages and compare their metadata reports.
-4. **Metric comparison:** edit the reference/candidate JSON objects. Values must be normalized to `[0, 1]`; compare the weighted output and inspect the supplied weights.
-5. **Compatibility plan:** form candidate links from the current device list and inspected INF hardware IDs; review every candidate manually.
-6. **UDRV validation:** run `tools/udrv_inspector.py` on a local package and inspect the JSON validation report.
-7. **Regression suite:** run `python -m unittest discover -s tests -v`.
+The checked-in CTest/unittest targets and workflows define the test scope. No coverage percentage, fuzz result or load-test report is claimed without a published artifact.
 
-### Input and archive limits
+## Performance evidence
 
-The desktop inspector enforces these bounds:
+Gaming and GPU metrics are local observations, not universal benchmarks. NVIDIA telemetry is read-only and source-attributed; missing measurements remain unknown. No fixed latency or memory footprint is claimed.
 
-| Input | Limit |
-|---|---:|
-| INF / ZIP package file | 512 MiB |
-| ZIP entries | 10,000 |
-| Total expanded ZIP content | 2 GiB |
-| Individual INF content | 2 MiB |
-| Compression ratio | 200:1 |
+## Compatibility
 
-The UDRV v1 inspector has its own contract: manifest up to 4 MiB, up to 10,000 entries, a file up to 512 MiB and total payload up to 2 GiB. The inspector reads and hashes bytes in bounded chunks; it does not extract or execute the payload.
+Live Windows Plug-and-Play inventory is Windows-only. Offline package, hash, schema and report inspection are portable subject to the installed Python environment and optional platform-specific evidence sources.
 
-There is no built-in latency simulator, HTTP 500 switch, mock network service or browser upload. Errors such as an invalid ZIP, unsafe archive path, oversized INF or unavailable PowerShell inventory are reported locally.
+## Documentation & ecosystem
 
-The current device list and inspection results live in the desktop process. Closing the app clears that working session; it does not change the source packages or Windows drivers. Theme and motion preferences are handled by the native preferences layer. There is no browser localStorage, sessionStorage, IndexedDB or cookie state.
+- [Features and limits](docs/FEATURES.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Authenticode inspection](docs/AUTHENTICODE.md)
+- [UDRV v1 format](docs/UDRV_FORMAT_V1.md)
+- [GPU telemetry bridge](docs/GPU_TELEMETRY_BRIDGE_V1.md)
+- [Gaming workbench](docs/GAMING_PERFORMANCE_WORKBENCH.md)
+- [Documentation index](docs/README.md)
 
-## Configuration and access
+Feature boundaries, the UDRV schema, Authenticode inspection and the read-only GPU telemetry bridge are the primary technical references.
 
-There is no root `.env.example`, Docker Compose web stack, API key, OAuth account, test login, CORS policy, HTTP proxy or local HTTPS certificate setup. No secrets are needed for normal local inspection. The current app does not document a runtime ENV variable contract; do not invent one.
+Cross-project integrations use documented versioned interfaces and explicit adapters. An optional adapter does not grant another project runtime or hardware privileges.
 
-Relevant in-app controls are the static DUCK palette badge and motion settings (Reduce Motion, Eco Visuals and Expressive Motion).
+## Contributing
 
-The live PnP query requires Windows PowerShell and the local CIM provider. If that command is blocked or fails, package-file inspection and saved-data review remain separate workflows; the app shows the inventory error instead of substituting a fake device list.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before changing code or contracts. Keep changes reviewable, add deterministic tests and use Conventional Commits where required by the repository guide.
 
-## Architecture and repository map
+## License & legal
 
-The data path is: **local input → bounded parser → evidence record → dry-run comparison/report → optional explicit export**.
+Distributed under [Apache-2.0](LICENSE). The software is provided “AS IS” under the license terms. Third-party project names and trademarks remain with their respective owners.
 
-| Path | Contents |
-|---|---|
-| `oplague_app.py` | public, correctly spelled desktop entry point |
-| `oplage_app.py` | desktop implementation, package inspection and PnP query |
-| `tools/` | CLI utilities, report composition, metrics and UDRV inspection |
-| `tests/` | unit and regression tests with local fixtures |
-| `docs/` | architecture, safety boundaries, schemas and operator guidance |
-| `schemas/` | versioned report and package contracts |
-| `assets/screenshots/` | captured Windows desktop image |
-| `security/` | machine-readable Beelzebul repository policy |
-| `.github/workflows/` | Windows packaging and release automation |
+This repository documents local software interfaces. Hosted-service terms, cookie consent, OAuth and CORS are not applicable to the runtime surfaces described above unless a separate hosted component is introduced and documented.
 
-The app is a Python/Tkinter desktop program. The Windows inventory path invokes local PowerShell; the package inspector reads local INF/ZIP metadata. There is no frontend/backend deployment, mock server, web port, browser storage, CORS configuration or public live preview. Browser compatibility and responsive viewport rules are therefore not applicable.
+---
 
-## Packaging, CI and release operation
-
-The [Windows desktop workflow](.github/workflows/desktop-build.yml):
-
-1. uses Python 3.12 on Windows;
-2. compiles the Python sources and runs the unit tests;
-3. validates the visual canon;
-4. packages `OPlague.exe` with PyInstaller;
-5. captures the running desktop app and uploads the screenshot artifact;
-6. creates `OPlague-windows-x64.zip` with the executable, README and license.
-
-The screenshot artifact is retained for 30 days. A Git tag matching `v*` triggers GitHub Release publication. A workflow artifact is a downloadable build, not a hosted web demo.
-
-For rollback of a distributed build, select the previous known-good tagged release/archive. There is no server deployment to roll back. Workflow logs and test output are available in GitHub Actions.
-
-## Troubleshooting
-
-| Symptom | Check |
-|---|---|
-| The app does not start | use Python 3.10+ with Tkinter and launch from the repository root |
-| Device inventory fails | verify Windows, `powershell.exe` and local CIM access; inventory is not implemented on Linux/macOS |
-| ZIP is rejected | check archive validity, entry count, expanded size, compression ratio and paths |
-| INF is rejected | verify the file is within the 2 MiB INF bound and is validly encoded |
-| Package exceeds the limit | the desktop inspector caps package files at 512 MiB |
-| Metric comparison fails | enter valid JSON objects and normalize metric values to `[0, 1]` |
-| Native rank total fails | check that the explicitly supplied Reaper library exists and is trusted |
-
-The desktop status and dialog messages describe the immediate failure. For CI failures, inspect the corresponding GitHub Actions logs.
-
-## Known limitations, contribution and license
-
-Device and driver inspection remains read-only. A game session may temporarily switch only a built-in Windows power plan after saving a snapshot, and its restore guard will not overwrite a later external power-plan change. OPlague does not install, load, extract or modify drivers; matching is candidate evidence rather than certification. Live hardware enumeration is Windows-only. The metric profiles are advisory. Hashes establish byte identity, not publisher authenticity or ownership. The UDRV inspector does not execute payloads.
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the repository's contribution workflow and validation requirements. Report a problem or propose a change through [GitHub Issues](https://github.com/Ivan-VHS/OPlague/issues) or a Pull Request. Include the OS, Python version, safe sample file type, exact command and expected/actual result. Do not attach private driver packages or sensitive device identifiers without removing identifying data.
-
-License: [Apache-2.0](LICENSE).
-
-## Mapping to the 66 README rules
-
-The web-stand checklist is mapped to the actual desktop workbench rather than copied as a fictional web deployment:
-
-| Rules | README coverage |
-|---|---|
-| 1–11 · purpose and scope | identifies the read-only workbench, users, actual data sources, limitations and absence of a hosted stand |
-| 12–22 · quick start | exact Python/Tkinter requirements, GUI entry point, test commands and executable packaging |
-| 23–33 · config and access | states there is no `.env`, test login, API secret, CORS or HTTPS setup; documents actual local PowerShell dependency |
-| 34–44 · data and scenarios | separates live local PnP data, operator-supplied packages, sample metric JSON and test fixtures; states bounds and state lifetime |
-| 45–55 · architecture and build | maps real source, tools, tests, schemas, docs and Windows package workflow |
-| 56–66 · operations and support | documents artifact/release publication, rollback, logs, troubleshooting, limitations, contribution channel and license |
-
-**No public OPlague web-demo URL exists.** The Windows screenshot and release archive are not an online device-management service.
-
-## Unified report envelope
-
-Wrap a JSON evidence report using the shared ivan-vhs.report.v1 format:
-
-    python tools/report_envelope.py --tool oplague --version VERSION --input-file driver.zip < evidence.json
-
-Only the input SHA-256 is recorded, not the local path. See docs/REPORT_ENVELOPE.md and schemas/ivan-vhs.report.v1.schema.json.
-
-
-## Documentation map
-
-Use the [documentation index](docs/README.md) as the entry point and the [information architecture map](docs/INFORMATION_ARCHITECTURE.md) to navigate device inspection, driver/package analysis, security evidence, architecture and workbench UX. Topic hubs lead to detailed contracts; read-only scope and implementation status remain defined by source, tests and schemas.
-
-
-## Mora desktop integration
-
-OPlague is available from the shared Mora workspace as the read-only device and driver workbench. Mora provides discovery and the shared fixed Duck palette; the application's inspection and safety boundaries remain unchanged. See [Mora integration](docs/MORA_DESKTOP_INTEGRATION.md) and the [DuckOS workspace contract](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md).
+<p align="center"><sub>Psychoporter 666 README Standard v1.0 · Ivan-VHS · 2026-11-25 · UTC</sub></p>

@@ -10,7 +10,7 @@ OPlague joins the Mora workspace as the read-only device and driver-package work
 - Theme hand-off: MORA_THEME_MODE=dark or light.
 - The application remains local; no remote device-management service is introduced.
 
-The canonical manifest schema, discovery rules and local host are maintained by [DuckOS / Mora](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md).
+The canonical manifest schema, discovery rules and local host are maintained by [DAK / Mora](https://github.com/Ivan-VHS/DAK/blob/main/docs/MORA_DESKTOP.md).
 
 ## Shared appearance
 

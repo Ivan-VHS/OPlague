@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Ivan-VHS/OPlague/blob/main/schemas/oplage.gpu-telemetry.v1.schema.json",
+  "title": "OPlague GPU telemetry snapshot v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "snapshot_id",
+    "captured_at",
+    "source",
+    "available",
+    "reason",
+    "controls_performed",
+    "gpus",
+    "snapshot_sha256"
+  ],
+  "properties": {
+    "schema": {
+      "const": "oplage.gpu-telemetry.v1"
+    },
+    "snapshot_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "provider",
+        "mode"
+      ],
+      "properties": {
+        "provider": {
+          "const": "nvidia-smi"
+        },
+        "mode": {
+          "const": "read_only"
+        }
+      },
+      "additionalProperties": false
+    },
+    "available": {
+      "type": "boolean"
+    },
+    "reason": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 512
+    },
+    "controls_performed": {
+      "const": false
+    },
+    "gpus": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "driver_version",
+          "temperature_c",
+          "utilization_pct",
+          "memory_used_mib",
+          "memory_total_mib",
+          "power_w",
+          "graphics_clock_mhz",
+          "memory_clock_mhz"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "driver_version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "temperature_c": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": -20,
+            "maximum": 150
+          },
+          "utilization_pct": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 100
+          },
+          "memory_used_mib": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "memory_total_mib": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "power_w": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "graphics_clock_mhz": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 20000
+          },
+          "memory_clock_mhz": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 20000
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "snapshot_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "available": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "gpus": {
+            "minItems": 1
+          },
+          "reason": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "available": {
+            "const": false
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "gpus": {
+            "maxItems": 0
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

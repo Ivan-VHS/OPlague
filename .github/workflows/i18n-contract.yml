@@ -1,0 +1,38 @@
+name: i18n contract
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "i18n/**"
+      - "tools/check_i18n.mjs"
+      - "tools/i18n.py"
+      - "tests/test_i18n.py"
+      - ".github/workflows/i18n-contract.yml"
+  pull_request:
+    paths:
+      - "i18n/**"
+      - "tools/check_i18n.mjs"
+      - "tools/i18n.py"
+      - "tests/test_i18n.py"
+      - ".github/workflows/i18n-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - name: Validate language tags and catalogs
+        run: node tools/check_i18n.mjs
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Test local BCP 47 adapter
+        run: python -m unittest discover -s tests -p "test_i18n.py" -v
