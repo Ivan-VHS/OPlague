@@ -16,6 +16,7 @@
 | Live device inventory | Windows only |
 | Desktop platform | Windows |
 | License | [Apache-2.0](LICENSE) |
+| Code of Conduct | Not published (no root `CODE_OF_CONDUCT.md`) |
 | Last documentation review | 2026-11-26 |
 
 <p align="center"><img src="assets/oplague-workbench-preview.svg" alt="OPlague workbench architecture preview" width="100%"></p>
