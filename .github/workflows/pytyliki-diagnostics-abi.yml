@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: Ivan-VHS/Pytyliki
-          ref: 187311ad091133768169b3bf68ba5fff4b50bbb5
+          ref: 441bd55e32da9c8cf4bde872a4e7e3399e49683f
           path: _deps/Pytyliki
 
       - name: Set up Rust
