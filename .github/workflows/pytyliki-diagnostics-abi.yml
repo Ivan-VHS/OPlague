@@ -50,7 +50,7 @@ jobs:
           cmake -S _deps/Pytyliki -B _deps/Pytyliki/build \
             -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
           cmake --build _deps/Pytyliki/build --parallel \
-            --target pytyliki_ffi pytyliki-diagnostics-abi-tests
+            --target pytyliki_ffi pytyliki-interop-tests pytyliki-diagnostics-abi-tests
           ctest --test-dir _deps/Pytyliki/build \
             -R '^(diagnostics-abi-v1-tests|interop-abi-tests)$' \
             --output-on-failure
