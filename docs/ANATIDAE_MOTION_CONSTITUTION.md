@@ -29,7 +29,7 @@ Use native application fonts for controls and body text. Serif display type belo
 
 ## Pond motifs
 
-Duck bob, tail waggle, waves, ripples, voice particles, floating feathers and parallax are reusable brand-motion vocabulary, not mandatory product chrome. Keep mascot movement small (about 6 px and 2 degrees). Ripples may acknowledge one deliberate action but must not cover values, focus or hit targets. Particles require a pause/disable path. Parallax is limited to low-contrast hero/showcase surfaces; never place it behind editors, tables, plots, device inventory, logs, hashes, package evidence or precision controls. Do not force duck terminology into product features.
+Duck bob, tail waggle, waves, ripples, accent particles, floating feathers and parallax are reusable brand-motion vocabulary, not mandatory product chrome. Keep mascot movement small (about 6 px and 2 degrees). Ripples may acknowledge one deliberate action but must not cover values, focus or hit targets. Particles require a pause/disable path. Parallax is limited to low-contrast hero/showcase surfaces; never place it behind editors, tables, plots, device inventory, logs, hashes, package evidence or precision controls. Do not force duck terminology into product features.
 
 ## Accessibility and performance
 
@@ -38,14 +38,14 @@ Duck bob, tail waggle, waves, ripples, voice particles, floating feathers and pa
 3. Eco / Low-CPU Visuals suppresses ambient effects and secondary refresh work.
 4. Any optional ambient animation needs an explicit pause control.
 5. Animation runs only on the UI thread, is cancelled when widgets are destroyed and never blocks work queues.
-6. Never run UI motion inside DSP callbacks, audio buffers, generator workers, benchmarks, device scans, archive inspection or compiler/runtime execution.
+6. Never run UI motion inside time-critical callbacks, data buffers, background workers, benchmarks, device scans, archive inspection or compiler/runtime execution.
 
 ## Native mapping
 
 - **Pytyliki / Win32:** one native startup transition; no ambient loop.
 - **Reaper / Tk:** bounded spring controller; no decoration behind editor/debugger panes.
 - **OPlague / Tk:** persisted Expressive spring preference; evidence panes remain still and opaque.
-- **VentuSample / Qt:** bounded Qt spring and project-BPM indicator; no motion in DSP or generator workers.
+- **VentuSample:** maintains its application-specific motion behavior in its own repository; it is not an OPlague runtime module.
 
 Product-specific `docs/UI_MOTION.md` contracts remain authoritative for enabled features.
 

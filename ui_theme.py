@@ -1,4 +1,4 @@
-"""Adaptive Anatidae white-blue-red theme for the OPlague Tk workbench."""
+"""Single-palette DAK theme for the OPlague read-only workbench."""
 from __future__ import annotations
 
 import ctypes
@@ -9,31 +9,28 @@ import subprocess
 import sys
 import tempfile
 import tkinter as tk
+from tkinter import font as tkfont
 from tkinter import ttk
 from typing import Iterator
 
 THEME_ENV = "OPLAGUE_UI_THEME"
 PALETTES: dict[str, dict[str, str]] = {
-    "light": {
-        "bg": "#F4F8FD", "surface": "#FFFFFF", "elevated": "#EAF1FA",
-        "fg": "#122C45", "secondary": "#314B66", "muted": "#4D6177",
-        "heading": "#004E98", "blue": "#004E98", "blue_hover": "#1A5FDB", "on_blue": "#FFFFFF",
-        "red": "#B5122D", "red_hover": "#9C1026", "on_red": "#FFFFFF",
-        "border": "#CAD8E8", "focus": "#1A5FDB",
-        "selection": "#D9E8FF", "selection_fg": "#122C45", "disabled": "#6B7C90",
-        "log": "#0A1E46", "log_text": "#FFFFFF", "mode": "light",
-    },
-    "dark": {
-        "bg": "#071A2D", "surface": "#0F2A45", "elevated": "#173A5E",
-        "fg": "#E8EDF2", "secondary": "#D0DCE8", "muted": "#B3C4D6",
-        "heading": "#FFFFFF", "blue": "#70A5FF", "blue_hover": "#8AB6FF", "on_blue": "#071A2D",
-        "red": "#FF7B86", "red_hover": "#FF9AA2", "on_red": "#071A2D",
-        "border": "#31516F", "focus": "#8AB6FF",
-        "selection": "#244F82", "selection_fg": "#FFFFFF", "disabled": "#9BAFC4",
-        "log": "#071A2D", "log_text": "#E8EDF2", "mode": "dark",
+    "duck": {
+        "bg": "#050505", "surface": "#101010", "elevated": "#181818",
+        "fg": "#FFFFFF", "secondary": "#E5E5E5", "muted": "#A6A6A6",
+        "heading": "#FFFFFF", "blue": "#FFD700", "blue_hover": "#FFE45C", "on_blue": "#080808",
+        "red": "#C43A45", "red_hover": "#D64C57", "on_red": "#FFFFFF",
+        "border": "#3A3A3A", "focus": "#FFE45C", "selection": "#3A3100",
+        "selection_fg": "#FFFFFF", "disabled": "#A6A6A6", "log": "#050505",
+        "log_text": "#FFFFFF", "mode": "duck",
+        "success": "#2EAD68", "warning": "#FFD700", "error": "#FF6B72", "info": "#6CA8FF",
+        "brand": "#FFD700", "brand_hover": "#FFE45C", "on_brand": "#080808",
+        "brand_secondary": "#FFD700", "on_brand_secondary": "#080808",
+        "page": "#050505", "surface_alt": "#181818", "text": "#FFFFFF",
+        "accent": "#FFD700", "accent_hover": "#FFE45C", "danger": "#C43A45",
+        "editor": "#101010", "editor_text": "#FFFFFF",
     },
 }
-
 
 def contrast_ratio(foreground: str, background: str) -> float:
     """Return WCAG contrast ratio for two #RRGGBB colors."""
@@ -54,25 +51,14 @@ def contrast_ratio(foreground: str, background: str) -> float:
 
 
 
-def _install_semantic_status_tokens() -> None:
-    """Expose brand-compliant status roles; text and icons disambiguate meaning."""
-    for theme_name, palette in PALETTES.items():
-        dark = theme_name == "dark"
-        palette.update({
-            "success": "#FFFFFF" if dark else "#0039A6",
-            "warning": "#FFFFFF" if dark else "#B51A10",
-            "error": "#FFFFFF" if dark else "#B51A10",
-            "info": "#FFFFFF" if dark else "#0A1E46",
-        })
-
-
 def palette_contrast_issues(palette: dict[str, str]) -> list[str]:
-    """Return WCAG AA violations for semantic text on its actual base surface."""
+    """Return WCAG AA violations for the fixed semantic palette."""
     pairs = (
         ("fg", "bg"), ("fg", "surface"), ("muted", "bg"),
         ("heading", "bg"), ("on_blue", "blue"), ("on_red", "red"),
         ("selection_fg", "selection"), ("success", "bg"),
         ("warning", "bg"), ("error", "bg"), ("info", "bg"),
+        ("on_brand", "brand"), ("on_brand_secondary", "brand_secondary"),
     )
     issues = []
     for foreground, background in pairs:
@@ -82,8 +68,6 @@ def palette_contrast_issues(palette: dict[str, str]) -> list[str]:
             issues.append(f"{foreground}/{background} below 4.5:1")
     return issues
 
-
-_install_semantic_status_tokens()
 
 def set_dpi_awareness() -> None:
     """Request Per-Monitor V2 DPI awareness before creating the Tk root."""
@@ -107,49 +91,34 @@ def _settings_path() -> Path:
 
 
 def load_preferred_theme() -> str:
-    """Return the saved System/Light/Dark choice, defaulting to System."""
-    try:
-        payload = json.loads(_settings_path().read_text(encoding="utf-8"))
-        mode = payload.get("mode") if isinstance(payload, dict) else None
-        return mode if mode in {"system", "light", "dark"} else "system"
-    except (OSError, ValueError, TypeError):
-        return "system"
-
+    """Return the fixed Duck palette; legacy preferences are normalized on apply."""
+    return "duck"
 
 def _save_preferred_theme(mode: str) -> None:
-    """Persist a supported theme choice with same-directory atomic replacement."""
-    if mode not in {"system", "light", "dark"}:
-        raise ValueError("Theme must be 'system', 'light' or 'dark'")
+    """Persist the fixed Duck palette with same-directory atomic replacement."""
+    if str(mode or "").casefold() not in {"system", "light", "dark", "amber", "duck"}:
+        raise ValueError("Theme must be one of the legacy modes or 'duck'")
 
     temporary: Path | None = None
     try:
         path = _settings_path()
         path.parent.mkdir(parents=True, exist_ok=True)
-        # Keep the temporary file beside the destination so os.replace stays
-        # on one filesystem and readers see either the old or complete new JSON.
         with tempfile.NamedTemporaryFile(
             mode="w",
             encoding="utf-8",
-            newline="\n",
             prefix=f".{path.name}.",
             suffix=".tmp",
             dir=path.parent,
             delete=False,
         ) as stream:
             temporary = Path(stream.name)
-            json.dump(
-                {"version": 1, "mode": mode},
-                stream,
-                ensure_ascii=False,
-                indent=2,
-            )
-            stream.write("\n")
+            json.dump({"version": 1, "mode": "duck"}, stream, ensure_ascii=False, indent=2)
+            stream.write(chr(10))
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(temporary, path)
         temporary = None
     except OSError:
-        # Settings persistence must not prevent the read-only workbench from starting.
         return
     finally:
         if temporary is not None:
@@ -157,7 +126,6 @@ def _save_preferred_theme(mode: str) -> None:
                 temporary.unlink(missing_ok=True)
             except OSError:
                 pass
-
 
 def _system_dark() -> bool:
     if sys.platform == "win32":
@@ -184,36 +152,28 @@ def _system_dark() -> bool:
     return gtk_theme.endswith(":dark") or "-dark" in gtk_theme
 
 
-def palette_for(mode: str = "system", *, system_dark: bool | None = None) -> dict[str, str]:
-    """Resolve System/Light/Dark and return semantic plus legacy token names."""
-    requested = str(mode or "system").casefold()
-    override = os.environ.get(THEME_ENV, "").casefold()
-    if requested == "system" and override in PALETTES:
-        requested = override
-    if requested == "system":
-        requested = "dark" if (_system_dark() if system_dark is None else system_dark) else "light"
-    if requested not in PALETTES:
-        raise ValueError("Theme must be 'system', 'light' or 'dark'")
+def palette_for(mode: str = "duck", *, system_dark: bool | None = None) -> dict[str, str]:
+    """Return the same Duck palette for current and legacy theme identifiers."""
+    requested = str(mode or "duck").casefold()
+    if requested not in {"duck", "system", "light", "dark", "amber"}:
+        raise ValueError("Theme must be one of 'duck', 'system', 'light', 'dark' or 'amber'")
 
-    result = dict(PALETTES[requested])
-    # Compatibility aliases retained for the existing OPlague theme API.
+    result = dict(PALETTES["duck"])
     result.update({
         "page": result["bg"],
         "surface_alt": result["elevated"],
         "text": result["fg"],
-        "accent": result["blue"],
-        "accent_hover": result["blue_hover"],
+        "accent": result["brand"],
+        "accent_hover": result["brand_hover"],
         "danger": result["red"],
-        "success": result["success"],
         "editor": result["surface"],
         "editor_text": result["fg"],
         "log_text": result["log_text"],
     })
     issues = palette_contrast_issues(result)
     if issues:
-        raise ValueError("Theme palette fails UI/UX 40026: " + "; ".join(issues))
+        raise ValueError("Duck palette fails UI/UX 40026: " + "; ".join(issues))
     return result
-
 
 def _walk(widget: tk.Misc) -> Iterator[tk.Misc]:
     for child in widget.winfo_children():
@@ -221,11 +181,23 @@ def _walk(widget: tk.Misc) -> Iterator[tk.Misc]:
         yield from _walk(child)
 
 
-def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
+def apply_ui_theme(root: tk.Misc, mode: str = "duck") -> dict[str, str]:
     """Apply a complete theme atomically to ttk and classic Tk data widgets."""
     colors = palette_for(mode)
-    root._oplague_theme_mode = mode  # type: ignore[attr-defined]
+    root._oplague_theme_mode = "duck"  # type: ignore[attr-defined]
     style = ttk.Style(root)
+    try:
+        installed = {family.casefold(): family for family in tkfont.families(root)}
+    except tk.TclError:
+        installed = {}
+    display_font = next(
+        (installed[name.casefold()] for name in ("Lobster", "Pacifico") if name.casefold() in installed),
+        "Georgia",
+    )
+    script_font = next(
+        (installed[name.casefold()] for name in ("Caveat", "Marck Script", "Bad Script") if name.casefold() in installed),
+        "Georgia",
+    )
     try:
         if "clam" in style.theme_names() and style.theme_use() != "clam":
             style.theme_use("clam")
@@ -248,8 +220,8 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
     style.configure("Panel.TFrame", background=colors["surface"])
     style.configure("Card.TFrame", background=colors["elevated"])
     style.configure("TLabel", background=colors["bg"], foreground=colors["fg"])
-    style.configure("Title.TLabel", background=colors["bg"], foreground=colors["heading"], font=("Georgia", 18, "bold"))
-    style.configure("Section.TLabel", background=colors["bg"], foreground=colors["heading"], font=("Georgia", 11, "bold"), padding=(4, 5))
+    style.configure("Title.TLabel", background=colors["bg"], foreground=colors["heading"], font=(display_font, 18))
+    style.configure("Section.TLabel", background=colors["bg"], foreground=colors["heading"], font=(script_font, 12), padding=(4, 5))
     style.configure("Muted.TLabel", background=colors["bg"], foreground=colors["muted"])
     for status_name in ("Success", "Warning", "Error", "Info"):
         token = status_name.lower()
@@ -269,14 +241,14 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
         background=[("disabled", colors["elevated"]), ("pressed", colors["selection"]), ("active", colors["elevated"])],
     )
     style.configure(
-        "Primary.TButton", padding=(15, 13), foreground=colors["on_blue"],
-        background=colors["blue"], bordercolor=colors["blue"],
-        lightcolor=colors["blue"], darkcolor=colors["blue"],
+        "Primary.TButton", padding=(15, 13), foreground=colors["on_brand"],
+        background=colors["brand"], bordercolor=colors["brand"],
+        lightcolor=colors["brand"], darkcolor=colors["brand"],
     )
     style.map(
         "Primary.TButton",
-        foreground=[("disabled", colors["disabled"]), ("!disabled", colors["on_blue"])],
-        background=[("disabled", colors["elevated"]), ("pressed", colors["blue"]), ("active", colors["blue_hover"])],
+        foreground=[("disabled", colors["disabled"]), ("!disabled", colors["on_brand"])],
+        background=[("disabled", colors["elevated"]), ("pressed", colors["brand"]), ("active", colors["brand_hover"])],
     )
     style.configure(
         "Danger.TButton", padding=(14, 13), foreground=colors["fg"],
@@ -305,7 +277,7 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
         foreground=[("selected", colors["fg"]), ("active", colors["fg"])],
     )
     style.configure("TLabelframe", background=colors["surface"], bordercolor=colors["border"])
-    style.configure("TLabelframe.Label", background=colors["surface"], foreground=colors["heading"], font=("Georgia", 10, "bold"))
+    style.configure("TLabelframe.Label", background=colors["surface"], foreground=colors["heading"], font=(script_font, 11))
     style.configure(
         "Treeview", rowheight=42, background=colors["surface"],
         fieldbackground=colors["surface"], foreground=colors["fg"],
@@ -321,7 +293,7 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
         foreground=colors["fg"], relief="flat", font=("Segoe UI Semibold", 10),
     )
     style.configure("TSeparator", background=colors["border"])
-    style.configure("Horizontal.TProgressbar", background=colors["blue"], troughcolor=colors["elevated"])
+    style.configure("Horizontal.TProgressbar", background=colors["brand"], troughcolor=colors["elevated"])
 
     for widget in _walk(root):
         try:
@@ -355,5 +327,5 @@ def apply_ui_theme(root: tk.Misc, mode: str = "system") -> dict[str, str]:
         except tk.TclError:
             continue
 
-    _save_preferred_theme(mode)
+    _save_preferred_theme("duck")
     return colors

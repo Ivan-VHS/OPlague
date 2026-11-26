@@ -1,0 +1,215 @@
+{
+  "schema": "ivan-vhs.backend-engineering.v1",
+  "version": 1,
+  "project": "OPlague",
+  "scope": "Local Windows diagnostic and gaming-performance workbench for read-only device/package inspection, bounded evidence processing, reports, snapshots and user-approved reversible profiles; not a network service or driver installer.",
+  "standard": "docs/BACKEND_ENGINEERING_STANDARD.md",
+  "schema_file": ".architecture/backend-engineering.v1.schema.json",
+  "status_policy": {
+    "allowed_statuses": [
+      "implemented",
+      "partial",
+      "planned",
+      "not_applicable",
+      "not_assessed"
+    ],
+    "rule": "Use implemented or partial only when repository code and focused verification paths support the exact statement. Record limits explicitly. A design document, capability catalog or profile-validation job does not prove runtime behavior."
+  },
+  "controls": [
+    {
+      "id": "boundaries-contracts",
+      "title": "Module boundaries and versioned contracts",
+      "status": "partial",
+      "assessment": "The local evidence transaction and plugin surfaces define explicit in-process extension and mutation boundaries.",
+      "evidence": [
+        "oplague/transactions.py",
+        "oplague/plugins.py",
+        "docs/ARCHITECTURE.md"
+      ],
+      "verification": [
+        "tests/test_transactions.py",
+        "tests/test_plugins.py"
+      ],
+      "limitations": [
+        "Transactions only produce in-memory snapshots; they do not perform driver, firmware, registry or device writes."
+      ]
+    },
+    {
+      "id": "input-validation-idempotency",
+      "title": "Input validation and idempotent state changes",
+      "status": "partial",
+      "assessment": "PE/package inspection and batch processing have bounded parsing paths and targeted regression tests.",
+      "evidence": [
+        "tools/pe_inspector.py",
+        "tools/inspection_batch.py"
+      ],
+      "verification": [
+        "tests/test_pe_inspector.py",
+        "tests/test_inspection_batch.py"
+      ],
+      "limitations": [
+        "The inspected data is evidence, not an authorization decision; no system mutation is implied."
+      ]
+    },
+    {
+      "id": "io-transport",
+      "title": "Low-level I/O and transport boundaries",
+      "status": "partial",
+      "assessment": "The workbench performs local file and package inspection through explicit tooling; it does not expose a network listener or remote control interface.",
+      "evidence": [
+        "tools/pe_inspector.py",
+        "tools/driver_evidence.py",
+        "docs/FEATURES.md"
+      ],
+      "verification": [
+        "tests/test_pe_inspector.py",
+        "tests/test_driver_evidence.py"
+      ],
+      "limitations": [
+        "Local file I/O is in scope; network transport and remote execution are not current product capabilities."
+      ]
+    },
+    {
+      "id": "concurrency-backpressure",
+      "title": "Concurrency, scheduling and backpressure",
+      "status": "not_assessed",
+      "assessment": "Batch inspection exists, but a general bounded worker scheduler, queue backpressure and concurrent cancellation contract have not been established.",
+      "evidence": [
+        "tools/inspection_batch.py"
+      ],
+      "verification": [],
+      "limitations": [
+        "Do not infer safe parallel execution or saturation behavior from a batch API name."
+      ]
+    },
+    {
+      "id": "memory-resource-lifecycle",
+      "title": "Memory ownership and resource lifetime",
+      "status": "partial",
+      "assessment": "Inspection batches and archive parsing use bounded input paths with focused tests; complete memory budgets for all UI and report workflows are not established.",
+      "evidence": [
+        "tools/inspection_batch.py",
+        "tools/pe_inspector.py"
+      ],
+      "verification": [
+        "tests/test_inspection_batch.py"
+      ],
+      "limitations": [
+        "The available tests cover selected inspection paths, not a process-wide memory ceiling."
+      ]
+    },
+    {
+      "id": "data-integrity-transactions",
+      "title": "Data integrity and transactions",
+      "status": "partial",
+      "assessment": "EvidenceTransaction provides bounded in-memory snapshots, schema migration checks, generation conflicts and rollback.",
+      "evidence": [
+        "oplague/transactions.py",
+        "docs/TRANSACTIONAL_RUNTIME.md"
+      ],
+      "verification": [
+        "tests/test_transactions.py"
+      ],
+      "limitations": [
+        "A committed snapshot remains in process memory; it is not a durable database transaction."
+      ]
+    },
+    {
+      "id": "failure-recovery-lifecycle",
+      "title": "Failure handling, recovery and lifecycle",
+      "status": "partial",
+      "assessment": "A resilience policy and transaction rollback contract cover selected failure cases and have negative/regression tests.",
+      "evidence": [
+        "docs/DISTRIBUTED_SYSTEMS_ENGINEERING_STANDARD.md",
+        "scripts/validate_resilience_policy.py",
+        "oplague/transactions.py"
+      ],
+      "verification": [
+        "tests/test_resilience_policy.py",
+        "tests/test_transactions.py"
+      ],
+      "limitations": [
+        "Policy validation does not prove every desktop or operating-system failure mode is recovered."
+      ]
+    },
+    {
+      "id": "security-privilege-secrets",
+      "title": "Security, privileges and secret handling",
+      "status": "partial",
+      "assessment": "Authenticode inspection and the read-only product boundary are documented and regression-tested; the tool does not install or trust drivers automatically.",
+      "evidence": [
+        "tools/authenticode_inspector.py",
+        "SECURITY.md",
+        "docs/FEATURES.md"
+      ],
+      "verification": [
+        "tests/test_authenticode_inspector.py"
+      ],
+      "limitations": [
+        "A signature result or hardware-ID match is evidence only; it is not proof of driver suitability or a security approval."
+      ]
+    },
+    {
+      "id": "observability-diagnostics",
+      "title": "Observability and diagnostics",
+      "status": "partial",
+      "assessment": "Versioned report envelopes and local snapshots preserve diagnostic evidence and have focused schema/export tests.",
+      "evidence": [
+        "tools/report_envelope.py",
+        "docs/REPORT_ENVELOPE.md"
+      ],
+      "verification": [
+        "tests/test_report_envelope.py",
+        "tests/test_report_export.py"
+      ],
+      "limitations": [
+        "Reports are local diagnostic artifacts, not continuous telemetry or distributed traces."
+      ]
+    },
+    {
+      "id": "performance-capacity",
+      "title": "Performance budgets and capacity",
+      "status": "not_assessed",
+      "assessment": "No verified service throughput, global memory budget or horizontal capacity baseline is defined for this single-machine workbench.",
+      "evidence": [],
+      "verification": [],
+      "limitations": [
+        "Gaming benchmark results do not establish backend service capacity or scalability."
+      ]
+    },
+    {
+      "id": "configuration-extensibility",
+      "title": "Configuration, extensibility and integration",
+      "status": "partial",
+      "assessment": "The plugin and federation contracts expose local extension points with tests for manifest and plugin boundaries.",
+      "evidence": [
+        "oplague/plugins.py",
+        "docs/PLUGIN_FEDERATION.md"
+      ],
+      "verification": [
+        "tests/test_plugins.py",
+        "tests/test_plugin_federation_contract.py"
+      ],
+      "limitations": [
+        "Plugin discovery remains metadata-oriented; untrusted entrypoints are not loaded or executed automatically."
+      ]
+    },
+    {
+      "id": "verification-delivery",
+      "title": "Verification and delivery gate",
+      "status": "implemented",
+      "assessment": "This PR adds a machine-readable backend engineering profile, safe-path/status validator, negative self-tests and a dedicated CI gate.",
+      "evidence": [
+        "docs/BACKEND_ENGINEERING_STANDARD.md",
+        "tools/validate_backend_engineering.py",
+        ".github/workflows/backend-engineering.yml"
+      ],
+      "verification": [
+        ".github/workflows/backend-engineering.yml"
+      ],
+      "limitations": [
+        "The gate validates profile integrity and evidence paths; it does not certify driver safety, Windows service behavior or production readiness."
+      ]
+    }
+  ]
+}

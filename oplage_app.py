@@ -6,12 +6,15 @@ import os
 import platform
 import re
 import subprocess
+import stat
 import tkinter as tk
 import zipfile
 from pathlib import Path, PurePosixPath
 from tkinter import filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
-from ui_theme import apply_ui_theme, load_preferred_theme, set_dpi_awareness
+from tools.authenticode_inspector import inspect_signatures
+from ui_theme import apply_ui_theme, set_dpi_awareness
+from tools.i18n import LocaleContext
 from ui_motion import MotionController, MotionPreferences, fade_in_window
 from budget_planner import open_budget_planner
 from typing import Any
@@ -21,12 +24,20 @@ from tools.inspection_batch import inspect_batch
 from tools.metric_analysis import analyze_device_profiles
 from tools.architecture_profiles import current_host_architecture, detect_inf_target_architectures, evaluate_driver_targets
 from tools.device_graph import extract_inf_compatibility, build_dry_run_plan
+from tools.report_export import render_report
+from tools.game_optimizer_ui import open_game_optimizer
 
 MAX_PACKAGE_BYTES = 512 * 1024 * 1024
 MAX_ARCHIVE_ENTRIES = 10_000
 MAX_EXPANDED_BYTES = 2 * 1024 * 1024 * 1024
 MAX_INF_BYTES = 2 * 1024 * 1024
 MAX_COMPRESSION_RATIO = 200
+TEXT_SIZE_MIN = 9
+TEXT_SIZE_MAX = 18
+
+
+def bounded_text_size(current: int, delta: int) -> int:
+    return max(TEXT_SIZE_MIN, min(TEXT_SIZE_MAX, int(current) + int(delta)))
 
 def parse_inf_text(content: str) -> dict[str, str]:
     """Extract selected values from the [Version] section of a Windows INF."""
@@ -68,8 +79,16 @@ def _inf(data: bytes, label: str) -> dict[str, str]:
 
 def _safe_archive_name(name: str) -> None:
     normalized = name.replace("\\", "/")
-    parsed = PurePosixPath(normalized)
-    if parsed.is_absolute() or ".." in parsed.parts or "\x00" in normalized or re.match(r"^[A-Za-z]:", normalized):
+    trimmed = normalized[:-1] if normalized.endswith("/") else normalized
+    parts = trimmed.split("/")
+    parsed = PurePosixPath(trimmed)
+    if (
+        not trimmed
+        or any(part in {"", ".", ".."} for part in parts)
+        or parsed.is_absolute()
+        or "\x00" in normalized
+        or re.match(r"^[A-Za-z]:", normalized)
+    ):
         raise ValueError(f"Unsafe archive path detected: {name}")
 
 def inspect_package(filename: str | Path) -> dict[str, Any]:
@@ -86,6 +105,8 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
         "sha256": _hash_file(path), "format": suffix.lstrip(".").upper(),
     }
     if suffix == ".inf":
+        if size > MAX_INF_BYTES:
+            raise ValueError(f"INF file is too large to inspect: {path.name}")
         raw_inf = path.read_bytes()
         report["inf_metadata"] = _inf(raw_inf, path.name)
         report["compatibility"] = extract_inf_compatibility(_decode_inf(raw_inf))
@@ -101,10 +122,26 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
             if len(entries) > MAX_ARCHIVE_ENTRIES:
                 raise ValueError("Archive contains more than 10,000 entries")
             expanded, inf_files = 0, []
+            seen_paths: set[str] = set()
             for entry in entries:
                 _safe_archive_name(entry.filename)
+                canonical_name = entry.filename.replace("\\", "/").rstrip("/")
+                folded_name = canonical_name.casefold()
+                if folded_name in seen_paths:
+                    raise ValueError(f"Duplicate archive path detected: {entry.filename}")
+                seen_paths.add(folded_name)
+
+                mode = (entry.external_attr >> 16) & 0xFFFF
+                file_type = stat.S_IFMT(mode)
+                if file_type not in (0, stat.S_IFREG, stat.S_IFDIR):
+                    raise ValueError(f"Non-regular archive entry is not allowed: {entry.filename}")
                 if entry.is_dir():
+                    if file_type not in (0, stat.S_IFDIR):
+                        raise ValueError(f"Archive directory has an invalid file type: {entry.filename}")
                     continue
+                if entry.flag_bits & 0x1:
+                    raise ValueError(f"Encrypted archive entry is not supported: {entry.filename}")
+
                 expanded += entry.file_size
                 if expanded > MAX_EXPANDED_BYTES:
                     raise ValueError("Archive exceeds the expanded-size inspection limit")
@@ -115,7 +152,13 @@ def inspect_package(filename: str | Path) -> dict[str, Any]:
                 if entry.filename.casefold().endswith(".inf"):
                     if entry.file_size > MAX_INF_BYTES:
                         raise ValueError(f"INF file is too large to inspect: {entry.filename}")
-                    raw_inf = archive.read(entry)
+                    # Bound decompression as well as the declared ZIP size. A
+                    # malformed central directory must not trigger an unbounded
+                    # archive.read() allocation for an INF inspection.
+                    with archive.open(entry, "r") as source:
+                        raw_inf = source.read(MAX_INF_BYTES + 1)
+                    if len(raw_inf) > MAX_INF_BYTES or len(raw_inf) != entry.file_size:
+                        raise ValueError(f"INF entry size does not match its declared bound: {entry.filename}")
                     inf_files.append({
                         "file": entry.filename,
                         "metadata": _inf(raw_inf, entry.filename),
@@ -190,24 +233,31 @@ class OPlagueApp(tk.Tk):
     def __init__(self) -> None:
         set_dpi_awareness()
         super().__init__()
-        self.title("OPlague — мастерская оборудования и драйверов · Ivan-VHS")
+        self.locale = LocaleContext.load()
+        self.title(self.locale.message("oplague.window.title") + " · Ivan-VHS")
         self.geometry("1120x720")
-        self.minsize(820, 540)
-        self._theme_mode = load_preferred_theme()
-        self._theme_cycle = ("system", "light", "dark")
+        self.minsize(760, 520)
+        self._theme_mode = "duck"
+        self._text_size = 10
+        self._mono_font = tkfont.Font(self, family="Consolas", size=self._text_size)
+        self._device_sort_state: dict[str, bool] = {}
         header = ttk.Frame(self, padding=(16, 12)); header.pack(fill="x")
         ttk.Label(header, text="OPLAGUE", style="Title.TLabel").pack(side="left")
-        ttk.Label(header, text="Инвентаризация оборудования  /  Проверка пакетов драйверов", style="Muted.TLabel").pack(side="left", padx=16)
-        self.theme_button = ttk.Button(header, text="Тема: системная", command=self.cycle_theme)
-        self.theme_button.pack(side="right")
-        self.motion_button = ttk.Button(header, text="Движение", command=self.show_motion_settings)
+        ttk.Label(header, text=self.locale.message("oplague.header.subtitle"), style="Muted.TLabel").pack(side="left", padx=16)
+        ttk.Label(header, text="DUCK", style="Brand.TLabel").pack(side="right")
+        self.motion_button = ttk.Button(header, text="Движение · Ctrl+,", command=self.show_motion_settings)
         self.motion_button.pack(side="right", padx=(0, 8))
+        ttk.Button(header, text="A−", width=3, command=lambda: self.adjust_text_size(-1)).pack(side="right", padx=(0, 4))
+        ttk.Button(header, text="A+", width=3, command=lambda: self.adjust_text_size(1)).pack(side="right", padx=(0, 4))
         self.budget_button = ttk.Button(header, text="Бюджет 500 грн", command=lambda: open_budget_planner(self))
         self.budget_button.pack(side="right", padx=(0, 8))
+        self.game_button = ttk.Button(header, text="Игровая лаборатория", command=lambda: open_game_optimizer(self))
+        self.game_button.pack(side="right", padx=(0, 8))
         self.tabs = ttk.Notebook(self); self.tabs.pack(fill="both", expand=True, padx=14, pady=(0, 10))
         inventory = ttk.Frame(self.tabs, padding=12); packages = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(inventory, text="Устройства"); self.tabs.add(packages, text="Проверка пакетов")
         self.device_rows: list[dict[str, str]] = []
+        self.current_report: dict[str, Any] | None = None
         self.inspected_drivers: list[dict[str, Any]] = []
         metrics = ttk.Frame(self.tabs, padding=12)
         self.tabs.add(metrics, text="Лаборатория метрик")
@@ -223,7 +273,7 @@ class OPlagueApp(tk.Tk):
             command=self.build_compatibility_plan, style="Primary.TButton",
         ).pack(anchor="w", pady=(0, 8))
         self.compatibility_result = ScrolledText(
-            compatibility, wrap="word", font=("Consolas", 10), height=20, state="disabled"
+            compatibility, wrap="word", font=self._mono_font, height=20, state="disabled"
         )
         self.compatibility_result.pack(fill="both", expand=True)
         ttk.Label(
@@ -243,7 +293,7 @@ class OPlagueApp(tk.Tk):
             panel = ttk.LabelFrame(metric_inputs, text=label, padding=6)
             panel.grid(row=0, column=column, sticky="nsew", padx=(0 if column == 0 else 6, 0))
             self.metric_input_panels.append(panel)
-            editor = ScrolledText(panel, height=6, width=34, wrap="word", font=("Consolas", 9))
+            editor = ScrolledText(panel, height=6, width=34, wrap="word", font=self._mono_font)
             editor.insert("1.0", default_value)
             editor.pack(fill="both", expand=True)
             setattr(self, f"metric_{key}", editor)
@@ -257,30 +307,115 @@ class OPlagueApp(tk.Tk):
             text="Только JSON · значения должны быть нормированы к диапазону [0, 1] · большее значение означает лучший результат",
             style="Muted.TLabel",
         ).pack(side="left", padx=12)
-        self.metric_result = ScrolledText(metrics, wrap="word", font=("Consolas", 10), height=14, state="disabled")
+        self.metric_result = ScrolledText(metrics, wrap="word", font=self._mono_font, height=14, state="disabled")
         self.metric_result.pack(fill="both", expand=True)
         bar = ttk.Frame(inventory); bar.pack(fill="x", pady=(0, 10))
         ttk.Button(bar, text="Обновить список устройств", command=self.refresh_devices, style="Primary.TButton").pack(side="left")
         ttk.Label(bar, text="Список устройств Windows Plug and Play — только чтение", style="Muted.TLabel").pack(side="left", padx=12)
         columns = ("name", "status", "manufacturer", "pnp_id")
-        self.devices = ttk.Treeview(inventory, columns=columns, show="headings")
-        for col, label, width in (("name","Устройство",280),("status","Состояние",90),("manufacturer","Производитель",170),("pnp_id","Аппаратный ID",410)):
-            self.devices.heading(col, text=label); self.devices.column(col, width=width, minwidth=90, stretch=True)
+        self.devices = ttk.Treeview(inventory, columns=columns, show="headings", selectmode="browse")
+        self.devices.configure(takefocus=True)
+        for col, label, width in (("name","Устройство",280),("status","Состояние",120),("manufacturer","Производитель",190),("pnp_id","Аппаратный ID",410)):
+            self.devices.heading(col, text=label, command=lambda key=col: self._sort_devices(key))
+            self.devices.column(col, width=width, minwidth=90, stretch=True)
         ybar = ttk.Scrollbar(inventory, orient="vertical", command=self.devices.yview)
-        self.devices.configure(yscrollcommand=ybar.set); self.devices.pack(fill="both", expand=True); ybar.pack(side="right", fill="y")
+        xbar = ttk.Scrollbar(inventory, orient="horizontal", command=self.devices.xview)
+        self.devices.configure(yscrollcommand=ybar.set, xscrollcommand=xbar.set)
+        self.devices.pack(fill="both", expand=True)
+        ybar.pack(side="right", fill="y")
+        xbar.pack(side="bottom", fill="x")
+        self.devices.bind("<Return>", self._announce_selected_device)
         tools = ttk.Frame(packages); tools.pack(fill="x", pady=(0, 10))
         ttk.Button(tools, text="Проверить INF / ZIP…", command=self.choose_package, style="Primary.TButton").pack(side="left")
         ttk.Button(tools, text="Пакетная проверка…", command=self.choose_packages).pack(side="left", padx=(8, 0))
+        ttk.Button(tools, text="Экспорт отчёта…", command=self.export_report).pack(side="left", padx=(8, 0))
+        ttk.Button(tools, text="Проверить подписи…", command=self.choose_signatures).pack(side="left", padx=(8, 0))
         ttk.Label(tools, text="Только метаданные и хеши — без распаковки и запуска содержимого", style="Muted.TLabel").pack(side="left", padx=12)
-        self.report = ScrolledText(packages, wrap="word", font=("Consolas", 10), state="disabled")
+        self.report = ScrolledText(packages, wrap="word", font=self._mono_font, state="disabled")
         self.report.pack(fill="both", expand=True)
         footer = ttk.Frame(self, padding=(14, 4, 14, 10)); footer.pack(fill="x")
-        self.status = tk.StringVar(value="Только локальная проверка — установка и развёртывание драйверов не выполняются")
+        self.status = tk.StringVar(value=self.locale.message("oplague.status.readOnly"))
         ttk.Label(footer, textvariable=self.status, style="Muted.TLabel").pack(side="left")
         ttk.Label(footer, text="Разработчик: Ivan-VHS", style="Muted.TLabel").pack(side="right")
         self.apply_visual_theme()
         self._motion = MotionController(self, app_key="oplague")
         self._motion.fade_in()
+        for sequence, callback in (
+            ("<F5>", self._shortcut_refresh),
+            ("<Control-o>", self._shortcut_package),
+            ("<Control-Shift-O>", self._shortcut_batch),
+            ("<Control-e>", self._shortcut_export),
+            ("<Control-comma>", self._shortcut_motion),
+            ("<Control-plus>", lambda _event: self._shortcut_zoom(1)),
+            ("<Control-equal>", lambda _event: self._shortcut_zoom(1)),
+            ("<Control-minus>", lambda _event: self._shortcut_zoom(-1)),
+            ("<Control-0>", self._shortcut_zoom_reset),
+        ):
+            self.bind_all(sequence, callback, add="+")
+        for tab_number in range(1, 5):
+            self.bind_all(
+                "<Control-Key-" + str(tab_number) + ">",
+                lambda _event, index=tab_number - 1: self._shortcut_tab(index),
+                add="+",
+            )
+
+    def adjust_text_size(self, delta: int) -> None:
+        self._text_size = bounded_text_size(self._text_size, delta)
+        self._mono_font.configure(size=self._text_size)
+        self.status.set(f"Размер текста отчётов: {self._text_size} pt")
+
+    def _shortcut_zoom(self, delta: int) -> str:
+        self.adjust_text_size(delta)
+        return "break"
+
+    def _shortcut_zoom_reset(self, _event: tk.Event | None = None) -> str:
+        self._text_size = 10
+        self._mono_font.configure(size=self._text_size)
+        self.status.set("Размер текста отчётов сброшен: 10 pt")
+        return "break"
+
+    def _shortcut_tab(self, index: int) -> str:
+        if 0 <= index < len(self.tabs.tabs()):
+            self.tabs.select(index)
+        return "break"
+
+    def _shortcut_refresh(self, _event: tk.Event | None = None) -> str:
+        self.refresh_devices()
+        return "break"
+
+    def _shortcut_package(self, _event: tk.Event | None = None) -> str:
+        self.choose_package()
+        return "break"
+
+    def _shortcut_batch(self, _event: tk.Event | None = None) -> str:
+        self.choose_packages()
+        return "break"
+
+    def _shortcut_export(self, _event: tk.Event | None = None) -> str:
+        self.export_report()
+        return "break"
+
+    def _shortcut_motion(self, _event: tk.Event | None = None) -> str:
+        self.show_motion_settings()
+        return "break"
+
+    def _sort_devices(self, column: str) -> None:
+        reverse = self._device_sort_state.get(column, False)
+        rows = [
+            (str(self.devices.set(item, column)).casefold(), item)
+            for item in self.devices.get_children("")
+        ]
+        for position, (_value, item) in enumerate(sorted(rows, reverse=reverse)):
+            self.devices.move(item, "", position)
+        self._device_sort_state[column] = not reverse
+
+    def _announce_selected_device(self, _event: tk.Event | None = None) -> str:
+        selection = self.devices.selection()
+        if selection:
+            values = self.devices.item(selection[0], "values")
+            if values:
+                self.status.set("Выбрано устройство: " + str(values[0]))
+        return "break"
 
     def show_motion_settings(self) -> None:
         """Configure persisted motion and visual-performance preferences."""
@@ -299,12 +434,14 @@ class OPlagueApp(tk.Tk):
         ttk.Checkbutton(frame, text="Reduce Motion — убрать пространственное движение", variable=reduce_var).pack(anchor="w", pady=4)
         ttk.Checkbutton(frame, text="Eco / Low-CPU Visuals — отключить необязательные эффекты", variable=eco_var).pack(anchor="w", pady=4)
         ttk.Checkbutton(frame, text="Expressive Motion — усиленная пружинная кинетика", variable=expressive_var).pack(anchor="w", pady=4)
-        ttk.Checkbutton(frame, text="Sync to Transport / BPM", state="disabled").pack(anchor="w", pady=4)
-        ttk.Label(frame, text="OPlague не содержит аудиотранспорта или мастер-BPM. Синхронизация недоступна для этой программы.", wraplength=440).pack(anchor="w", pady=(4, 12))
         buttons = ttk.Frame(frame)
         buttons.pack(fill="x")
         def apply() -> None:
-            self._motion.update_preferences(MotionPreferences(reduce_var.get(), eco_var.get(), False, expressive_var.get()))
+            self._motion.update_preferences(MotionPreferences(
+                reduce_motion=reduce_var.get(),
+                eco_visuals=eco_var.get(),
+                expressive_motion=expressive_var.get(),
+            ))
             window.destroy()
         ttk.Button(buttons, text="Сохранить", style="Primary.TButton", command=apply).pack(side="right")
         ttk.Button(buttons, text="Отмена", command=window.destroy).pack(side="right", padx=(0, 8))
@@ -313,15 +450,8 @@ class OPlagueApp(tk.Tk):
         window.geometry(f"+{self.winfo_rootx() + 120}+{self.winfo_rooty() + 100}")
 
     def apply_visual_theme(self) -> None:
-        """Apply the selected appearance to tabs, tables and report editors."""
-        apply_ui_theme(self, self._theme_mode)
-        theme_title = {"system": "системная", "light": "светлая", "dark": "тёмная"}.get(self._theme_mode, "системная")
-        self.theme_button.configure(text=f"Тема: {theme_title}")
-
-    def cycle_theme(self) -> None:
-        index = self._theme_cycle.index(self._theme_mode)
-        self._theme_mode = self._theme_cycle[(index + 1) % len(self._theme_cycle)]
-        self.apply_visual_theme()
+        """Apply the fixed Duck palette to tabs, tables and report editors."""
+        apply_ui_theme(self, "duck")
 
     def _layout_metric_inputs(self, event: tk.Event | None = None) -> None:
         """Reflow Metric Lab editors without shrinking their text or hit areas."""
@@ -371,6 +501,38 @@ class OPlagueApp(tk.Tk):
             f"distance {result['euclidean_distance']:.6f}"
         )
 
+    def choose_signatures(self) -> None:
+        """Inspect Windows Authenticode metadata without loading or installing files."""
+        filenames = filedialog.askopenfilenames(
+            parent=self,
+            title="Проверить цифровые подписи",
+            filetypes=[
+                ("Файлы для проверки подписи", "*.cat *.sys *.dll *.exe"),
+                ("Каталоги безопасности", "*.cat"),
+                ("Драйверы", "*.sys"),
+                ("Библиотеки", "*.dll"),
+                ("Приложения", "*.exe"),
+            ],
+        )
+        if not filenames:
+            return
+        try:
+            report = inspect_signatures(filenames)
+        except (OSError, ValueError, NotImplementedError, RuntimeError) as error:
+            self.status.set("Не удалось проверить цифровые подписи")
+            messagebox.showerror("Проверка Authenticode", str(error), parent=self)
+            return
+        self.report.configure(state="normal")
+        self.report.delete("1.0", "end")
+        self.report.insert("1.0", json.dumps(report, indent=2, ensure_ascii=False))
+        self.report.configure(state="disabled")
+        self.tabs.select(1)
+        valid = sum(1 for item in report["results"] if item["status"] == "Valid")
+        self.status.set(
+            f"Authenticode: Valid — {valid} из {report['files_inspected']}; "
+            "вердикт безопасности драйвера не выносится"
+        )
+
     def choose_package(self) -> None:
         filename = filedialog.askopenfilename(parent=self, title="Выберите пакет драйвера",
           filetypes=[("Поддерживаемые пакеты", "*.inf *.zip"), ("Файлы INF", "*.inf"), ("Архивы ZIP", "*.zip"), ("Все файлы", "*.*")])
@@ -381,6 +543,7 @@ class OPlagueApp(tk.Tk):
         except Exception as error:
             self.status.set("Не удалось проверить пакет")
             messagebox.showerror("Не удалось проверить пакет", str(error), parent=self); return
+        self.current_report = data
         self._remember_driver_records(data)
         self.report.configure(state="normal"); self.report.delete("1.0", "end")
         self.report.insert("1.0", json.dumps(data, indent=2, ensure_ascii=False))
@@ -422,6 +585,45 @@ class OPlagueApp(tk.Tk):
             f"Пробный расчёт: кандидатов с точным ID — {summary['candidate_edges']}; система не изменена"
         )
 
+    def export_report(self) -> None:
+        if self.current_report is None:
+            messagebox.showinfo("Экспорт отчёта", "Сначала проверьте INF или ZIP-пакет.", parent=self)
+            return
+        destination = filedialog.asksaveasfilename(
+            parent=self,
+            title="Экспортировать отчёт OPlague",
+            defaultextension=".json",
+            filetypes=[
+                ("JSON report", "*.json"),
+                ("CSV table", "*.csv"),
+                ("Markdown report", "*.md"),
+            ],
+        )
+        if not destination:
+            return
+        suffix = Path(destination).suffix.casefold()
+        format_name = {".json": "json", ".csv": "csv", ".md": "markdown"}.get(suffix)
+        if format_name is None:
+            messagebox.showerror(
+                "Экспорт отчёта",
+                "Используйте расширение .json, .csv или .md.",
+                parent=self,
+            )
+            return
+        anonymize = messagebox.askyesno(
+            "Конфиденциальность отчёта",
+            "Обезличить PnP и аппаратные идентификаторы перед экспортом?",
+            parent=self,
+        )
+        try:
+            content = render_report(self.current_report, format_name, anonymize=anonymize)
+            Path(destination).write_text(content, encoding="utf-8")
+        except (OSError, TypeError, ValueError) as error:
+            self.status.set("Не удалось экспортировать отчёт")
+            messagebox.showerror("Экспорт отчёта", str(error), parent=self)
+            return
+        self.status.set(f"Отчёт OPlague экспортирован: {Path(destination).name}")
+
     def choose_packages(self) -> None:
         filenames = filedialog.askopenfilenames(
             parent=self, title="Выберите пакеты драйверов",
@@ -436,6 +638,7 @@ class OPlagueApp(tk.Tk):
             self.status.set("Не удалось выполнить пакетную проверку")
             messagebox.showerror("Не удалось выполнить пакетную проверку", str(error), parent=self)
             return
+        self.current_report = data
         for report in reports:
             self._remember_driver_records(report)
         self.report.configure(state="normal")
