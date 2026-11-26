@@ -12,6 +12,7 @@ from typing import Any
 MAX_DEVICES = 20_000
 MAX_DRIVERS = 5_000
 MAX_IDS_PER_RECORD = 256
+MAX_CANDIDATE_EDGES = 100_000
 _ID_PREFIXES = (
     "PCI\\", "USB\\", "ACPI\\", "ROOT\\", "HID\\", "SWD\\",
     "BTH\\", "DISPLAY\\", "SCSI\\", "IDE\\", "VMBUS\\",
@@ -46,7 +47,9 @@ def _as_ids(value: Any) -> list[str]:
     else:
         return []
     if len(values) > MAX_IDS_PER_RECORD:
-        return []
+        raise ValueError(
+            f"hardware identifier list exceeds the {MAX_IDS_PER_RECORD}-item limit"
+        )
     result = []
     for item in values:
         normalized = normalize_hardware_id(item)
@@ -96,8 +99,12 @@ def extract_inf_compatibility(content: str) -> dict[str, Any]:
             if normalized.startswith(_ID_PREFIXES):
                 ids.add(normalized)
 
+    if len(ids) > MAX_IDS_PER_RECORD:
+        raise ValueError(
+            f"INF Models section exceeds the {MAX_IDS_PER_RECORD}-identifier limit"
+        )
     return {
-        "hardware_ids": sorted(ids)[:MAX_IDS_PER_RECORD],
+        "hardware_ids": sorted(ids),
         "architectures": sorted(architectures) or ["unspecified"],
         "evidence": "INF Models section; identifiers only",
     }
@@ -168,6 +175,13 @@ def build_compatibility_graph(
             "architectures": arches,
         })
 
+    # Index exact hardware IDs once. The previous device×driver scan was
+    # quadratic even when most pairs shared no identifiers.
+    driver_indexes_by_id: dict[str, list[int]] = {}
+    for driver_index, driver in enumerate(normalized_drivers):
+        for hardware_id in driver["hardware_ids"]:
+            driver_indexes_by_id.setdefault(hardware_id, []).append(driver_index)
+
     seen_device_ids: set[str] = set()
     for index, device in enumerate(devices):
         if not isinstance(device, Mapping):
@@ -187,7 +201,11 @@ def build_compatibility_graph(
             if isinstance(value, str):
                 raw_device_ids.append(value)
             elif isinstance(value, (list, tuple)):
-                raw_device_ids.extend(value[:MAX_IDS_PER_RECORD])
+                if len(value) > MAX_IDS_PER_RECORD:
+                    raise ValueError(
+                        f"device {device_id} {field} exceeds the {MAX_IDS_PER_RECORD}-item limit"
+                    )
+                raw_device_ids.extend(value)
         device_ids = _as_ids(raw_device_ids)
         device_name = str(device.get("name") or device_id)
         nodes.append({
@@ -196,16 +214,29 @@ def build_compatibility_graph(
             "name": device_name[:512],
         })
 
-        for driver in normalized_drivers:
-            matched = sorted(set(device_ids).intersection(driver["hardware_ids"]))
-            if not matched:
-                continue
+        matched_by_driver: dict[int, set[str]] = {}
+        for hardware_id in device_ids:
+            for driver_index in driver_indexes_by_id.get(hardware_id, ()):
+                matched_by_driver.setdefault(driver_index, set()).add(hardware_id)
+
+        # Keep deterministic candidate order even when source hardware IDs arrive
+        # in a different sequence.
+        for driver_index in sorted(
+            matched_by_driver,
+            key=lambda item: normalized_drivers[item]["driver_id"],
+        ):
+            driver = normalized_drivers[driver_index]
+            matched = sorted(matched_by_driver[driver_index])
             arch_ok = (
                 not host_arch
                 or "any" in driver["architectures"]
                 or "unspecified" in driver["architectures"]
                 or host_arch in driver["architectures"]
             )
+            if len(edges) >= MAX_CANDIDATE_EDGES:
+                raise ValueError(
+                    f"candidate graph exceeds the {MAX_CANDIDATE_EDGES}-edge limit"
+                )
             edges.append({
                 "device_id": device_id,
                 "driver_id": driver["driver_id"],

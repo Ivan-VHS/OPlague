@@ -1,0 +1,54 @@
+{
+  "schema": "katyuhen.project.v1",
+  "version": 1,
+  "id": "oplague",
+  "name": "OPlague",
+  "role": "device-inspection",
+  "repository": "https://github.com/Ivan-VHS/OPlague",
+  "entrypoints": [
+    {
+      "id": "oplague-workbench",
+      "path": "README.md",
+      "kind": "project-index",
+      "maturity": "implemented"
+    }
+  ],
+  "interfaces": [
+    {
+      "id": "oplague.device-snapshot.v1",
+      "direction": "provides",
+      "version": "1",
+      "transport": "versioned-json-file",
+      "maturity": "specified",
+      "description": "Read-only device and driver evidence for explicit local exchange."
+    },
+    {
+      "id": "pytyliki.cabi.v1",
+      "direction": "consumes",
+      "version": "1",
+      "transport": "explicit-trusted-c-abi",
+      "maturity": "specified",
+      "description": "Optional processor-side interoperability; library selection and compatibility review remain explicit."
+    }
+  ],
+  "capabilities": [
+    "windows.pnp.inventory",
+    "driver.inf.metadata-inspection",
+    "package.zip-inspection",
+    "pe-coff.header-inspection",
+    "device-id.normalization",
+    "evidence.report",
+    "sha256.file-inventory"
+  ],
+  "limits": [
+    "The workbench does not install, load, extract or modify driver payloads.",
+    "A hardware-ID match is candidate evidence, not proof of safety or compatibility.",
+    "PE inspection is header analysis, not image loading or signature verification."
+  ],
+  "security": {
+    "network_policy": "not_required",
+    "native_library_policy": "explicit_path_only",
+    "driver_mutation_policy": "not_supported",
+    "process_execution_policy": "bounded_local_tools"
+  }
+}

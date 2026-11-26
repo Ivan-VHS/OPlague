@@ -6,6 +6,7 @@ on:
       - "tools/reaper_ffi.py"
       - "tests/test_reaper_ffi.py"
       - "tests/test_impact_profiles.py"
+      - "integrations/reaper/**"
       - ".github/workflows/reaper-native-integration.yml"
   push:
     branches: [main, "feat/native-reaper-self-hosting"]
@@ -16,20 +17,55 @@ jobs:
   reaper-abi:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
           repository: Ivan-VHS/Reaper
-          ref: 8c84fd6c4213dddd174689d36f22bd7717eaccd3
+          ref: e48fb2a38384da75292b948ae18f69f3d80bcd08
           path: _deps/Reaper
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
+      - name: Validate and execute read-only device policy
+        env:
+          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
+        run: |
+          set -euo pipefail
+          python -m reaper --check integrations/reaper/device_policy.rpr
+          python -m reaper integrations/reaper/device_policy.rpr | tee reaper-device-policy.txt
+          grep -qx "OPLAGUE_REAPER_DEVICE_POLICY:PASS" reaper-device-policy.txt
+      - name: Validate and execute plugin trust policy
+        env:
+          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
+        run: |
+          set -euo pipefail
+          python -m reaper --check integrations/reaper/plugin_trust.rpr
+          python -m reaper integrations/reaper/plugin_trust.rpr | tee reaper-plugin-trust.txt
+          grep -qx "OPLAGUE_REAPER_PLUGIN_TRUST:PASS" reaper-plugin-trust.txt
       - name: Build Reaper native ABI without Python dependency
         run: |
           cmake -S _deps/Reaper -B _deps/Reaper/build -DREAPER_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
           cmake --build _deps/Reaper/build --parallel --target reaper_ffi
       - name: Test the real shared ABI and OPlague integration
+        shell: bash
         run: |
-          python -c "from tools.reaper_ffi import evaluate_i64, lookup_selfhood; p='$GITHUB_WORKSPACE/_deps/Reaper/build/libreaper_ffi.so'; assert evaluate_i64('6 * 7', p) == 42; assert lookup_selfhood('Сам', p) == 2"
-          python -m oplague --rank-total-native --reaper-library "$GITHUB_WORKSPACE/_deps/Reaper/build/libreaper_ffi.so"
+          library_link="$GITHUB_WORKSPACE/_deps/Reaper/build/libreaper_ffi.so"
+          reaper_library="$(realpath -- "$library_link")"
+          case "$reaper_library" in
+            "$GITHUB_WORKSPACE"/_deps/Reaper/build/*) ;;
+            *)
+              echo "::error::Resolved Reaper library is outside the trusted build directory."
+              exit 1
+              ;;
+          esac
+          test -f "$reaper_library"
+          export REAPER_LIBRARY="$reaper_library"
+          python - <<'PY'
+          import os
+          from tools.reaper_ffi import evaluate_i64, lookup_selfhood
+
+          library = os.environ["REAPER_LIBRARY"]
+          assert evaluate_i64("6 * 7", library) == 42
+          assert lookup_selfhood("Сам", library) == 2
+          PY
+          python -m oplague --rank-total-native --reaper-library "$REAPER_LIBRARY"

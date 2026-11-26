@@ -1,34 +1,37 @@
-# Documentation
+# OPlague documentation
 
-| File | Purpose |
-|---|---|
-| [VISUAL_DOCUMENTATION.md](VISUAL_DOCUMENTATION.md) | README graphics, evidence diagrams, SVG/raster formats, typography, MDX and rendering rules |
-| [FEATURES.md](FEATURES.md) | supported inspection tools and safety boundaries |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | device and package inspection flow |
-| [ENGINEERING.md](ENGINEERING.md) | release and safety gates |
-| [PROJECT_STEWARDSHIP_STANDARD.md](PROJECT_STEWARDSHIP_STANDARD.md) | operator, privacy and communication policy |
-| [DISTRIBUTED_SYSTEMS_ENGINEERING_STANDARD.md](DISTRIBUTED_SYSTEMS_ENGINEERING_STANDARD.md) | resilience and trust contract |
-| [DUCK_SOVEREIGN_CANON.md](DUCK_SOVEREIGN_CANON.md) | shared design tokens |
-| [UI_MOTION.md](UI_MOTION.md) | accessible motion preferences, reduced-motion limits and UI performance |
-| [UI_UX_SYSTEM.md](UI_UX_SYSTEM.md) | desktop interaction contract |
-| [DEVICE_COMPATIBILITY_GRAPH.md](DEVICE_COMPATIBILITY_GRAPH.md) | exact-ID candidate graph; not an automatic verdict |
-| [DRIVER_TARGET_ARCHITECTURE.md](DRIVER_TARGET_ARCHITECTURE.md) | INF and PE machine codes |
-| [UDRV_FORMAT_V1.md](UDRV_FORMAT_V1.md) | package manifest, hashing and size limits |
-| [DRIVE_LENS_EVIDENCE_LEDGER.md](DRIVE_LENS_EVIDENCE_LEDGER.md) | evidence provenance |
-| [CLINICAL_SYSTEMS_CSR120.md](CLINICAL_SYSTEMS_CSR120.md) | 120 principles and 36 advisory telemetry checks |
+> **Psychoporter 666 documentation profile v1.0** · Reviewed 2026-11-25 (UTC)
 
-The root README also links the 20-entry semantic impact-profile CLI and the live Windows screenshot. JSON schemas, tests and source define machine-checked behavior. Hardware matches and ordinal profile rankings are advisory evidence, not certification.
+[Project overview](../README.md) · [Source](https://github.com/Ivan-VHS/OPlague) · [Issues](https://github.com/Ivan-VHS/OPlague/issues) · [Contributing](../CONTRIBUTING.md) · [Security](../SECURITY.md)
 
+Start with the [project README](../README.md) for read-only operating boundaries, supported inspection paths and validation commands.
 
-## Motion and embedded graphics
+## Key references
 
-[Motion Constitution v2026](MOTION_CONSTITUTION_V2026.md) is the shared source for timing/easing tokens, adaptive motion, reduced-motion precedence, themes, the 2×2/focus-scene lab layout, SVG/Canvas telemetry rules and the four-domain capability matrix. [UI_MOTION.md](UI_MOTION.md) records the native behavior implemented in this repository; planned showcase features are not reported as shipped.
+- [Features and limits](FEATURES.md) — inspection-only capabilities and non-goals.
+- [Architecture](ARCHITECTURE.md) — data flow and evidence ownership.
+- [Authenticode inspection](AUTHENTICODE.md) — signature metadata without installation verdicts.
+- [UDRV package format](UDRV_FORMAT_V1.md) — bounded manifest and payload validation.
+- [GPU telemetry bridge v1](GPU_TELEMETRY_BRIDGE_V1.md) — read-only source-attributed export.
+- [NEXUS device profile](NEXUS_DEVICE_PROFILE_V1.md) — provenance and integration boundaries.
 
+## Browse by topic
 
-## Bounded 500 UAH allocation reference
+- [device driver inspection](clusters/device-driver-inspection.md)
+- [security evidence](clusters/security-evidence.md)
+- [architecture systems](clusters/architecture-systems.md)
+- [ui workbench](clusters/ui-workbench.md)
+- [integration federation](clusters/integration-federation.md)
+- [governance planning](clusters/governance-planning.md)
 
-- [Multilingual specification](RESOURCE_ALLOCATION_500_UAH.md) — bounded budget model, scenarios and operating rules.
-- [Offline interactive simulator](resource-allocation-500-uah.html) — adjust category amounts and see the remainder or overrun.
-- [Example JSON](../examples/resource-allocation-500-uah.json) and [JSON Schema](../schemas/resource-allocation.v1.schema.json).
+## Shared engineering rules
 
-This is an illustrative personal-budgeting reference, not a claim that the host project manages payments or live retail prices.
+- [Unified documentation standard](UNIFIED_DOCUMENTATION_STANDARD.md)
+- [Engineering evolution framework](ENGINEERING_EVOLUTION_FRAMEWORK.md)
+- [Repository evolution directives](REPOSITORY_EVOLUTION_DIRECTIVES.md)
+
+## Evidence and maturity
+
+Describe behavior from source, build configuration, schemas, tests and CI evidence. Mark proposals and roadmap items as planned. Do not invent benchmarks, security certifications, platform support, API surfaces or release status.
+
+**The index is navigation, not proof of implementation.**
