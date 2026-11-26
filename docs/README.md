@@ -1,31 +1,37 @@
 # OPlague documentation
 
-Start with the [project README](../README.md) for the workbench overview, supported platforms and build instructions. The [documentation map](INFORMATION_ARCHITECTURE.md) is the full catalogue.
+> **Psychoporter 666 documentation profile v1.0** · Reviewed 2026-11-25 (UTC)
 
-## Key pages
+[Project overview](../README.md) · [Source](https://github.com/Ivan-VHS/OPlague) · [Issues](https://github.com/Ivan-VHS/OPlague/issues) · [Contributing](../CONTRIBUTING.md) · [Security](../SECURITY.md)
 
-- [Features and limits](FEATURES.md)
-- [Architecture](ARCHITECTURE.md)
-- [Authenticode inspection](AUTHENTICODE.md)
-- [Gaming performance workbench](GAMING_PERFORMANCE_WORKBENCH.md)
-- [Read-only GPU telemetry bridge v1](GPU_TELEMETRY_BRIDGE_V1.md)
-- [NEXUS device evidence profile](NEXUS_DEVICE_PROFILE_V1.md) — evidence ownership, telemetry provenance and non-mutating integration.
-- [Driver target architecture](DRIVER_TARGET_ARCHITECTURE.md)
-- [UDRV package format](UDRV_FORMAT_V1.md)
+Start with the [project README](../README.md) for read-only operating boundaries, supported inspection paths and validation commands.
+
+## Key references
+
+- [Features and limits](FEATURES.md) — inspection-only capabilities and non-goals.
+- [Architecture](ARCHITECTURE.md) — data flow and evidence ownership.
+- [Authenticode inspection](AUTHENTICODE.md) — signature metadata without installation verdicts.
+- [UDRV package format](UDRV_FORMAT_V1.md) — bounded manifest and payload validation.
+- [GPU telemetry bridge v1](GPU_TELEMETRY_BRIDGE_V1.md) — read-only source-attributed export.
+- [NEXUS device profile](NEXUS_DEVICE_PROFILE_V1.md) — provenance and integration boundaries.
 
 ## Browse by topic
 
-- [Device and driver inspection](clusters/device-driver-inspection.md)
-- [Security and evidence](clusters/security-evidence.md)
-- [Architecture and contracts](clusters/architecture-systems.md)
-- [Workbench UI](clusters/ui-workbench.md)
-- [Integrations and federation](clusters/integration-federation.md)
-- [Planning and governance](clusters/governance-planning.md)
+- [device driver inspection](clusters/device-driver-inspection.md)
+- [security evidence](clusters/security-evidence.md)
+- [architecture systems](clusters/architecture-systems.md)
+- [ui workbench](clusters/ui-workbench.md)
+- [integration federation](clusters/integration-federation.md)
+- [governance planning](clusters/governance-planning.md)
 
-## Shared rules
+## Shared engineering rules
 
-- [Documentation standard](UNIFIED_DOCUMENTATION_STANDARD.md)
+- [Unified documentation standard](UNIFIED_DOCUMENTATION_STANDARD.md)
 - [Engineering evolution framework](ENGINEERING_EVOLUTION_FRAMEWORK.md)
 - [Repository evolution directives](REPOSITORY_EVOLUTION_DIRECTIVES.md)
 
-Device discovery and package analysis are read-only unless a specific workflow says otherwise. Compatibility candidates and telemetry are evidence, not certification.
+## Evidence and maturity
+
+Describe behavior from source, build configuration, schemas, tests and CI evidence. Mark proposals and roadmap items as planned. Do not invent benchmarks, security certifications, platform support, API surfaces or release status.
+
+**The index is navigation, not proof of implementation.**
