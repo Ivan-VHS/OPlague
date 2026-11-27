@@ -21,7 +21,7 @@
     "network_required": false,
     "duration_guidance": [
       { "age_min_months": 30, "age_max_months": 54, "minutes_min": 5, "minutes_max": 10 },
-      { "age_min_months": 60, "age_max_months": 72, "minutes_min": 15, "minutes_max": 20 }
+      { "age_min_months": 54, "age_max_months": 72, "minutes_min": 15, "minutes_max": 20 }
     ]
   },
   "stages": [
