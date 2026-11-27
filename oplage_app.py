@@ -237,14 +237,14 @@ class OPlagueApp(tk.Tk):
         self.title(self.locale.message("oplague.window.title") + " · Ivan-VHS")
         self.geometry("1120x720")
         self.minsize(760, 520)
-        self._theme_mode = "duck"
+        self._theme_mode = "dak"
         self._text_size = 10
         self._mono_font = tkfont.Font(self, family="Consolas", size=self._text_size)
         self._device_sort_state: dict[str, bool] = {}
         header = ttk.Frame(self, padding=(16, 12)); header.pack(fill="x")
         ttk.Label(header, text="OPLAGUE", style="Title.TLabel").pack(side="left")
         ttk.Label(header, text=self.locale.message("oplague.header.subtitle"), style="Muted.TLabel").pack(side="left", padx=16)
-        ttk.Label(header, text="DUCK", style="Brand.TLabel").pack(side="right")
+        ttk.Label(header, text="DAK", style="Brand.TLabel").pack(side="right")
         self.motion_button = ttk.Button(header, text="Движение · Ctrl+,", command=self.show_motion_settings)
         self.motion_button.pack(side="right", padx=(0, 8))
         ttk.Button(header, text="A−", width=3, command=lambda: self.adjust_text_size(-1)).pack(side="right", padx=(0, 4))
@@ -450,8 +450,8 @@ class OPlagueApp(tk.Tk):
         window.geometry(f"+{self.winfo_rootx() + 120}+{self.winfo_rooty() + 100}")
 
     def apply_visual_theme(self) -> None:
-        """Apply the fixed Duck palette to tabs, tables and report editors."""
-        apply_ui_theme(self, "duck")
+        """Apply the fixed DAK palette to tabs, tables and report editors."""
+        apply_ui_theme(self, "dak")
 
     def _layout_metric_inputs(self, event: tk.Event | None = None) -> None:
         """Reflow Metric Lab editors without shrinking their text or hit areas."""
