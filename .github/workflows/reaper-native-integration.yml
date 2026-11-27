@@ -28,7 +28,7 @@ jobs:
           python-version: "3.12"
       - name: Validate and execute read-only device policy
         env:
-          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
+          PYTHONPATH: \${{ github.workspace }}/_deps/Reaper
         run: |
           set -euo pipefail
           python -m reaper --check integrations/reaper/device_policy.rpr
@@ -36,12 +36,20 @@ jobs:
           grep -qx "OPLAGUE_REAPER_DEVICE_POLICY:PASS" reaper-device-policy.txt
       - name: Validate and execute plugin trust policy
         env:
-          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
+          PYTHONPATH: \${{ github.workspace }}/_deps/Reaper
         run: |
           set -euo pipefail
           python -m reaper --check integrations/reaper/plugin_trust.rpr
           python -m reaper integrations/reaper/plugin_trust.rpr | tee reaper-plugin-trust.txt
           grep -qx "OPLAGUE_REAPER_PLUGIN_TRUST:PASS" reaper-plugin-trust.txt
+      - name: Validate and execute neural device-evidence policy
+        env:
+          PYTHONPATH: \${{ github.workspace }}/_deps/Reaper
+        run: |
+          set -euo pipefail
+          python -m reaper --check integrations/reaper/neural_driver_policy.rpr
+          python -m reaper integrations/reaper/neural_driver_policy.rpr | tee reaper-neural-policy.txt
+          grep -qx "OPLAGUE_REAPER_NEURAL_POLICY:PASS" reaper-neural-policy.txt
       - name: Build Reaper native ABI without Python dependency
         run: |
           cmake -S _deps/Reaper -B _deps/Reaper/build -DREAPER_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
