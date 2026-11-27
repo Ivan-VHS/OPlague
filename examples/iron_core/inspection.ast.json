@@ -1,0 +1,58 @@
+{
+  "schema": "pytyliki.iron-core-ast.v1",
+  "source_bytes": 220,
+  "root_seen": true,
+  "version": "PYTYLIKI_IRON_CORE_DEMO_V1",
+  "version_declarations": 1,
+  "policy_declarations": 1,
+  "source_seal_asserted": true,
+  "verification_claim": "SOURCE_CLAIM_ONLY",
+  "verification_claims_are_ci_evidence": false,
+  "semantic_validation_performed": false,
+  "execution_performed": false,
+  "hardware_access_performed": false,
+  "blocks": [
+    {
+      "marker": "() core --",
+      "semantic_id": "core.context",
+      "start_offset": 64,
+      "body_offset": 77,
+      "body_length": 22,
+      "end_offset": 99,
+      "line": 4,
+      "closed": true
+    },
+    {
+      "marker": "{ selective /",
+      "semantic_id": "selection.filter",
+      "start_offset": 100,
+      "body_offset": 117,
+      "body_length": 41,
+      "end_offset": 158,
+      "line": 8,
+      "closed": true
+    }
+  ],
+  "marker_counts": {
+    "module.begin": 1,
+    "core.context": 1,
+    "system.context": 0,
+    "block.end": 2,
+    "level.context": 0,
+    "selection.filter": 1,
+    "operation.unit": 0,
+    "work.massive": 0,
+    "startup.plan": 0,
+    "work.spawn.plan": 0,
+    "implementation.binding": 0,
+    "utility.helper": 0,
+    "layout.unify": 0,
+    "branchpass.plan": 0,
+    "tournament.rank": 0,
+    "consistency.rules": 1,
+    "execution.jump.plan": 0,
+    "logic.true_connective": 0,
+    "module.version": 1,
+    "source.verification_claim": 1
+  }
+}

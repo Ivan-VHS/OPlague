@@ -79,6 +79,7 @@ UDRV 命令验证 manifest、声明的文件清单、大小、哈希和路径/�
 | UDRV | UDRV v1 manifest | 仅执行受限验证 |
 | Batch report | `oplage.inspection-bundle.v1` | 有序本地摘要和确定性 digest |
 | Pytyliki | `pytyliki.c-abi.v1` | 通过显式可信库的可选原生调用 |
+| Pytyliki Iron Core | `pytyliki.iron-core-ast.v1` | 只读结构证据；源代码声明不会被视为 CI 证明 |
 | Reaper | 版本化 JSON 比较 | 离线比较，不修改设备 |
 
 规范化硬件 ID 的精确匹配只生成候选边，不进行排序、认证、安装或安全判定。NVIDIA 遥测包含来源信息；不会默认假定 GPU 或遥测提供方存在。
