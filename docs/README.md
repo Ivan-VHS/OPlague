@@ -13,6 +13,7 @@ Start with the [root README](../README.md) for platform scope, supported workflo
 - [Authenticode](AUTHENTICODE.md) — selected-file signature metadata boundary.
 - [GPU telemetry bridge v1](GPU_TELEMETRY_BRIDGE_V1.md) — read-only snapshot contract.
 - [Federated integration](FEDERATED_INTEGRATION.md) — Reaper and Pytyliki interfaces.
+- [Pytyliki Iron Core evidence](PYTYLIKI_IRON_CORE_EVIDENCE.md) — bounded, read-only AST intake and trust boundary.
 - [Release](RELEASE.md) — draft publication workflow and checksum limits.
 - [Security](../SECURITY.md) — static repository assurance and disclosure.
 
