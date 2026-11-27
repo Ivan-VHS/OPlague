@@ -1,3 +1,5 @@
+pub mod iron_syntax;
+
 use core::ffi::c_char;
 use core::mem::{align_of, offset_of, size_of};
 

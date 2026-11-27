@@ -5,6 +5,7 @@ on:
     paths:
       - "crates/pytyliki-diagnostics-abi/**"
       - "docs/PYTYLIKI_DIAGNOSTICS_ABI.md"
+      - "docs/PYTYLIKI_IRON_DIAGNOSTICS_V1.md"
       - "project-contract.json"
       - ".github/workflows/pytyliki-diagnostics-abi.yml"
   push:
