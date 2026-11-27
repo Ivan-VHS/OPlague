@@ -1,0 +1,150 @@
+# OPlague Reaper neural device-evidence policy v1.
+# Local read-only triage. No driver install, firmware write or network transfer.
+
+make EVIDENCE_SCHEMA := "oplague.neural-device-evidence.v1"
+make POLICY_SCHEMA := "oplague.neural-device-policy.v1"
+
+craft valid_integer(value, minimum, maximum) {
+    yield kind(value) == "number" and value % 1 == 0 and value >= minimum and value <= maximum
+}
+
+craft validate_evidence(item) {
+    when kind(item) != "list" or size(item) != 8 {
+        yield "OPL-NN-EVIDENCE-0001: evidence must contain 8 fields"
+    }
+    when item[0] != EVIDENCE_SCHEMA {
+        yield "OPL-NN-EVIDENCE-0002: unsupported evidence schema"
+    }
+    when kind(item[1]) != "text" or size(item[1]) == 0 {
+        yield "OPL-NN-EVIDENCE-0003: device identity is required"
+    }
+    when kind(item[2]) != "text" or size(item[2]) == 0 {
+        yield "OPL-NN-EVIDENCE-0004: driver package identity is required"
+    }
+    when not contains(["local_inventory", "local_manifest"], item[3]) {
+        yield "OPL-NN-EVIDENCE-0005: only locally sourced evidence is accepted"
+    }
+    when kind(item[4]) != "boolean" {
+        yield "OPL-NN-EVIDENCE-0006: signature result must be boolean"
+    }
+    when not valid_integer(item[5], 0, 1000) {
+        yield "OPL-NN-EVIDENCE-0007: compatibility score must be in 0..1000"
+    }
+    when not valid_integer(item[6], 0, 10000) {
+        yield "OPL-NN-EVIDENCE-0008: anomaly count is out of range"
+    }
+    when kind(item[7]) != "boolean" {
+        yield "OPL-NN-EVIDENCE-0009: installation intent must be boolean"
+    }
+    yield ""
+}
+
+craft assess_device(item) {
+    make failure := validate_evidence(item)
+    when failure != "" {
+        yield ["REJECT", failure]
+    }
+    when item[7] {
+        yield ["BLOCKED", "driver installation is outside the neural evidence policy"]
+    }
+    when not item[4] {
+        yield ["QUARANTINE", "driver evidence is not signed"]
+    }
+    when item[6] > 0 {
+        yield ["QUARANTINE", "device or driver anomaly requires separate review"]
+    }
+    when item[5] < 900 {
+        yield ["MANUAL_REVIEW", "compatibility evidence is below the 900 permille review threshold"]
+    }
+    yield ["MANUAL_REVIEW", "evidence is eligible for a human review; no action was taken"]
+}
+
+craft make_policy(item, assessment) {
+    yield [
+        POLICY_SCHEMA,
+        item[1],
+        item[2],
+        assessment[0],
+        assessment[1],
+        "local_only",
+        "read_only",
+        false,
+        false
+    ]
+}
+
+make known_good := [
+    EVIDENCE_SCHEMA,
+    "pci-ven-1234",
+    "driver-pack-1.2",
+    "local_manifest",
+    true,
+    970,
+    0,
+    false
+]
+make unsigned := [
+    EVIDENCE_SCHEMA,
+    "usb-ven-5678",
+    "driver-pack-unsigned",
+    "local_inventory",
+    false,
+    990,
+    0,
+    false
+]
+make anomalous := [
+    EVIDENCE_SCHEMA,
+    "pci-ven-9012",
+    "driver-pack-2.0",
+    "local_manifest",
+    true,
+    990,
+    2,
+    false
+]
+make install_intent := [
+    EVIDENCE_SCHEMA,
+    "pci-ven-3456",
+    "driver-pack-3.0",
+    "local_manifest",
+    true,
+    999,
+    0,
+    true
+]
+make remote_evidence := [
+    EVIDENCE_SCHEMA,
+    "pci-ven-4567",
+    "driver-pack-4.0",
+    "remote_service",
+    true,
+    999,
+    0,
+    false
+]
+make malformed := [
+    EVIDENCE_SCHEMA,
+    "pci-ven-5670",
+    "driver-pack-5.0",
+    "local_manifest",
+    true,
+    1001,
+    0,
+    false
+]
+
+make approved_review := assess_device(known_good)
+make policy := make_policy(known_good, approved_review)
+
+assert(approved_review[0] == "MANUAL_REVIEW", "verified local evidence must remain human-gated")
+assert(assess_device(unsigned)[0] == "QUARANTINE", "unsigned driver evidence must be quarantined")
+assert(assess_device(anomalous)[0] == "QUARANTINE", "anomalous device must be quarantined")
+assert(assess_device(install_intent)[0] == "BLOCKED", "installation intent must be blocked")
+assert(assess_device(remote_evidence)[0] == "REJECT", "remote evidence source must be rejected")
+assert(assess_device(malformed)[0] == "REJECT", "out-of-range compatibility must be rejected")
+assert(policy[0] == POLICY_SCHEMA, "policy schema must be stable")
+assert(policy[5] == "local_only" and policy[6] == "read_only", "policy must remain local and read-only")
+assert(policy[7] == false and policy[8] == false, "policy must never install drivers or write firmware")
+
+emit "OPLAGUE_REAPER_NEURAL_POLICY:PASS"
