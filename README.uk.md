@@ -1,122 +1,93 @@
-
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/hero-banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/readme/hero-banner-light.svg"><img src="assets/readme/hero-banner-light.svg" alt="Робоча станція OPlague для пристроїв, драйверів та ігор" width="880"></picture></p>
-<h1 align="center">OPlague — робоча станція пристроїв, драйверів та ігрової продуктивності</h1>
-<p align="center"><strong>Локальний Windows-застосунок для обмеженої перевірки пристроїв і драйверів, доказових звітів та оборотного налаштування ігрового сеансу.</strong></p>
-<p align="center"><a href="https://github.com/Ivan-VHS/OPlague/actions/workflows/completeness-check.yml"><img alt="Quality checks" src="https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/completeness-check.yml?branch=main&style=flat-square&label=Quality"></a> <a href="https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml"><img alt="Windows build" src="https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&style=flat-square&label=Windows%20build"></a> <a href="LICENSE"><img alt="Apache-2.0" src="https://img.shields.io/github/license/Ivan-VHS/OPlague?style=flat-square"></a></p>
 
-[Швидкий старт](#швидкий-старт) · [Revival](#оновлення-документації-revival) · [Візуальний огляд](#візуальний-огляд) · [Архітектура](#архітектура) · [Документація](docs/README.md)
+# OPlague — робоча станція пристроїв, драйверів та ігрової продуктивності
 
-> **Межа безпеки:** перевірка драйверів і пакетів працює в режимі читання: payload не розпаковується, не виконується, не встановлюється й не завантажується. Точний збіг hardware ID — кандидат, а не сертифікація сумісності. Окремий ігровий сеанс може тимчасово вибрати вбудований план живлення Windows після збереження snapshot; відновлення захищене від перезапису пізніших зовнішніх змін.
+[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
 
-## Швидкий старт
+[![Quality](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/completeness-check.yml?branch=main&style=flat-square&label=Quality)](https://github.com/Ivan-VHS/OPlague/actions/workflows/completeness-check.yml) [![Windows build](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&style=flat-square&label=Windows%20build)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml) [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/OPlague?style=flat-square)](LICENSE)
 
-**Вимоги:** Python 3; для live Plug and Play inventory потрібна Windows. Збережені звіти й метадані пакетів можна переглядати офлайн. Для desktop UI потрібен Tkinter.
+> Локальна Windows-first робоча станція для обмеженої перевірки пристроїв і драйверів, телеметрії з указаним джерелом та явного оборотного power-plan workflow для ігрового сеансу.
+
+**Відомості про проєкт:** розробка · єдину версію продукту не оголошено · Python 3.10+ · JSON Schema · частковий Rust 2021 diagnostics consumer · Windows desktop і live-інвентаризація · Apache-2.0 · **Документацію перевірено:** 2026-11-27 UTC
+
+## Призначення та межі
+
+OPlague поєднує два навмисно відокремлені сценарії:
+
+1. **Докази про пристрої та пакети.** Read-only-інвентаризація Windows Plug-and-Play, обмежена перевірка метаданих INF/ZIP/UDRV, зіставлення нормалізованих hardware ID, локальні звіти та GPU-телеметрія з указаним джерелом.
+2. **Ігровий сеанс.** Явний Windows-workflow, який зберігає локальний знімок і може тимчасово вибрати вбудований план живлення Windows. Попередній план відновлюється лише тоді, коли активним залишається план, застосований самим OPlague.
+
+Інспекція драйверів і пакетів не встановлює, не видаляє, не вмикає, не вивантажує, не розпаковує та не виконує драйвери чи payload. Ігровий workflow — окрема системна зміна, яка потребує підтвердження користувача: він не змінює драйвери, реєстр, прошивку, частоти, напруги, служби або мережеві налаштування.
+
+## Можливості
+
+- **Live-інвентаризація пристроїв:** поточні записи Windows Plug-and-Play через фіксований read-only-запит. Live-інвентаризація доступна лише у Windows.
+- **Обмежена перевірка пакетів:** метадані INF і структура ZIP з лімітами шляхів, кількості записів, розміру та стиснення.
+- **UDRV v1:** перевірка manifest, оголошеного складу payload, розмірів файлів, SHA-256 та обмежень ресурсів/шляхів без розпакування й виконання payload.
+- **Звіти доказів:** детерміновані batch-зведення, digest вмісту та версіоновані JSON-знімки з псевдонімним відбитком пристрою.
+- **Граф кандидатів сумісності:** точний збіг нормалізованих hardware ID створює лише ребро-кандидат. Він не ранжує, не сертифікує та не доводить безпечність або сумісність драйвера.
+- **Метрики й телеметрія:** порівняння нормалізованих профілів і необов’язкові показники NVIDIA через `nvidia-smi`. Відсутні значення датчиків залишаються unknown; телеметрія доступна лише для читання.
+- **Ігровий сеанс:** після явного підтвердження зберігається знімок пристроїв, драйверів і плану живлення, після чого можна тимчасово ввімкнути штатний план High Performance. Відновлення захищене: якщо активний план змінили поза сеансом, OPlague не перезаписує новий вибір.
+- **Інтеграція:** версіоновані знімки пристроїв та звіти Reaper; необов’язкові виклики C ABI Pytyliki через довірену бібліотеку, явно вибрану стороною-викликом.
+- **Міст Rust diagnostics:** обмежений споживач Pytyliki diagnostics ABI на Rust 2021 реалізований частково; це не повна міграція на Rust/Slint.
+
+Offline-аналіз пакетів і звітів доступний у підтримуваних Python-оточеннях поза Windows, якщо конкретний сценарій не потребує live Plug-and-Play.
+
+## Швидкий запуск
+
+Потрібен Python 3.10+; Windows необхідна для desktop-застосунку, live-інвентаризації Plug-and-Play і керування планом живлення. Для телеметрії NVIDIA додатково потрібен підтримуваний локальний провайдер `nvidia-smi`.
+
+Запуск Windows workstation:
 
 ~~~sh
-git clone https://github.com/Ivan-VHS/OPlague.git
-cd OPlague
 python oplague_app.py
 ~~~
 
-Тести та перевірка візуального контракту:
-
-~~~sh
-python -m compileall -q oplague_app.py oplage_app.py tests
-python tools/validate_visual_canon.py ui_theme.py
-python -m unittest discover -s tests -v
-~~~
-
-Корисні CLI-перевірки:
-
-~~~sh
-python -m oplague --verify
-python -m oplague --catalog
-python -m oplague --search "ballistic"
-python -m oplague --profile 5
-python -m oplague --rank reach
-~~~
-
-## Оновлення документації Revival
-
-| Було | Стало |
-|---|---|
-| Статичний огляд без чітких ролей зображень | Адаптивний банер і підписані знімок/архітектурна схема |
-| Аналіз драйверів та ігрові налаштування виглядали як одна межа доступу | Read-only перевірка відокремлена від явної оборотної зміни power plan |
-| Опис функцій без єдиної термінології зрілості | Матриця можливостей із межами джерел, даних і безпеки |
-| Швидкий старт змішаний з операційними деталями | Перевірені команди запуску, тестів і CLI на початку |
-| Посилання розпорошені | Тематичні хаби, індекс документації та стандарт публікації |
-
-Це оновлення документації, **не версія ПЗ й не оголошення релізу**. Джерелами істини є код, тести, схеми та актуальні CI workflow.
-
-## Реалізований функціонал
-
-| Область | Поточна поведінка | Межа |
-|---|---|---|
-| Інвентаризація пристроїв | Збір Windows Plug and Play identity/status | Live inventory лише у Windows |
-| INF / ZIP | Обмежений розбір метаданих, шляхів, hashes та architecture hints | Без розпакування й виконання |
-| Authenticode | Метадані підпису, signer і timestamp вибраних файлів | Не підтверджує безпечність і не встановлює драйвер |
-| Сумісність | Кандидати за точним нормалізованим hardware ID | Лише evidence для ручної перевірки |
-| UDRV v1 | Перевірка manifest, розмірів файлів і SHA-256 | Без встановлення та завантаження |
-| Звіти й snapshots | Версіонований JSON, batch summaries і offline compare | Локальні дані; hash не доводить довіру до видавця |
-| Ігровий сеанс | Snapshot, тимчасовий вбудований power plan і guarded restore | Не розгін GPU, не зміна драйвера або firmware |
-| Метрики | Зважена відстань і порівняння профілів | Рекомендаційна оцінка, не сертифікація |
-
-## Візуальний огляд
-
-<table><tr><td width="50%"><a href="assets/screenshots/oplague-workbench.png"><img src="assets/screenshots/oplague-workbench.png" alt="Знімок робочої станції OPlague у Windows" width="100%"></a><p><sub><strong>Реальний знімок застосунку</strong> — Windows desktop, 1920×1080.</sub></p></td><td width="50%"><img src="assets/readme/workflow.svg" alt="Потік OPlague: локальний ввід, обмежений parser, evidence, candidate analysis і звіт" width="100%"><p><sub><strong>Архітектурна ілюстрація</strong> — схема evidence pipeline, а не знімок UI.</sub></p></td></tr></table>
-
-## Архітектура
-
-~~~mermaid
-flowchart LR
-  A[Windows PnP / локальний пакет] --> B[Обмежений metadata parser]
-  B --> C[Перевірений evidence record]
-  C --> D[Candidate matching і review]
-  D --> E[Dry-run report]
-  E --> F[Явний JSON export]
-  G[Збережений device snapshot] --> D
-  H[Gaming session] --> I[Snapshot power plan]
-  I --> J[Тимчасовий вбудований plan]
-  J --> K[Guarded restore]
-~~~
-
-Інспекція та ігровий сеанс — різні потоки. Driver pipeline не встановлює, не завантажує, не розпаковує й не виконує вміст пакета.
-
-## Конфігурація та доступ
-
-Hosted service, API token, обліковий запис, root .env або тестовий логін не потрібні. Live inventory використовує локальні Windows PowerShell/CIM. Якщо провайдер недоступний, застосунок показує помилку інвентаризації й не підставляє фіктивний список пристроїв.
-
-У desktop UI доступні палітра Duck і motion preferences. Зміна системного power plan належить лише до окремого явного ігрового сценарію.
-
-## Структура репозиторію
-
-| Шлях | Призначення |
-|---|---|
-| oplague_app.py | Публічна точка входу desktop-застосунку |
-| oplage_app.py | Реалізація desktop UI та логіки інспекції |
-| tools/ | CLI, звіти, метрики й UDRV utilities |
-| tests/ | Unit та regression-тести із синтетичними fixtures |
-| schemas/ | Версіоновані звіти й package contracts |
-| docs/ | Архітектура, безпека, інтеграції та operator references |
-| assets/readme/ | Адаптивний банер і workflow-ілюстрація |
-| assets/screenshots/ | Знімки Windows-застосунку |
-| .github/workflows/ | CI, Windows packaging і quality gates |
-
-## Перевірки та статус
+Запуск тестів і перевірка вибраного UDRV-пакета:
 
 ~~~sh
 python -m unittest discover -s tests -v
-python -m oplague --verify
 python tools/udrv_inspector.py path/to/package.udrv --json
-git diff --check
 ~~~
 
-Поточні можливості й обмеження: [матриця функцій](docs/FEATURES.md), [архітектура](docs/ARCHITECTURE.md), [хаб перевірки пристроїв і драйверів](docs/clusters/device-driver-inspection.md) та [карта документації](docs/INFORMATION_ARCHITECTURE.md). Heuristic або збіг не є verdict про malware чи certification пристрою.
+Інспектор UDRV перевіряє метадані й digest файлів у визначених межах. Він ніколи не розпаковує, не встановлює, не завантажує та не виконує вміст пакета.
 
-## Розробка та безпека
+## Контракти даних
 
-Перед змінами parser, системних інтеграцій і safety controls прочитайте [CONTRIBUTING.md](CONTRIBUTING.md). Правила публікації — у [README Visual Standard](docs/README_VISUAL_STANDARD.md), політика безпеки — у [SECURITY.md](SECURITY.md).
+| Інтерфейс | Контракт | Межа |
+|---|---|---|
+| Device snapshot | `oplage.device-snapshot.v1` | Версіонований JSON; псевдонімний fingerprint |
+| GPU telemetry | `oplage.gpu-telemetry.v1` | Read-only-метадані джерела; невідомі значення залишаються unknown |
+| Batch evidence | `oplage.inspection-bundle.v1` | Упорядкований звіт і детермінований digest |
+| Пакет драйвера | UDRV v1 | Лише обмежена перевірка manifest і цілісності |
+| Reaper comparison | `reaper.oplage-comparison.v1` | Offline-перевірка звіту без зміни пристрою |
+| Метрики Pytyliki | `pytyliki.c-abi.v1` | Необов’язковий native-виклик через явно довірену бібліотеку |
+| Ігровий сеанс | `oplague.gaming.v1` | Локальний знімок і захищений перехід Windows power plan |
 
-## Ліцензія
+SHA-256 виявляє зміну байтів відносно збереженого digest; це не цифровий підпис, не автентифікація видавця й не доказ безпечності. Метадані Authenticode є свідченням про підтримуваний файл, а не сертифікацією сумісності пристрою.
 
-[Apache-2.0](LICENSE).
+## Безпека та обмеження
+
+Вважайте INF, ZIP, UDRV, експорт телеметрії та імпортовані звіти недовіреними даними. Парсери дотримуються ресурсних лімітів; payload пакетів не розпаковується й не виконується. Збіг hardware ID створює відношення кандидатів, а не висновок про безпечність.
+
+Перемикання power plan — явна окрема операція, а не частина інспекції. Наразі вона підтримується лише у Windows, зберігає початковий знімок і не перезаписує пізніший зовнішній вибір плану. Вибір плану живлення та порівняння frametime не гарантують підвищення продуктивності.
+
+Сканер репозиторію Beelzebul — локальний/static-інструмент перевірки вихідного коду. Це не endpoint-антивірус, не сканування пам’яті процесів і не карантин.
+
+## Документація
+
+- [Індекс документації](docs/README.md) · [Інформаційна архітектура](docs/INFORMATION_ARCHITECTURE.md)
+- [Матриця функцій](docs/FEATURES.md) · [Архітектура](docs/ARCHITECTURE.md)
+- [Формат UDRV v1](docs/UDRV_FORMAT_V1.md) · [Граф сумісності пристроїв](docs/DEVICE_COMPATIBILITY_GRAPH.md)
+- [Міст GPU telemetry v1](docs/GPU_TELEMETRY_BRIDGE_V1.md) · [Інспекція пристроїв і драйверів](docs/clusters/device-driver-inspection.md)
+- [Федеративна інтеграція](docs/FEDERATED_INTEGRATION.md) · [Реліз Windows](docs/RELEASE.md)
+- [Pytyliki diagnostics ABI](docs/PYTYLIKI_DIAGNOSTICS_ABI.md) · [Політика безпеки](SECURITY.md)
+- [Візуальний стандарт публікації](docs/README_VISUAL_STANDARD.md)
+
+Workflow релізу Windows створює чернетку GitHub Release для перевірки супроводжувачем. Публікація виконується окремо; SHA-256 sidecar не є цифровим підписом.
+
+## Участь і ліцензія
+
+Перед зміною парсерів, схем, телеметрії або системних інтеграцій прочитайте [CONTRIBUTING.md](CONTRIBUTING.md). Зберігайте обмеженість вхідних даних, явність дозволів і походження доказів. Не додавайте приватні payload драйверів або персональні hardware exports.
+
+Ліцензія — [Apache-2.0](LICENSE). Зберігайте повідомлення та атрибуцію сторонніх компонентів.
