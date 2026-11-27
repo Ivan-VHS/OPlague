@@ -145,6 +145,9 @@ CopyFiles=Payload
     def test_normalization_rejects_bad_ids(self):
         self.assertEqual(normalize_hardware_id(" pci/ven_1234 "), "PCI\\VEN_1234")
         self.assertEqual(normalize_hardware_id("../escape"), "")
+        self.assertEqual(normalize_hardware_id("PCI\\VEN_1234\x00"), "")
+        self.assertEqual(normalize_hardware_id("PCI\\VEN_1234\x00&DEV_ABCD"), "")
+
         self.assertEqual(normalize_hardware_id(""), "")
 
 
