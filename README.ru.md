@@ -81,7 +81,7 @@ SHA-256 обнаруживает изменение байтов относит�
 - [Формат UDRV v1](docs/UDRV_FORMAT_V1.md) · [Граф совместимости устройств](docs/DEVICE_COMPATIBILITY_GRAPH.md)
 - [Мост GPU telemetry v1](docs/GPU_TELEMETRY_BRIDGE_V1.md) · [Инспекция устройств и драйверов](docs/clusters/device-driver-inspection.md)
 - [Федеративная интеграция](docs/FEDERATED_INTEGRATION.md) · [Релиз Windows](docs/RELEASE.md)
-- [Pytyliki diagnostics ABI](docs/PYTYLIKI_DIAGNOSTICS_ABI.md) · [Политика безопасности](SECURITY.md)
+- [Reaper runtime integration](docs/REAPER_RUNTIME_INTEGRATION.md) · [Политика безопасности](SECURITY.md)
 - [Стандарт визуальной публикации](docs/README_VISUAL_STANDARD.md)
 
 Workflow релиза Windows создаёт черновик GitHub Release для проверки сопровождающим. Публикация выполняется отдельно; SHA-256 sidecar не является цифровой подписью.
