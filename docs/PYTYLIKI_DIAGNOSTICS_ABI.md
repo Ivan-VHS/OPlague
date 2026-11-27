@@ -1,6 +1,6 @@
 # OPlague — Pytyliki Diagnostics ABI Consumer
 
-**Status:** partial native integration; dependent on Pytyliki diagnostics ABI v1 PR #264  
+**Status:** partial native integration; dependent on the Pytyliki main commit 0ff3b951cb6398a43d1bd199c9200d95b4c7bb18  
 **Implementation:** Rust 2021, no third-party crates  
 **Boundary:** explicit local shared-library path; synchronous calls only
 
@@ -22,10 +22,14 @@ The crate is an integration component, not a claim that the entire OPlague appli
 
 ## Binary verification
 
-The Rust tests assert the C layout: 144-byte size, 8-byte alignment and fixed offsets for `code`, `source_offset`, `detail`, `message_size` and `message`. They then call the real C shared library for successful distance evaluation, non-finite input, zero dimension and the 4096-element limit.
+The Rust type now has compile-time assertions for its total size, alignment and every field offset. These assertions run whenever the crate is compiled, including when downstream builds omit its unit tests. Unit tests repeat the layout checks with readable failure messages.
+
+The Rust tests then call the real C shared library for successful distance evaluation, non-finite input, zero dimension and the 4096-element limit. Error-path assertions cover the status, diagnostic code, severity, source sentinel, source length, reserved field, bounded message length and decoded message.
+
+The message accessor reads no more than `message_size`, requires a NUL terminator within that bound, and rejects invalid UTF-8 without scanning beyond the fixed field. The C11 producer separately asserts the same 144-byte size, 8-byte alignment and member offsets in its public header and native tests.
 
 The workflow first builds and runs Pytyliki's C11 ABI tests, then compiles and tests the Rust consumer against that same build. A mock library is not used as evidence of ABI compatibility.
 
 ## Dependency and release boundary
 
-The workflow pins Pytyliki by commit SHA rather than following a moving branch. Update the pin only after the Pytyliki ABI commit changes and its C11 CI passes. The diagnostics interface remains partial until both repositories' exact-SHA checks pass and the dependency PRs are merged.
+The workflow pins Pytyliki by immutable commit SHA rather than following a moving branch. The previous pin, 441bd55e32da9c8cf4bde872a4e7e3399e49683f, did not contain `src/diagnostics_abi.c` or `tests/test_diagnostics_abi.c`, although the workflow attempted to build both targets. The replacement pin, 0ff3b951cb6398a43d1bd199c9200d95b4c7bb18, is the inspected Pytyliki main commit containing the C11 implementation, header, CMake targets and ABI tests. The OPlague workflow must pass those native tests before the Rust consumer test can be considered valid. Update the pin only after the replacement commit's C11 CI and downstream integration pass. The diagnostics interface remains partial until both repositories' exact-SHA checks pass and the dependency PRs are merged.
