@@ -79,8 +79,8 @@ SHA-256 обнаруживает изменение байтов относит�
 - [Индекс документации](docs/README.md) · [Информационная архитектура](docs/INFORMATION_ARCHITECTURE.md)
 - [Матрица функций](docs/FEATURES.md) · [Архитектура](docs/ARCHITECTURE.md)
 - [Формат UDRV v1](docs/UDRV_FORMAT_V1.md) · [Граф совместимости устройств](docs/DEVICE_COMPATIBILITY_GRAPH.md)
-- [Мост GPU telemetry v1](docs/GPU_TELEMETRY_BRIDGE_V1.md) · [Инспекция устройств и драйверов](docs/clusters/device-driver-inspection.md)
-- [Федеративная интеграция](docs/FEDERATED_INTEGRATION.md) · [Релиз Windows](docs/RELEASE.md)
+- [Мост GPU telemetry v1](docs/FEATURES.md) · [Инспекция устройств и драйверов](docs/clusters/device-driver-inspection.md)
+- [Федеративная интеграция](docs/FEDERATED_INTEGRATION.md) · [Релиз Windows](.github/workflows/desktop-build.yml)
 - [Reaper runtime integration](docs/REAPER_RUNTIME_INTEGRATION.md) · [Политика безопасности](SECURITY.md)
 - [Стандарт визуальной публикации](docs/README_VISUAL_STANDARD.md)
 
