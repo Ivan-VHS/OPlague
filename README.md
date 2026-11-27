@@ -79,9 +79,9 @@ The Beelzebul repository scanner is a local/static source-assurance tool. It is 
 - [Documentation index](docs/README.md) · [Information architecture](docs/INFORMATION_ARCHITECTURE.md)
 - [Feature matrix](docs/FEATURES.md) · [Architecture](docs/ARCHITECTURE.md)
 - [UDRV format v1](docs/UDRV_FORMAT_V1.md) · [Device compatibility graph](docs/DEVICE_COMPATIBILITY_GRAPH.md)
-- [GPU telemetry bridge v1](docs/GPU_TELEMETRY_BRIDGE_V1.md) · [Gaming and telemetry features](docs/clusters/device-driver-inspection.md)
-- [Federated integration](docs/FEDERATED_INTEGRATION.md) · [Windows release process](docs/RELEASE.md)
-- [Pytyliki diagnostics ABI](docs/PYTYLIKI_DIAGNOSTICS_ABI.md) · [Security policy](SECURITY.md)
+- [Telemetry capability inventory](docs/FEATURES.md) · [Gaming and telemetry features](docs/clusters/device-driver-inspection.md)
+- [Federated integration](docs/FEDERATED_INTEGRATION.md) · [Windows desktop workflow](.github/workflows/desktop-build.yml)
+- [Reaper runtime integration](docs/REAPER_RUNTIME_INTEGRATION.md) · [Security policy](SECURITY.md)
 - [Visual publishing standard](docs/README_VISUAL_STANDARD.md)
 
 The Windows release workflow creates a draft GitHub Release for maintainer review. Publishing is a separate maintainer action; the SHA-256 sidecar is not a digital signature.
