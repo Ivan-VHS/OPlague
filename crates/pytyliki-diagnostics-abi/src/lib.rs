@@ -1,6 +1,5 @@
 use core::ffi::c_char;
 use core::mem::{align_of, offset_of, size_of};
-use std::ffi::CStr;
 
 pub const CORE_ABI_VERSION: u32 = 1;
 pub const DIAGNOSTICS_ABI_VERSION: u32 = 1;
@@ -38,6 +37,24 @@ pub struct DiagnosticV1 {
     pub message: [c_char; DIAGNOSTIC_MESSAGE_CAP],
 }
 
+/*
+ * Keep the Rust consumer's binary contract checked by rustc itself, not only
+ * by tests that may be omitted from a downstream build. These assertions
+ * mirror the public C11 header and intentionally cover every field.
+ */
+const _: [(); DIAGNOSTIC_V1_SIZE] = [(); size_of::<DiagnosticV1>()];
+const _: [(); 8] = [(); align_of::<DiagnosticV1>()];
+const _: [(); 0] = [(); offset_of!(DiagnosticV1, struct_size)];
+const _: [(); 4] = [(); offset_of!(DiagnosticV1, abi_version)];
+const _: [(); 8] = [(); offset_of!(DiagnosticV1, code)];
+const _: [(); 12] = [(); offset_of!(DiagnosticV1, severity)];
+const _: [(); 16] = [(); offset_of!(DiagnosticV1, source_offset)];
+const _: [(); 24] = [(); offset_of!(DiagnosticV1, source_length)];
+const _: [(); 32] = [(); offset_of!(DiagnosticV1, detail)];
+const _: [(); 40] = [(); offset_of!(DiagnosticV1, message_size)];
+const _: [(); 44] = [(); offset_of!(DiagnosticV1, reserved)];
+const _: [(); 48] = [(); offset_of!(DiagnosticV1, message)];
+
 impl Default for DiagnosticV1 {
     fn default() -> Self {
         Self {
@@ -57,33 +74,43 @@ impl Default for DiagnosticV1 {
 
 impl DiagnosticV1 {
     pub fn message(&self) -> &str {
-        if self.message_size == 0
-            || self.message_size as usize > self.message.len()
-        {
+        let size = self.message_size as usize;
+        if size == 0 || size > self.message.len() {
             return "";
         }
 
-        // The C ABI guarantees a NUL-terminated message within the fixed buffer.
-        unsafe { CStr::from_ptr(self.message.as_ptr()) }
-            .to_str()
-            .unwrap_or("")
+        // SAFETY: the message is a fixed-size field owned by self, and size
+        // has been checked against that field's capacity.
+        let bytes =
+            unsafe { core::slice::from_raw_parts(self.message.as_ptr().cast::<u8>(), size) };
+        let Some(end) = bytes.iter().position(|byte| *byte == 0) else {
+            return "";
+        };
+
+        core::str::from_utf8(&bytes[..end]).unwrap_or("")
     }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum DistanceError {
-    DimensionMismatch { left: usize, right: usize },
-    UnsupportedAbi { core: u32, diagnostics: u32 },
-    Native { status: i32, diagnostic: DiagnosticV1 },
+    DimensionMismatch {
+        left: usize,
+        right: usize,
+    },
+    UnsupportedAbi {
+        core: u32,
+        diagnostics: u32,
+    },
+    Native {
+        status: i32,
+        diagnostic: DiagnosticV1,
+    },
 }
 
 unsafe extern "C" {
     fn pytyliki_abi_version() -> u32;
     fn pytyliki_diagnostics_abi_version() -> u32;
-    fn pytyliki_v1_diagnostic_init(
-        out_size: u32,
-        out: *mut DiagnosticV1,
-    ) -> i32;
+    fn pytyliki_v1_diagnostic_init(out_size: u32, out: *mut DiagnosticV1) -> i32;
     fn pytyliki_v1_distance_f64_ex(
         left: *const f64,
         right: *const f64,
@@ -96,18 +123,10 @@ unsafe extern "C" {
 
 pub fn abi_versions() -> (u32, u32) {
     // The shared library is selected explicitly by the build environment.
-    unsafe {
-        (
-            pytyliki_abi_version(),
-            pytyliki_diagnostics_abi_version(),
-        )
-    }
+    unsafe { (pytyliki_abi_version(), pytyliki_diagnostics_abi_version()) }
 }
 
-pub fn euclidean_distance(
-    left: &[f64],
-    right: &[f64],
-) -> Result<f64, DistanceError> {
+pub fn euclidean_distance(left: &[f64], right: &[f64]) -> Result<f64, DistanceError> {
     if left.len() != right.len() {
         return Err(DistanceError::DimensionMismatch {
             left: left.len(),
@@ -125,9 +144,7 @@ pub fn euclidean_distance(
 
     let mut diagnostic = DiagnosticV1::default();
     let diagnostic_size = size_of::<DiagnosticV1>() as u32;
-    let init_status = unsafe {
-        pytyliki_v1_diagnostic_init(diagnostic_size, &mut diagnostic)
-    };
+    let init_status = unsafe { pytyliki_v1_diagnostic_init(diagnostic_size, &mut diagnostic) };
     if init_status != STATUS_OK {
         return Err(DistanceError::Native {
             status: init_status,
@@ -163,11 +180,54 @@ mod tests {
     fn c_layout_matches_diagnostics_v1() {
         assert_eq!(size_of::<DiagnosticV1>(), DIAGNOSTIC_V1_SIZE);
         assert_eq!(align_of::<DiagnosticV1>(), 8);
+        assert_eq!(offset_of!(DiagnosticV1, struct_size), 0);
+        assert_eq!(offset_of!(DiagnosticV1, abi_version), 4);
         assert_eq!(offset_of!(DiagnosticV1, code), 8);
+        assert_eq!(offset_of!(DiagnosticV1, severity), 12);
         assert_eq!(offset_of!(DiagnosticV1, source_offset), 16);
+        assert_eq!(offset_of!(DiagnosticV1, source_length), 24);
         assert_eq!(offset_of!(DiagnosticV1, detail), 32);
         assert_eq!(offset_of!(DiagnosticV1, message_size), 40);
+        assert_eq!(offset_of!(DiagnosticV1, reserved), 44);
         assert_eq!(offset_of!(DiagnosticV1, message), 48);
+    }
+
+    #[test]
+    fn diagnostic_message_stays_within_declared_length() {
+        let mut diagnostic = DiagnosticV1::default();
+        diagnostic.message[0] = b'o' as c_char;
+        diagnostic.message[1] = 0;
+        diagnostic.message[2] = b'x' as c_char;
+        diagnostic.message_size = 2;
+
+        assert_eq!(diagnostic.message(), "o");
+    }
+
+    #[test]
+    fn diagnostic_message_rejects_missing_terminator() {
+        let mut diagnostic = DiagnosticV1::default();
+        diagnostic.message = [b'x' as c_char; DIAGNOSTIC_MESSAGE_CAP];
+        diagnostic.message_size = DIAGNOSTIC_MESSAGE_CAP as u32;
+
+        assert_eq!(diagnostic.message(), "");
+    }
+
+    #[test]
+    fn diagnostic_message_rejects_invalid_utf8() {
+        let mut diagnostic = DiagnosticV1::default();
+        diagnostic.message[0] = 0xffu8 as c_char;
+        diagnostic.message[1] = 0;
+        diagnostic.message_size = 2;
+
+        assert_eq!(diagnostic.message(), "");
+    }
+
+    #[test]
+    fn diagnostic_message_rejects_size_beyond_capacity() {
+        let mut diagnostic = DiagnosticV1::default();
+        diagnostic.message_size = (DIAGNOSTIC_MESSAGE_CAP + 1) as u32;
+
+        assert_eq!(diagnostic.message(), "");
     }
 
     #[test]
@@ -190,7 +250,15 @@ mod tests {
             DistanceError::Native { status, diagnostic } => {
                 assert_eq!(status, STATUS_NON_FINITE_INPUT);
                 assert_eq!(diagnostic.code, DIAG_NON_FINITE_INPUT);
+                assert_eq!(diagnostic.severity, 3);
                 assert_eq!(diagnostic.detail, 1);
+                assert_eq!(diagnostic.source_offset, u64::MAX);
+                assert_eq!(diagnostic.source_length, 0);
+                assert_eq!(diagnostic.reserved, 0);
+                assert_eq!(
+                    diagnostic.message_size as usize,
+                    "Vector contains a non-finite value".len() + 1
+                );
                 assert_eq!(diagnostic.message(), "Vector contains a non-finite value");
             }
             other => panic!("unexpected error: {other:?}"),
@@ -199,13 +267,15 @@ mod tests {
 
     #[test]
     fn native_empty_input_is_rejected_without_panicking() {
-        let error = euclidean_distance(&[], &[])
-            .expect_err("zero-dimensional input must be rejected");
+        let error =
+            euclidean_distance(&[], &[]).expect_err("zero-dimensional input must be rejected");
 
         match error {
             DistanceError::Native { status, diagnostic } => {
                 assert_eq!(status, STATUS_INVALID_ARGUMENT);
                 assert_eq!(diagnostic.code, DIAG_INVALID_ARGUMENT);
+                assert_eq!(diagnostic.severity, 3);
+                assert_eq!(diagnostic.reserved, 0);
             }
             other => panic!("unexpected error: {other:?}"),
         }
