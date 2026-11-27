@@ -79,6 +79,7 @@ The UDRV command validates manifest, declared file inventory, size, hash and pat
 | UDRV | UDRV v1 manifest | Bounded validation only |
 | Batch report | `oplage.inspection-bundle.v1` | Ordered local summary and deterministic digest |
 | Pytyliki | `pytyliki.c-abi.v1` | Optional native call through an explicitly trusted library |
+| Pytyliki Iron Core | `pytyliki.iron-core-ast.v1` | Read-only structural evidence; source claims are never CI proof |
 | Reaper | Versioned JSON comparison | Offline comparison; no device mutation |
 
 Exact normalized hardware-ID matches create candidate edges only. They do not rank, certify, install or declare a driver safe. NVIDIA telemetry is source-attributed; the presence of a GPU or provider is not assumed.
