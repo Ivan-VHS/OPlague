@@ -1,122 +1,93 @@
-
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/hero-banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/readme/hero-banner-light.svg"><img src="assets/readme/hero-banner-light.svg" alt="OPlague device, driver and gaming workbench" width="880"></picture></p>
-<h1 align="center">OPlague — Device, Driver and Gaming Performance Workbench</h1>
-<p align="center"><strong>A local Windows workstation for bounded device/driver inspection, evidence reports and reversible gaming-session tuning.</strong></p>
-<p align="center"><a href="https://github.com/Ivan-VHS/OPlague/actions/workflows/completeness-check.yml"><img alt="Quality checks" src="https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/completeness-check.yml?branch=main&style=flat-square&label=Quality"></a> <a href="https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml"><img alt="Windows build" src="https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&style=flat-square&label=Windows%20build"></a> <a href="LICENSE"><img alt="Apache-2.0" src="https://img.shields.io/github/license/Ivan-VHS/OPlague?style=flat-square"></a></p>
 
-[Quick start](#quick-start) · [Revival](#documentation-revival) · [Visuals](#visual-overview) · [Architecture](#architecture) · [Docs](docs/README.md)
+# OPlague — Device, Driver and Gaming Performance Workbench
 
-> **Safety boundary:** driver and package inspection is read-only: payloads are not extracted, executed, installed or loaded. Exact hardware-ID matches are candidates, not compatibility certification. A separate gaming session may temporarily select a built-in Windows power plan after saving a snapshot; restoration is guarded against overwriting later external changes.
+[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
+
+[![Quality](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/completeness-check.yml?branch=main&style=flat-square&label=Quality)](https://github.com/Ivan-VHS/OPlague/actions/workflows/completeness-check.yml) [![Windows build](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&style=flat-square&label=Windows%20build)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml) [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/OPlague?style=flat-square)](LICENSE)
+
+> A local Windows-first workbench for bounded device and driver evidence, source-attributed telemetry, and an explicit reversible gaming-session power-plan workflow.
+
+**Project record:** Development · no unified product version declared · Python 3.10+ · JSON Schema · partial Rust 2021 diagnostics consumer · Windows desktop and live inventory · Apache-2.0 · **Documentation reviewed:** 2026-11-27 UTC
+
+## Purpose and scope
+
+OPlague brings together two deliberately separate workflows:
+
+1. **Device and package evidence.** Read-only Windows Plug-and-Play inventory, bounded INF/ZIP/UDRV inspection, normalized hardware-ID candidate matching, local reports and source-attributed GPU telemetry.
+2. **Gaming-session planning.** An explicit Windows workflow that saves a local snapshot and may temporarily select a built-in Windows power plan. It can restore the previous plan only when the active plan is still the one OPlague applied.
+
+Driver and package inspection does not install, remove, enable, unload, extract or execute drivers or payloads. The gaming-session workflow is a separate, user-confirmed system change: it does not modify drivers, registry settings, firmware, clocks, voltages, services or network configuration.
+
+## Capabilities
+
+- **Live device inventory:** current Windows Plug-and-Play records collected through a fixed read-only query. Live inventory is Windows-only.
+- **Bounded package inspection:** INF metadata and ZIP structure checks with path, entry, size and compression limits.
+- **UDRV v1 integrity inspection:** validates the manifest, declared payload inventory, file sizes, SHA-256 digests and resource/path constraints without extracting or executing payloads.
+- **Evidence reports:** deterministic batch summaries, content digests and versioned JSON snapshots with pseudonymous device fingerprints.
+- **Candidate compatibility graph:** exact normalized hardware-ID matches create candidate edges only. They do not rank, certify or prove a driver safe or compatible.
+- **Metrics and telemetry:** normalized profile comparisons and optional NVIDIA sensor readings from `nvidia-smi`. Missing sensor values remain unknown; telemetry is read-only.
+- **Gaming session:** after explicit confirmation, saves the current device/driver and power-plan snapshot and can temporarily select the built-in High Performance plan. Restoration is guarded: if the active plan changed outside the session, OPlague leaves that newer selection untouched.
+- **Interop:** versioned device snapshots and Reaper reports; optional Pytyliki C ABI calls through a caller-selected trusted library.
+- **Rust diagnostics bridge:** a bounded Rust 2021 consumer of the Pytyliki diagnostics ABI is partial; this is not a full Rust/Slint migration.
+
+Offline package and report analysis is available on supported Python environments outside Windows when the workflow does not require live Plug-and-Play data.
 
 ## Quick start
 
-**Requirements:** Python 3 and a Windows environment for live Plug and Play inventory. Saved reports and package metadata can be reviewed offline. Tkinter is required for the desktop UI.
+Requirements: Python 3.10+; Windows for the desktop application, live Plug-and-Play inventory and power-plan control. NVIDIA telemetry additionally requires a supported local `nvidia-smi` provider.
+
+Launch the Windows workbench:
 
 ~~~sh
-git clone https://github.com/Ivan-VHS/OPlague.git
-cd OPlague
 python oplague_app.py
 ~~~
 
-Run tests and visual-contract checks:
-
-~~~sh
-python -m compileall -q oplague_app.py oplage_app.py tests
-python tools/validate_visual_canon.py ui_theme.py
-python -m unittest discover -s tests -v
-~~~
-
-Useful CLI checks:
-
-~~~sh
-python -m oplague --verify
-python -m oplague --catalog
-python -m oplague --search "ballistic"
-python -m oplague --profile 5
-python -m oplague --rank reach
-~~~
-
-## Documentation revival
-
-| Before | Revival documentation |
-|---|---|
-| Static overview without clear asset roles | Theme-aware hero and labelled real capture/architecture visual |
-| Driver analysis and gaming controls read as one permission boundary | Read-only inspection separated from the explicit reversible power-plan session |
-| Capability claims summarized without consistent maturity labels | Feature matrix with source, input and safety boundaries |
-| Quick start mixed with operator detail | Verified launch, test and CLI commands near the top |
-| Deep links scattered through the README | Topic hubs, documentation index and publication standard |
-
-This is a documentation refresh, **not a software version or release announcement**. The source, tests, schemas and current CI workflows define actual behavior.
-
-## Implemented scope
-
-| Area | Current behavior | Boundary |
-|---|---|---|
-| Device inventory | Windows Plug and Play identity/status collection | Live inventory is Windows-only |
-| INF / ZIP inspection | Bounded metadata parsing, path checks, hashes and architecture hints | No extraction or execution |
-| Authenticode | Selected-file signature/signer/timestamp metadata | Not an install/load or safety verdict |
-| Compatibility matching | Exact normalized hardware-ID candidate links | Candidate evidence only |
-| UDRV v1 | Manifest, file-size and SHA-256 validation | No install or driver loading |
-| Reports and snapshots | Versioned JSON, batch summaries and offline comparison | Local data; hashes identify bytes, not publisher trust |
-| Gaming session | Snapshot, temporary built-in power-plan selection and guarded restore | Not GPU overclocking, driver mutation or firmware control |
-| Metrics | Weighted distance and profile comparison | Advisory; not a certification score |
-
-## Visual overview
-
-<table><tr><td width="50%"><a href="assets/screenshots/oplague-workbench.png"><img src="assets/screenshots/oplague-workbench.png" alt="Captured OPlague Windows device and driver workbench" width="100%"></a><p><sub><strong>Real application capture</strong> — Windows desktop, 1920×1080.</sub></p></td><td width="50%"><img src="assets/readme/workflow.svg" alt="OPlague local input, bounded parsing, evidence, candidate analysis and report workflow" width="100%"><p><sub><strong>Architecture illustration</strong> — evidence pipeline, not a UI screenshot.</sub></p></td></tr></table>
-
-## Architecture
-
-~~~mermaid
-flowchart LR
-  A[Windows PnP / local package] --> B[Bounded metadata parser]
-  B --> C[Validated evidence record]
-  C --> D[Candidate matching and review]
-  D --> E[Dry-run report]
-  E --> F[Explicit JSON export]
-  G[Saved device snapshot] --> D
-  H[Gaming session] --> I[Power-plan snapshot]
-  I --> J[Temporary built-in plan]
-  J --> K[Guarded restore]
-~~~
-
-Inspection and gaming-session flows are separate. The driver pipeline does not install, load, extract or execute package content.
-
-## Configuration and access
-
-There is no hosted service, API token, account, root .env or test login. The live device inventory path uses local Windows PowerShell/CIM. If that provider is unavailable, the application reports the inventory error; it does not invent or substitute a device list.
-
-The desktop controls expose the documented Duck palette and motion preferences. System power-plan changes are limited to the separate, explicit gaming-session workflow.
-
-## Repository map
-
-| Path | Responsibility |
-|---|---|
-| oplague_app.py | Public desktop entry point |
-| oplage_app.py | Desktop implementation and inspection logic |
-| tools/ | CLI, report, metric and UDRV utilities |
-| tests/ | Unit and regression tests with synthetic fixtures |
-| schemas/ | Versioned reports and package contracts |
-| docs/ | Architecture, safety, integration and operator references |
-| assets/readme/ | Theme-aware hero and workflow illustration |
-| assets/screenshots/ | Captured Windows application images |
-| .github/workflows/ | CI, Windows packaging and quality gates |
-
-## Verification and status
+Run the tests and inspect a user-selected UDRV package:
 
 ~~~sh
 python -m unittest discover -s tests -v
-python -m oplague --verify
 python tools/udrv_inspector.py path/to/package.udrv --json
-git diff --check
 ~~~
 
-Current capabilities and limits are listed in [Features](docs/FEATURES.md), [Architecture](docs/ARCHITECTURE.md), the [device and driver hub](docs/clusters/device-driver-inspection.md) and the [information architecture map](docs/INFORMATION_ARCHITECTURE.md). Never treat a heuristic or match as a malware verdict or device certification.
+The UDRV inspector validates metadata and file digests within fixed limits. It never extracts, installs, loads or executes package content.
 
-## Contributing and security
+## Data contracts
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) before changing parsers, system integrations or safety controls. Publishing rules are in [README Visual Standard](docs/README_VISUAL_STANDARD.md); security policy is in [SECURITY.md](SECURITY.md).
+| Interface | Contract | Boundary |
+|---|---|---|
+| Device snapshot | `oplage.device-snapshot.v1` | Versioned JSON; pseudonymous fingerprint |
+| GPU telemetry | `oplage.gpu-telemetry.v1` | Read-only provider metadata; unknown values stay unknown |
+| Batch evidence | `oplage.inspection-bundle.v1` | Ordered report and deterministic digest |
+| Driver package | UDRV v1 | Bounded manifest/integrity validation only |
+| Reaper comparison | `reaper.oplage-comparison.v1` | Offline report validation; no device mutation |
+| Pytyliki metrics | `pytyliki.c-abi.v1` | Optional native call through an explicitly trusted library |
+| Gaming session | `oplague.gaming.v1` | Local snapshot and guarded Windows power-plan transition |
 
-## License
+SHA-256 detects byte changes relative to a recorded digest; it is not a digital signature, publisher authentication or proof of safety. Authenticode metadata is evidence about supported files, not device-compatibility certification.
 
-[Apache-2.0](LICENSE).
+## Security and limitations
+
+Treat INF, ZIP, UDRV, telemetry exports and imported reports as untrusted input. Parsers enforce resource limits; package payloads are not extracted or executed. Hardware-ID matches are candidate relationships, not security verdicts.
+
+The gaming power-plan transition is explicit and separate from inspection. It is currently Windows-only, saves a pre-session snapshot and avoids overwriting a later external plan selection. No performance improvement is guaranteed by selecting a power plan or comparing frametime data.
+
+The Beelzebul repository scanner is a local/static source-assurance tool. It is not endpoint malware protection, process-memory inspection or quarantine.
+
+## Documentation
+
+- [Documentation index](docs/README.md) · [Information architecture](docs/INFORMATION_ARCHITECTURE.md)
+- [Feature matrix](docs/FEATURES.md) · [Architecture](docs/ARCHITECTURE.md)
+- [UDRV format v1](docs/UDRV_FORMAT_V1.md) · [Device compatibility graph](docs/DEVICE_COMPATIBILITY_GRAPH.md)
+- [GPU telemetry bridge v1](docs/GPU_TELEMETRY_BRIDGE_V1.md) · [Gaming and telemetry features](docs/clusters/device-driver-inspection.md)
+- [Federated integration](docs/FEDERATED_INTEGRATION.md) · [Windows release process](docs/RELEASE.md)
+- [Pytyliki diagnostics ABI](docs/PYTYLIKI_DIAGNOSTICS_ABI.md) · [Security policy](SECURITY.md)
+- [Visual publishing standard](docs/README_VISUAL_STANDARD.md)
+
+The Windows release workflow creates a draft GitHub Release for maintainer review. Publishing is a separate maintainer action; the SHA-256 sidecar is not a digital signature.
+
+## Contributing and license
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before modifying parsers, schemas, telemetry or system integration. Preserve bounded input handling, explicit permissions and evidence provenance. Do not submit private driver payloads or identifying hardware exports.
+
+Licensed under [Apache-2.0](LICENSE). Preserve third-party notices and attribution.
