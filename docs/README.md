@@ -10,6 +10,7 @@ Start with the [project README](../README.md) for read-only operating boundaries
 
 - [Features and limits](FEATURES.md) — inspection-only capabilities and non-goals.
 - [Architecture](ARCHITECTURE.md) — data flow and evidence ownership.
+- [Early Mathematics Content Assurance v1](EARLY_MATHEMATICS_CONTENT_ASSURANCE_V1.md) — proposed bounded, read-only inspection profile for declarative educational content packs.
 - [Authenticode inspection](AUTHENTICODE.md) — signature metadata without installation verdicts.
 - [UDRV package format](UDRV_FORMAT_V1.md) — bounded manifest and payload validation.
 - [GPU telemetry bridge v1](GPU_TELEMETRY_BRIDGE_V1.md) — read-only source-attributed export.
