@@ -15,6 +15,10 @@ Start with the [project README](../README.md) for read-only operating boundaries
 - [GPU telemetry bridge v1](GPU_TELEMETRY_BRIDGE_V1.md) — read-only source-attributed export.
 - [NEXUS device profile](NEXUS_DEVICE_PROFILE_V1.md) — provenance and integration boundaries.
 
+## Education content assurance
+
+- [Early-math activity-pack validation](EARLY_MATH_PACK_SECURITY.md) — bounded static content, privacy and no-executable-payload rules.
+
 ## Browse by topic
 
 - [device driver inspection](clusters/device-driver-inspection.md)
