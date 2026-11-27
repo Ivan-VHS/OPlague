@@ -56,7 +56,10 @@
     "ui_motion.py",
     "tools/game_optimizer_ui.py",
     "tests/",
-    "docs/"
+    "docs/",
+    ".dakstory/",
+    ".github/workflows/dakstory.yml",
+    "scripts/dakstory.py"
   ],
   "protected_write_paths": [
     "crates/",
