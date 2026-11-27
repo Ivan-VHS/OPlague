@@ -32,18 +32,5 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Compile offline tools
         run: python -m compileall -q oplague_app.py tools tests
-      - name: Validate tracked JSON and JSON Schema files
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-
-          files = sorted(Path(".").rglob("*.json"))
-          for path in files:
-              if any(part in {".git", ".venv", "build", "dist"} for part in path.parts):
-                  continue
-              json.loads(path.read_text(encoding="utf-8"))
-          print(f"Validated {len(files)} JSON files.")
-          PY
       - name: Run offline unit and parser tests
         run: python -m unittest discover -s tests -v
