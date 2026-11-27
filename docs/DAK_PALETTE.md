@@ -21,4 +21,4 @@ OPlague shares the DAK black/white/gold foundation for window chrome and navigat
 
 The status text/icon always accompanies its color. Normal text targets 4.5:1 contrast and primary content targets 7:1 where practical. Glass effects are optional surface treatment; reports, tables and inspection details remain opaque enough to read at every scale.
 
-Legacy System/Light/Dark/Amber preference values continue to normalize to the fixed Duck palette. No runtime network assets or cloud fonts are required.
+Legacy System/Light/Dark/Amber preference values continue to normalize to the fixed Dak palette. No runtime network assets or cloud fonts are required.

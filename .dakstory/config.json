@@ -1,5 +1,5 @@
 {
-  "schema": "duckstory.config.v1",
+  "schema": "dakstory.config.v1",
   "project": "OPlague",
   "repository": "Ivan-VHS/OPlague",
   "profile": "python-windows-driver-workbench",
