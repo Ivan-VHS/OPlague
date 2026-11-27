@@ -1,6 +1,5 @@
 use core::ffi::c_char;
 use core::mem::{align_of, offset_of, size_of};
-use std::ffi::CStr;
 
 pub const CORE_ABI_VERSION: u32 = 1;
 pub const DIAGNOSTICS_ABI_VERSION: u32 = 1;
@@ -57,16 +56,21 @@ impl Default for DiagnosticV1 {
 
 impl DiagnosticV1 {
     pub fn message(&self) -> &str {
-        if self.message_size == 0
-            || self.message_size as usize > self.message.len()
-        {
+        let size = self.message_size as usize;
+        if size == 0 || size > self.message.len() {
             return "";
         }
 
-        // The C ABI guarantees a NUL-terminated message within the fixed buffer.
-        unsafe { CStr::from_ptr(self.message.as_ptr()) }
-            .to_str()
-            .unwrap_or("")
+        // SAFETY: the message is a fixed-size field owned by self, and size
+        // has been checked against that field's capacity.
+        let bytes = unsafe {
+            core::slice::from_raw_parts(self.message.as_ptr().cast::<u8>(), size)
+        };
+        let Some(end) = bytes.iter().position(|byte| *byte == 0) else {
+            return "";
+        };
+
+        core::str::from_utf8(&bytes[..end]).unwrap_or("")
     }
 }
 
@@ -168,6 +172,44 @@ mod tests {
         assert_eq!(offset_of!(DiagnosticV1, detail), 32);
         assert_eq!(offset_of!(DiagnosticV1, message_size), 40);
         assert_eq!(offset_of!(DiagnosticV1, message), 48);
+    }
+
+    #[test]
+    fn diagnostic_message_stays_within_declared_length() {
+        let mut diagnostic = DiagnosticV1::default();
+        diagnostic.message[0] = b'o' as c_char;
+        diagnostic.message[1] = 0;
+        diagnostic.message[2] = b'x' as c_char;
+        diagnostic.message_size = 2;
+
+        assert_eq!(diagnostic.message(), "o");
+    }
+
+    #[test]
+    fn diagnostic_message_rejects_missing_terminator() {
+        let mut diagnostic = DiagnosticV1::default();
+        diagnostic.message = [b'x' as c_char; DIAGNOSTIC_MESSAGE_CAP];
+        diagnostic.message_size = DIAGNOSTIC_MESSAGE_CAP as u32;
+
+        assert_eq!(diagnostic.message(), "");
+    }
+
+    #[test]
+    fn diagnostic_message_rejects_invalid_utf8() {
+        let mut diagnostic = DiagnosticV1::default();
+        diagnostic.message[0] = 0xffu8 as c_char;
+        diagnostic.message[1] = 0;
+        diagnostic.message_size = 2;
+
+        assert_eq!(diagnostic.message(), "");
+    }
+
+    #[test]
+    fn diagnostic_message_rejects_size_beyond_capacity() {
+        let mut diagnostic = DiagnosticV1::default();
+        diagnostic.message_size = (DIAGNOSTIC_MESSAGE_CAP + 1) as u32;
+
+        assert_eq!(diagnostic.message(), "");
     }
 
     #[test]
