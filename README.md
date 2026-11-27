@@ -1,132 +1,115 @@
-# OPlague — Device, Driver & Gaming Workbench
+# OPlague — device and driver evidence workbench
 
-<p align="center">[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)</p>
+[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
 
-[![Windows build](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&label=Windows%20build)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml) [![Docs checks](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/docs.yml?branch=main&label=Docs%20checks)](https://github.com/Ivan-VHS/OPlague/actions/workflows/docs.yml) [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/OPlague)](LICENSE)
+> A local, read-only workbench for Windows device inventory, bounded driver-package inspection, hardware-ID candidate analysis and source-attributed telemetry.
 
-> **Inspect devices and packages. Preserve the machine. Publish evidence, never driver actions.**
+**Specification**
 
-**State:** Development · Windows-first inspection tools · **Version:** Version not declared in project contract · **License:** [Apache-2.0](LICENSE) · **README standard:** Psychoporter 666 v1.0 · **Last reviewed:** 2026-11-25 · UTC · **Source:** [Ivan-VHS/OPlague](https://github.com/Ivan-VHS/OPlague)
+| Field | Current record |
+|---|---|
+| Repository | [Ivan-VHS/OPlague](https://github.com/Ivan-VHS/OPlague) |
+| Project status | Development; Windows-first inspection workbench |
+| Product version | No single version declared in the project contract |
+| Main stack | Python 3.10+; JSON Schema; bounded native integration components |
+| Runtime scope | Windows, Linux and macOS for supported offline workflows |
+| Live device inventory | Windows only |
+| Desktop platform | Windows |
+| License | [Apache-2.0](LICENSE) |
+| Code of Conduct | Not published (no root `CODE_OF_CONDUCT.md`) |
+| Last documentation review | 2026-11-26 |
 
-<p align="center"><img src="assets/oplague-workbench-preview.svg" alt="OPlague — Device, Driver & Gaming Workbench — project overview" width="100%"></p>
-<p align="center"><a href="assets/screenshots/oplague-workbench.png"><img src="assets/screenshots/oplague-workbench.png" alt="OPlague — Device, Driver & Gaming Workbench — application screenshot" width="100%"></a></p>
+<p align="center"><img src="assets/oplague-workbench-preview.svg" alt="OPlague workbench architecture preview" width="100%"></p>
+<p align="center"><a href="assets/screenshots/oplague-workbench.png"><img src="assets/screenshots/oplague-workbench.png" alt="OPlague workbench screenshot" width="100%"></a></p>
 
-## Quick navigation
+## Contents
+- [Purpose and scope](#purpose-and-scope)
+- [Architecture and data flow](#architecture-and-data-flow)
+- [Requirements and quick start](#requirements-and-quick-start)
+- [Interfaces and evidence](#interfaces-and-evidence)
+- [Security and limitations](#security-and-limitations)
+- [Release and documentation](#release-and-documentation)
 
-[🚀 Demo: workbench screenshot](assets/screenshots/oplague-workbench.png) · [Documentation](docs/README.md) · [Source repository](https://github.com/Ivan-VHS/OPlague) · [Issues](https://github.com/Ivan-VHS/OPlague/issues)
+## Purpose and scope
 
-## Mission & scope
+OPlague is a local evidence workbench for read-only Windows Plug-and-Play inventory, bounded INF/ZIP/UDRV metadata inspection, exact normalized hardware-ID candidate matching, local metrics and GPU telemetry export. Offline file and report analysis is available outside Windows where the relevant workflow does not require live Plug-and-Play data.
 
-A local workbench for read-only device discovery, bounded INF/ZIP/UDRV package inspection, compatibility evidence and gaming telemetry. Live Windows Plug-and-Play discovery is Windows-only; saved-file and report analysis is portable. The application does not install, enable, unload or modify drivers.
+The product does not install, remove, enable, unload or modify drivers. It does not execute package payloads, certify device compatibility or claim that a metadata match is a safety verdict.
 
-## Capabilities
-
-- Windows Plug-and-Play inventory with read-only queries.
-- Bounded INF/ZIP inspection, PE and Authenticode metadata, SHA-256 and SPDX inventory.
-- UDRV v1 manifest, file-size, hash and path validation; payloads are not installed or executed.
-- Exact normalized hardware-ID candidate edges; candidates are not compatibility certification.
-- Local gaming/frametime analysis and NVIDIA nvidia-smi read-only telemetry export when available.
-- Versioned JSON device snapshots and optional trusted Pytyliki C ABI cross-checks.
-
-## Architecture & data flow
+## Architecture and data flow
 
 ~~~mermaid
 flowchart TB
   U["User-selected device or file"] --> I["Bounded inspector"]
-  I --> N["Normalize IDs / metadata / hashes"]
-  N --> E["Evidence and candidate graph"]
-  E --> R["Local report / JSON snapshot"]
-  G["nvidia-smi — read only"] --> T["GPU telemetry snapshot"]
+  I --> N["Normalize IDs, paths, sizes and hashes"]
+  N --> E["Evidence record and candidate graph"]
+  E --> R["Local report / versioned JSON snapshot"]
+  P["Windows PnP read-only query"] --> E
+  G["NVIDIA telemetry source (read-only)"] --> T["GPU telemetry snapshot"]
   T --> R
-  R -.-> X["No driver install, load or certification"]
+  R -.-> X["No install, load, extraction or certification"]
 ~~~
 
-Source code, schemas, build files, tests and CI are the evidence for implemented behavior. Roadmap entries and catalogue records describe plans or inventories, not shipped functionality.
+The core flow is local input → bounded parser or fixed read-only system query → normalized evidence → report. Untrusted archive metadata is constrained before analysis. Imported driver payloads are not extracted or executed.
 
-## Requirements
+## Requirements and quick start
 
-Python 3.10–3.12 for the current desktop and validation tools. Windows is required for live Plug-and-Play inventory; offline file inspection and report analysis do not require live device access. Tk-based desktop UI availability depends on the local Python installation.
-
-## Build
+Requirements: Python 3.10+ for the current tools; Windows for live Plug-and-Play inventory. Offline file/report inspection can run on supported Python environments.
 
 ~~~sh
 python -m venv .venv
-. .venv/bin/activate
-python -m pip install --upgrade pip
 python oplague_app.py
 ~~~
 
-
-## First checks
+Run the project tests and inspect a user-selected local package:
 
 ~~~sh
 python -m unittest discover -s tests -v
 python tools/udrv_inspector.py path/to/package.udrv --json
 ~~~
 
-Run the desktop entry point after reviewing the tests and inspector output. The package inspector does not extract or execute payloads.
+The UDRV command validates manifest, declared file inventory, size, hash and path/resource constraints. It does not install, load, extract or execute the payload.
 
-## Run
+## Interfaces and evidence
 
-The current desktop entry point is oplague_app.py. The package inspector accepts a user-selected local file; it does not execute package payloads.
-
-## Interfaces
-
-| Surface | Contract / entry point | Boundary |
+| Interface | Contract | Boundary |
 |---|---|---|
-| Device snapshot | `oplage.device-snapshot.v1` | Versioned JSON; pseudonymous device fingerprint. |
-| GPU telemetry | `oplage.gpu-telemetry.v1` | Read-only NVIDIA sensor export; unavailable values remain unknown. |
-| UDRV inspector | `tools/udrv_inspector.py` | Manifest, size, hash and path checks; no install/load. |
-| Native metrics | `Optional pytyliki.c-abi.v1` | Only through an explicitly selected trusted library. |
+| Device snapshot | `oplage.device-snapshot.v1` | Versioned JSON; pseudonymous device fingerprint |
+| GPU telemetry | `oplage.gpu-telemetry.v1` | Read-only source metadata; unavailable values remain unknown |
+| UDRV | UDRV v1 manifest | Bounded validation only |
+| Batch report | `oplage.inspection-bundle.v1` | Ordered local summary and deterministic digest |
+| Pytyliki | `pytyliki.c-abi.v1` | Optional native call through an explicitly trusted library |
+| Reaper | Versioned JSON comparison | Offline comparison; no device mutation |
 
-REST/GraphQL, WebSocket, OAuth, cloud deployment and cookie mechanisms are not advertised without a versioned implementation and tests.
+Exact normalized hardware-ID matches create candidate edges only. They do not rank, certify, install or declare a driver safe. NVIDIA telemetry is source-attributed; the presence of a GPU or provider is not assumed.
 
-## Security & trust boundaries
+## Security and limitations
 
-Imported files and packages are untrusted input. Archive entry counts, paths, sizes and compression are bounded; payloads are not extracted or executed. Hardware-ID matches are candidate evidence, not signing, safety or operating-system support verdicts. Device discovery is read-only; no driver, firmware or device state is changed.
+> **Read-only boundary:** no driver package or payload is installed, loaded, extracted or executed by the documented inspection path.
 
-Security reporting: [SECURITY.md](SECURITY.md). Do not publish secrets, device identifiers or private logs in public issues.
+Treat INF, ZIP, UDRV and imported report files as untrusted. Parsers enforce entry, path, size and compression limits; SHA-256 identifies content changes but is not a digital signature or publisher authentication. Authenticode metadata is collected only for selected supported files and does not establish device compatibility or operational safety.
 
-## Verification
+Live Plug-and-Play collection is Windows-only. Offline report and package analysis is separate from live inventory. The Rust 2021 diagnostics ABI consumer is a bounded integration component, not a full Rust/Slint migration of the workbench. The repository's project contract does not declare a single product version.
 
-~~~sh
-python -m unittest discover -s tests -v
-~~~
+The Beelzebul repository scanner is a local/static source assurance tool; it is not endpoint malware protection, process-memory inspection or quarantine. See [SECURITY.md](SECURITY.md) for the scanner's exact behavior and disclosure process.
 
-The checked-in CTest/unittest targets and workflows define the test scope. No coverage percentage, fuzz result or load-test report is claimed without a published artifact.
+## Release and documentation
 
-## Performance evidence
+Start with [Documentation Index](docs/README.md) and [Information Architecture](docs/INFORMATION_ARCHITECTURE.md).
 
-Gaming and GPU metrics are local observations, not universal benchmarks. NVIDIA telemetry is read-only and source-attributed; missing measurements remain unknown. No fixed latency or memory footprint is claimed.
-
-## Compatibility
-
-Live Windows Plug-and-Play inventory is Windows-only. Offline package, hash, schema and report inspection are portable subject to the installed Python environment and optional platform-specific evidence sources.
-
-## Documentation & ecosystem
-
-- [Features and limits](docs/FEATURES.md)
+- [Feature matrix](docs/FEATURES.md)
 - [Architecture](docs/ARCHITECTURE.md)
-- [Authenticode inspection](docs/AUTHENTICODE.md)
-- [UDRV v1 format](docs/UDRV_FORMAT_V1.md)
-- [GPU telemetry bridge](docs/GPU_TELEMETRY_BRIDGE_V1.md)
-- [Gaming workbench](docs/GAMING_PERFORMANCE_WORKBENCH.md)
-- [Documentation index](docs/README.md)
+- [UDRV format v1](docs/UDRV_FORMAT_V1.md)
+- [Device compatibility graph](docs/DEVICE_COMPATIBILITY_GRAPH.md)
+- [GPU telemetry bridge v1](docs/GPU_TELEMETRY_BRIDGE_V1.md)
+- [Federated integration](docs/FEDERATED_INTEGRATION.md)
+- [Windows release distribution](docs/RELEASE.md)
+- [Security policy](SECURITY.md)
 
-Feature boundaries, the UDRV schema, Authenticode inspection and the read-only GPU telemetry bridge are the primary technical references.
+The Windows release workflow creates a **draft** GitHub Release for maintainer review. Its SHA-256 sidecar detects byte changes relative to the digest; it is not a digital signature and does not authenticate the publisher. Release publication is a separate maintainer action.
 
-Cross-project integrations use documented versioned interfaces and explicit adapters. An optional adapter does not grant another project runtime or hardware privileges.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before changing parsers, schemas, candidate matching or telemetry. The repository is licensed under [Apache-2.0](LICENSE); preserve upstream notices and attribution.
 
-## Contributing
+## Release history
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) before changing code or contracts. Keep changes reviewable, add deterministic tests and use Conventional Commits where required by the repository guide.
-
-## License & legal
-
-Distributed under [Apache-2.0](LICENSE). The software is provided “AS IS” under the license terms. Third-party project names and trademarks remain with their respective owners.
-
-This repository documents local software interfaces. Hosted-service terms, cookie consent, OAuth and CORS are not applicable to the runtime surfaces described above unless a separate hosted component is introduced and documented.
-
----
-
-<p align="center"><sub>Psychoporter 666 README Standard v1.0 · Ivan-VHS · 2026-11-25 · UTC</sub></p>
+No single product version is declared in the current project contract. Do not infer a release version from a draft workflow or package metadata. Public releases and support states must be tied to actual tags and published release artifacts. Breaking changes to JSON schemas or the UDRV manifest require an explicit version and migration note.
