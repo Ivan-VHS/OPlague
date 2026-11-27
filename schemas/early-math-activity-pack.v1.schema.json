@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DAK early-math activity pack v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "pack_id",
+    "title",
+    "locale",
+    "age_months",
+    "principles",
+    "session_policy",
+    "stages"
+  ],
+  "properties": {
+    "schema": {
+      "const": "dak.education.early-math-pack.v1"
+    },
+    "pack_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 64
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "locale": {
+      "type": "string",
+      "pattern": "^[a-z]{2}(?:-[A-Z]{2})?$"
+    },
+    "age_months": {
+      "$ref": "#/$defs/ageRange"
+    },
+    "principles": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 6,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "objects_before_symbols",
+          "short_child_paced_sessions",
+          "play_over_speed",
+          "everyday_math",
+          "varied_materials",
+          "errors_are_exploration"
+        ]
+      }
+    },
+    "session_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "adult_guided",
+        "child_paced",
+        "timed",
+        "scored",
+        "personal_data_collection",
+        "network_required",
+        "duration_guidance"
+      ],
+      "properties": {
+        "adult_guided": {
+          "const": true
+        },
+        "child_paced": {
+          "const": true
+        },
+        "timed": {
+          "const": false
+        },
+        "scored": {
+          "const": false
+        },
+        "personal_data_collection": {
+          "const": false
+        },
+        "network_required": {
+          "const": false
+        },
+        "duration_guidance": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "age_min_months",
+              "age_max_months",
+              "minutes_min",
+              "minutes_max"
+            ],
+            "properties": {
+              "age_min_months": {
+                "type": "integer",
+                "minimum": 18,
+                "maximum": 72
+              },
+              "age_max_months": {
+                "type": "integer",
+                "minimum": 18,
+                "maximum": 72
+              },
+              "minutes_min": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 20
+              },
+              "minutes_max": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 20
+              }
+            }
+          }
+        }
+      }
+    },
+    "stages": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 8,
+      "items": {
+        "$ref": "#/$defs/stage"
+      }
+    }
+  },
+  "$defs": {
+    "ageRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min",
+        "max"
+      ],
+      "properties": {
+        "min": {
+          "type": "integer",
+          "minimum": 18,
+          "maximum": 72
+        },
+        "max": {
+          "type": "integer",
+          "minimum": 18,
+          "maximum": 72
+        }
+      }
+    },
+    "concept": {
+      "enum": [
+        "quantity",
+        "comparison",
+        "sorting",
+        "geometry",
+        "one_to_one_matching",
+        "spatial_language",
+        "number_bonds",
+        "measurement",
+        "patterns"
+      ]
+    },
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "age_months",
+        "focus",
+        "activities"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "maxLength": 64
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "age_months": {
+          "$ref": "#/$defs/ageRange"
+        },
+        "focus": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 9,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/concept"
+          }
+        },
+        "activities": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "items": {
+            "$ref": "#/$defs/activity"
+          }
+        }
+      }
+    },
+    "activity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "concepts",
+        "materials",
+        "steps",
+        "adult_prompt"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "maxLength": 64
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "concepts": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 9,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/concept"
+          }
+        },
+        "materials": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 8,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "adult_prompt": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "adaptation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        }
+      }
+    }
+  }
+}
