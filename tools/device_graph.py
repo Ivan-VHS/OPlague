@@ -28,7 +28,7 @@ def normalize_hardware_id(value: Any) -> str:
     if not isinstance(value, str):
         return ""
     normalized = value.strip().replace("/", "\\").upper()
-    if not normalized or len(normalized) > 512 or "\\x00" in normalized:
+    if not normalized or len(normalized) > 512 or "\x00" in normalized:
         return ""
     if not normalized.startswith(_ID_PREFIXES):
         return ""
