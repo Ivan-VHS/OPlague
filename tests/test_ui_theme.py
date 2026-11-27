@@ -17,9 +17,9 @@ from ui_theme import (
 
 
 class OPlagueThemeTests(unittest.TestCase):
-    def test_only_the_duck_palette_is_available(self):
-        self.assertEqual(set(PALETTES), {"duck"})
-        palette = palette_for("duck")
+    def test_only_the_dak_palette_is_available(self):
+        self.assertEqual(set(PALETTES), {"dak"})
+        palette = palette_for("dak")
         self.assertEqual(palette["bg"], "#050505")
         self.assertEqual(palette["surface"], "#101010")
         self.assertEqual(palette["elevated"], "#181818")
@@ -31,8 +31,8 @@ class OPlagueThemeTests(unittest.TestCase):
         self.assertEqual(palette["border"], "#3A3A3A")
         self.assertEqual(palette["selection"], "#3A3100")
 
-    def test_legacy_modes_all_resolve_to_the_same_duck_palette(self):
-        expected = palette_for("duck")
+    def test_legacy_modes_all_resolve_to_the_same_dak_palette(self):
+        expected = palette_for("dak")
         for mode in ("system", "light", "dark", "amber"):
             with self.subTest(mode=mode):
                 self.assertEqual(palette_for(mode), expected)
@@ -65,15 +65,15 @@ class OPlagueThemeTests(unittest.TestCase):
         self.assertEqual(palette["on_blue"], "#080808")
         self.assertEqual(palette["on_red"], "#FFFFFF")
 
-    def test_legacy_user_settings_are_normalized_to_duck(self):
-        for old_mode in ("system", "light", "dark", "amber", "duck"):
+    def test_legacy_user_settings_are_normalized_to_dak(self):
+        for old_mode in ("system", "light", "dark", "amber", "dak"):
             with tempfile.TemporaryDirectory() as directory:
                 target = Path(directory) / "ui-settings.json"
                 target.write_text(json.dumps({"version": 1, "mode": old_mode}), encoding="utf-8")
                 with patch("ui_theme._settings_path", return_value=target):
                     _save_preferred_theme(old_mode)
-                self.assertEqual(json.loads(target.read_text(encoding="utf-8"))["mode"], "duck")
-                self.assertEqual(load_preferred_theme(), "duck")
+                self.assertEqual(json.loads(target.read_text(encoding="utf-8"))["mode"], "dak")
+                self.assertEqual(load_preferred_theme(), "dak")
                 self.assertEqual(sorted(path.name for path in Path(directory).iterdir()),
                                  ["ui-settings.json"])
 
@@ -94,7 +94,7 @@ class OPlagueThemeTests(unittest.TestCase):
             contrast_ratio("blue", "#FFFFFF")
 
     def test_unknown_theme_is_rejected(self):
-        with self.assertRaisesRegex(ValueError, "duck"):
+        with self.assertRaisesRegex(ValueError, "dak"):
             palette_for("neon")
 
 
