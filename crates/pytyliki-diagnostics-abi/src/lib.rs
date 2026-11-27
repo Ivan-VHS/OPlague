@@ -37,6 +37,24 @@ pub struct DiagnosticV1 {
     pub message: [c_char; DIAGNOSTIC_MESSAGE_CAP],
 }
 
+/*
+ * Keep the Rust consumer's binary contract checked by rustc itself, not only
+ * by tests that may be omitted from a downstream build. These assertions
+ * mirror the public C11 header and intentionally cover every field.
+ */
+const _: [(); DIAGNOSTIC_V1_SIZE] = [(); size_of::<DiagnosticV1>()];
+const _: [(); 8] = [(); align_of::<DiagnosticV1>()];
+const _: [(); 0] = [(); offset_of!(DiagnosticV1, struct_size)];
+const _: [(); 4] = [(); offset_of!(DiagnosticV1, abi_version)];
+const _: [(); 8] = [(); offset_of!(DiagnosticV1, code)];
+const _: [(); 12] = [(); offset_of!(DiagnosticV1, severity)];
+const _: [(); 16] = [(); offset_of!(DiagnosticV1, source_offset)];
+const _: [(); 24] = [(); offset_of!(DiagnosticV1, source_length)];
+const _: [(); 32] = [(); offset_of!(DiagnosticV1, detail)];
+const _: [(); 40] = [(); offset_of!(DiagnosticV1, message_size)];
+const _: [(); 44] = [(); offset_of!(DiagnosticV1, reserved)];
+const _: [(); 48] = [(); offset_of!(DiagnosticV1, message)];
+
 impl Default for DiagnosticV1 {
     fn default() -> Self {
         Self {
@@ -162,10 +180,15 @@ mod tests {
     fn c_layout_matches_diagnostics_v1() {
         assert_eq!(size_of::<DiagnosticV1>(), DIAGNOSTIC_V1_SIZE);
         assert_eq!(align_of::<DiagnosticV1>(), 8);
+        assert_eq!(offset_of!(DiagnosticV1, struct_size), 0);
+        assert_eq!(offset_of!(DiagnosticV1, abi_version), 4);
         assert_eq!(offset_of!(DiagnosticV1, code), 8);
+        assert_eq!(offset_of!(DiagnosticV1, severity), 12);
         assert_eq!(offset_of!(DiagnosticV1, source_offset), 16);
+        assert_eq!(offset_of!(DiagnosticV1, source_length), 24);
         assert_eq!(offset_of!(DiagnosticV1, detail), 32);
         assert_eq!(offset_of!(DiagnosticV1, message_size), 40);
+        assert_eq!(offset_of!(DiagnosticV1, reserved), 44);
         assert_eq!(offset_of!(DiagnosticV1, message), 48);
     }
 
@@ -227,7 +250,15 @@ mod tests {
             DistanceError::Native { status, diagnostic } => {
                 assert_eq!(status, STATUS_NON_FINITE_INPUT);
                 assert_eq!(diagnostic.code, DIAG_NON_FINITE_INPUT);
+                assert_eq!(diagnostic.severity, 3);
                 assert_eq!(diagnostic.detail, 1);
+                assert_eq!(diagnostic.source_offset, u64::MAX);
+                assert_eq!(diagnostic.source_length, 0);
+                assert_eq!(diagnostic.reserved, 0);
+                assert_eq!(
+                    diagnostic.message_size as usize,
+                    "Vector contains a non-finite value".len() + 1
+                );
                 assert_eq!(diagnostic.message(), "Vector contains a non-finite value");
             }
             other => panic!("unexpected error: {other:?}"),
@@ -243,6 +274,8 @@ mod tests {
             DistanceError::Native { status, diagnostic } => {
                 assert_eq!(status, STATUS_INVALID_ARGUMENT);
                 assert_eq!(diagnostic.code, DIAG_INVALID_ARGUMENT);
+                assert_eq!(diagnostic.severity, 3);
+                assert_eq!(diagnostic.reserved, 0);
             }
             other => panic!("unexpected error: {other:?}"),
         }
