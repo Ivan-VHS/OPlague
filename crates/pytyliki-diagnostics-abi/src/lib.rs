@@ -1,6 +1,5 @@
 use core::ffi::c_char;
 use core::mem::{align_of, offset_of, size_of};
-use std::ffi::CStr;
 
 pub const CORE_ABI_VERSION: u32 = 1;
 pub const DIAGNOSTICS_ABI_VERSION: u32 = 1;
@@ -57,33 +56,43 @@ impl Default for DiagnosticV1 {
 
 impl DiagnosticV1 {
     pub fn message(&self) -> &str {
-        if self.message_size == 0
-            || self.message_size as usize > self.message.len()
-        {
+        let size = self.message_size as usize;
+        if size == 0 || size > self.message.len() {
             return "";
         }
 
-        // The C ABI guarantees a NUL-terminated message within the fixed buffer.
-        unsafe { CStr::from_ptr(self.message.as_ptr()) }
-            .to_str()
-            .unwrap_or("")
+        // SAFETY: the message is a fixed-size field owned by self, and size
+        // has been checked against that field's capacity.
+        let bytes =
+            unsafe { core::slice::from_raw_parts(self.message.as_ptr().cast::<u8>(), size) };
+        let Some(end) = bytes.iter().position(|byte| *byte == 0) else {
+            return "";
+        };
+
+        core::str::from_utf8(&bytes[..end]).unwrap_or("")
     }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum DistanceError {
-    DimensionMismatch { left: usize, right: usize },
-    UnsupportedAbi { core: u32, diagnostics: u32 },
-    Native { status: i32, diagnostic: DiagnosticV1 },
+    DimensionMismatch {
+        left: usize,
+        right: usize,
+    },
+    UnsupportedAbi {
+        core: u32,
+        diagnostics: u32,
+    },
+    Native {
+        status: i32,
+        diagnostic: DiagnosticV1,
+    },
 }
 
 unsafe extern "C" {
     fn pytyliki_abi_version() -> u32;
     fn pytyliki_diagnostics_abi_version() -> u32;
-    fn pytyliki_v1_diagnostic_init(
-        out_size: u32,
-        out: *mut DiagnosticV1,
-    ) -> i32;
+    fn pytyliki_v1_diagnostic_init(out_size: u32, out: *mut DiagnosticV1) -> i32;
     fn pytyliki_v1_distance_f64_ex(
         left: *const f64,
         right: *const f64,
@@ -96,18 +105,10 @@ unsafe extern "C" {
 
 pub fn abi_versions() -> (u32, u32) {
     // The shared library is selected explicitly by the build environment.
-    unsafe {
-        (
-            pytyliki_abi_version(),
-            pytyliki_diagnostics_abi_version(),
-        )
-    }
+    unsafe { (pytyliki_abi_version(), pytyliki_diagnostics_abi_version()) }
 }
 
-pub fn euclidean_distance(
-    left: &[f64],
-    right: &[f64],
-) -> Result<f64, DistanceError> {
+pub fn euclidean_distance(left: &[f64], right: &[f64]) -> Result<f64, DistanceError> {
     if left.len() != right.len() {
         return Err(DistanceError::DimensionMismatch {
             left: left.len(),
@@ -125,9 +126,7 @@ pub fn euclidean_distance(
 
     let mut diagnostic = DiagnosticV1::default();
     let diagnostic_size = size_of::<DiagnosticV1>() as u32;
-    let init_status = unsafe {
-        pytyliki_v1_diagnostic_init(diagnostic_size, &mut diagnostic)
-    };
+    let init_status = unsafe { pytyliki_v1_diagnostic_init(diagnostic_size, &mut diagnostic) };
     if init_status != STATUS_OK {
         return Err(DistanceError::Native {
             status: init_status,
@@ -171,6 +170,44 @@ mod tests {
     }
 
     #[test]
+    fn diagnostic_message_stays_within_declared_length() {
+        let mut diagnostic = DiagnosticV1::default();
+        diagnostic.message[0] = b'o' as c_char;
+        diagnostic.message[1] = 0;
+        diagnostic.message[2] = b'x' as c_char;
+        diagnostic.message_size = 2;
+
+        assert_eq!(diagnostic.message(), "o");
+    }
+
+    #[test]
+    fn diagnostic_message_rejects_missing_terminator() {
+        let mut diagnostic = DiagnosticV1::default();
+        diagnostic.message = [b'x' as c_char; DIAGNOSTIC_MESSAGE_CAP];
+        diagnostic.message_size = DIAGNOSTIC_MESSAGE_CAP as u32;
+
+        assert_eq!(diagnostic.message(), "");
+    }
+
+    #[test]
+    fn diagnostic_message_rejects_invalid_utf8() {
+        let mut diagnostic = DiagnosticV1::default();
+        diagnostic.message[0] = 0xffu8 as c_char;
+        diagnostic.message[1] = 0;
+        diagnostic.message_size = 2;
+
+        assert_eq!(diagnostic.message(), "");
+    }
+
+    #[test]
+    fn diagnostic_message_rejects_size_beyond_capacity() {
+        let mut diagnostic = DiagnosticV1::default();
+        diagnostic.message_size = (DIAGNOSTIC_MESSAGE_CAP + 1) as u32;
+
+        assert_eq!(diagnostic.message(), "");
+    }
+
+    #[test]
     fn native_library_exposes_both_abi_versions() {
         assert_eq!(abi_versions(), (CORE_ABI_VERSION, DIAGNOSTICS_ABI_VERSION));
     }
@@ -199,8 +236,8 @@ mod tests {
 
     #[test]
     fn native_empty_input_is_rejected_without_panicking() {
-        let error = euclidean_distance(&[], &[])
-            .expect_err("zero-dimensional input must be rejected");
+        let error =
+            euclidean_distance(&[], &[]).expect_err("zero-dimensional input must be rejected");
 
         match error {
             DistanceError::Native { status, diagnostic } => {
