@@ -81,7 +81,7 @@ Beelzebul 仓库扫描器是本地/静态源码保障工具，不是端点恶意
 - [UDRV v1 格式](docs/UDRV_FORMAT_V1.md) · [设备兼容性图](docs/DEVICE_COMPATIBILITY_GRAPH.md)
 - [GPU telemetry v1 桥接](docs/GPU_TELEMETRY_BRIDGE_V1.md) · [设备与驱动检查](docs/clusters/device-driver-inspection.md)
 - [联邦集成](docs/FEDERATED_INTEGRATION.md) · [Windows 发布流程](docs/RELEASE.md)
-- [Pytyliki diagnostics ABI](docs/PYTYLIKI_DIAGNOSTICS_ABI.md) · [安全策略](SECURITY.md)
+- [Reaper runtime integration](docs/REAPER_RUNTIME_INTEGRATION.md) · [安全策略](SECURITY.md)
 - [视觉发布标准](docs/README_VISUAL_STANDARD.md)
 
 Windows 发布工作流会创建供维护者审查的 GitHub Release 草稿。正式发布需要维护者另行操作；SHA-256 sidecar 不是数字签名。
