@@ -9,7 +9,7 @@
 | Reports | scrollable, copyable, explicit export |
 | Settings | versioned local theme preference |
 
-Theme: one fixed Duck palette with legacy preferences normalized on application. Keep tables resizable, data surfaces opaque, keyboard focus visible and status text explicit. Live PnP is Windows-only; saved-file analysis is portable.
+Theme: one fixed DAK palette with legacy preferences normalized on application. Keep tables resizable, data surfaces opaque, keyboard focus visible and status text explicit. Live PnP is Windows-only; saved-file analysis is portable.
 
 ## 40026 Codex
 
