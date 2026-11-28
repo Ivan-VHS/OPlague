@@ -1,0 +1,81 @@
+{
+  "schema": "dak.gui-neuro-profile.v1",
+  "version": 1,
+  "repository": "Ivan-VHS/OPlague",
+  "ui_stack": [
+    "Python/Tkinter desktop UI",
+    "Rust diagnostics ABI crate",
+    "Local-first read-only inspection and dry-run planning"
+  ],
+  "primary_ui_surfaces": [
+    "oplague_app.py",
+    "oplage_app.py",
+    "ui_theme.py",
+    "ui_motion.py",
+    "tools/game_optimizer_ui.py",
+    "tests/test_ui_theme.py",
+    "tests/test_ui_motion.py"
+  ],
+  "automation": {
+    "agent_mode": "supervised-neuro-agent",
+    "stages": [
+      "observe",
+      "measure",
+      "diagnose",
+      "propose",
+      "sandbox",
+      "validate",
+      "feature-branch",
+      "human-review"
+    ],
+    "target_branch_policy": "feature-branch-only",
+    "human_review_required": true,
+    "allow_main_branch_writes": false,
+    "allow_auto_merge": false,
+    "model_runtime": "operator-configured; not invoked by this workflow",
+    "change_budget": {
+      "max_files_per_pr": 20,
+      "prefer_small_reviewable_changes": true,
+      "require_rollback_plan": true
+    }
+  },
+  "privacy": {
+    "external_model_data": "deny_by_default",
+    "telemetry": "disabled",
+    "secret_access": "deny",
+    "local_artifacts_only": true
+  },
+  "allowed_write_paths": [
+    "gui-neuro-profile.v1.json",
+    "docs/GUI_NEURO_AUTOIMPROVEMENT.md",
+    "tools/validate_gui_neuro_profile.mjs",
+    ".github/workflows/gui-neuro-profile.yml",
+    "oplague_app.py",
+    "oplage_app.py",
+    "ui_theme.py",
+    "ui_motion.py",
+    "tools/game_optimizer_ui.py",
+    "tests/",
+    "docs/"
+  ],
+  "protected_write_paths": [
+    "crates/",
+    "security/",
+    "drivers/",
+    "firmware/",
+    "kernel/"
+  ],
+  "quality_gates": [
+    "Python compile and unit tests",
+    "Visual canon and contrast checks",
+    "Windows desktop package smoke test",
+    "Read-only and dry-run driver workflow regression tests"
+  ],
+  "success_metrics": [
+    "no driver installation or firmware writes from GUI auto-actions",
+    "package bytes remain local unless explicitly exported by user",
+    "motion and theme settings survive invalid input safely",
+    "all high-impact operations require explicit confirmation"
+  ],
+  "implementation_boundary": "OPlague handles driver package inspection and compatibility planning. The UI must preserve read-only inspection and dry-run defaults. No automatic driver installation, firmware writes, kernel changes or transmission of package contents to external models."
+}
