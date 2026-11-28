@@ -1,0 +1,150 @@
+{
+  "schema": "dak.project-maturity.v1",
+  "version": 1,
+  "project": "OPlague",
+  "repository": "Ivan-VHS/OPlague",
+  "current_stage": 4,
+  "current_name": "Ascension",
+  "assessment": "provisional",
+  "assessment_date": "2026-11-25",
+  "assessment_basis": "Repository README, architecture, implementation entry points, interface documentation and CI definitions were inspected for the recorded gates. The full target build and test matrix was not re-run during this adoption; this is not a new CI certification.",
+  "stages": [
+    {
+      "number": 1,
+      "name": "Genesis",
+      "status": "met",
+      "evidence": [
+        {
+          "kind": "scope",
+          "path": "README.md",
+          "claim": "Defines the read-only device and driver workbench, supported Windows desktop target and prohibited driver writes.",
+          "verification": "documentation_only"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "name": "Foundation",
+      "status": "met",
+      "evidence": [
+        {
+          "kind": "architecture",
+          "path": "docs/ARCHITECTURE.md",
+          "claim": "Documents the user-space inspection, package analysis and reporting boundaries.",
+          "verification": "documentation_only"
+        },
+        {
+          "kind": "policy",
+          "path": "SECURITY.md",
+          "claim": "Provides repository security and vulnerability-reporting guidance.",
+          "verification": "documentation_only"
+        },
+        {
+          "kind": "build",
+          "path": ".github/workflows/desktop-build.yml",
+          "claim": "Defines the Windows desktop build and distributable packaging workflow.",
+          "verification": "documentation_only"
+        },
+        {
+          "kind": "ci",
+          "path": ".github/workflows/desktop-build.yml",
+          "claim": "Builds and tests the supported Windows desktop executable in CI.",
+          "verification": "documentation_only"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "name": "Evolution",
+      "status": "met",
+      "evidence": [
+        {
+          "kind": "source",
+          "path": "oplage_app.py",
+          "claim": "Contains the primary application implementation for the bounded device and package workbench.",
+          "verification": "documentation_only"
+        },
+        {
+          "kind": "tests",
+          "path": "tests",
+          "claim": "Contains regression tests for package parsing, inventory and report behavior.",
+          "verification": "documentation_only"
+        },
+        {
+          "kind": "runtime",
+          "path": "oplague_app.py",
+          "claim": "Provides the documented application entry point used by the supported desktop workflow.",
+          "verification": "source_reviewed"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "name": "Ascension",
+      "status": "met",
+      "evidence": [
+        {
+          "kind": "integration",
+          "path": "docs/REAPER_RUNTIME_INTEGRATION.md",
+          "claim": "Documents the optional versioned Reaper native ABI boundary while keeping device work read-only.",
+          "verification": "source_reviewed"
+        },
+        {
+          "kind": "contract_tests",
+          "path": "tests",
+          "claim": "Contains regression coverage for the application and its optional integration boundary.",
+          "verification": "documentation_only"
+        },
+        {
+          "kind": "ci",
+          "path": ".github/workflows/desktop-build.yml",
+          "claim": "Builds the Windows target and runs the repository test suite in CI.",
+          "verification": "documentation_only"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "name": "Vanguard",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "number": 6,
+      "name": "Frontier",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "number": 7,
+      "name": "Dominion",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "number": 8,
+      "name": "Apex",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "number": 9,
+      "name": "Zenith",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "number": 10,
+      "name": "Singularity",
+      "status": "pending",
+      "evidence": []
+    }
+  ],
+  "next_stage": 5,
+  "next_gate": [
+    "Exercise the end-to-end read-only inventory, package inspection and reporting path on the supported Windows target.",
+    "Add adversarial, fuzz and fault-injection evidence for PE, INF, ZIP and UDRV inputs.",
+    "Record executable provenance, compatibility coverage and recovery behavior for the supported release path."
+  ],
+  "semver_independent": true
+}
