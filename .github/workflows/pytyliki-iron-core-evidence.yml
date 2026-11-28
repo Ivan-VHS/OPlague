@@ -1,0 +1,34 @@
+name: Pytyliki Iron Core evidence intake
+on:
+  pull_request:
+    paths:
+      - "tools/iron_core_evidence.py"
+      - "tests/test_iron_core_evidence.py"
+      - "schemas/pytyliki.iron-core-ast.v1.schema.json"
+      - "examples/iron_core/**"
+      - "docs/PYTYLIKI_IRON_CORE_EVIDENCE.md"
+      - ".github/workflows/pytyliki-iron-core-evidence.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tools/iron_core_evidence.py"
+      - "tests/test_iron_core_evidence.py"
+      - "schemas/pytyliki.iron-core-ast.v1.schema.json"
+      - "examples/iron_core/**"
+      - ".github/workflows/pytyliki-iron-core-evidence.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-iron-core-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Validate consumer fixture and negative cases
+        run: python -m unittest discover -s tests -p test_iron_core_evidence.py -v
+      - name: Validate schema and fixture JSON
+        run: |
+          python -c "import json, pathlib; json.loads(pathlib.Path('schemas/pytyliki.iron-core-ast.v1.schema.json').read_text()); json.loads(pathlib.Path('examples/iron_core/inspection.ast.json').read_text())"

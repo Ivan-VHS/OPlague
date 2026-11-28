@@ -1,38 +1,40 @@
 # OPlague documentation
 
-> **Psychoporter 666 documentation profile v1.0** · Reviewed 2026-11-25 (UTC)
+**Documentation baseline:** 2026-11-26 · **Project status:** development / Windows-first read-only workbench.
 
-[Project overview](../README.md) · [Source](https://github.com/Ivan-VHS/OPlague) · [Issues](https://github.com/Ivan-VHS/OPlague/issues) · [Contributing](../CONTRIBUTING.md) · [Security](../SECURITY.md)
+Start with the [root README](../README.md) for platform scope, supported workflows and security boundaries. The [Information Architecture](INFORMATION_ARCHITECTURE.md) page catalogs the maintained documentation library.
 
-Start with the [project README](../README.md) for read-only operating boundaries, supported inspection paths and validation commands.
+## Core references
 
-## Key references
-
-- [Features and limits](FEATURES.md) — inspection-only capabilities and non-goals.
-- [Architecture](ARCHITECTURE.md) — data flow and evidence ownership.
 - [Early Mathematics Content Assurance v1](EARLY_MATHEMATICS_CONTENT_ASSURANCE_V1.md) — proposed bounded, read-only inspection profile for declarative educational content packs.
-- [Authenticode inspection](AUTHENTICODE.md) — signature metadata without installation verdicts.
-- [UDRV package format](UDRV_FORMAT_V1.md) — bounded manifest and payload validation.
-- [GPU telemetry bridge v1](GPU_TELEMETRY_BRIDGE_V1.md) — read-only source-attributed export.
-- [NEXUS device profile](NEXUS_DEVICE_PROFILE_V1.md) — provenance and integration boundaries.
+
+- [Feature matrix](FEATURES.md) — implemented inspection and reporting capabilities.
+- [Architecture](ARCHITECTURE.md) — bounded evidence flow and trust boundaries.
+- [UDRV format v1](UDRV_FORMAT_V1.md) — package manifest and resource constraints.
+- [Device compatibility graph](DEVICE_COMPATIBILITY_GRAPH.md) — exact-ID candidate semantics.
+- [Authenticode](AUTHENTICODE.md) — selected-file signature metadata boundary.
+- [GPU telemetry bridge v1](GPU_TELEMETRY_BRIDGE_V1.md) — read-only snapshot contract.
+- [Federated integration](FEDERATED_INTEGRATION.md) — Reaper and Pytyliki interfaces.
+- [Release](RELEASE.md) — draft publication workflow and checksum limits.
+- [Security](../SECURITY.md) — static repository assurance and disclosure.
 
 ## Browse by topic
 
-- [device driver inspection](clusters/device-driver-inspection.md)
-- [security evidence](clusters/security-evidence.md)
-- [architecture systems](clusters/architecture-systems.md)
-- [ui workbench](clusters/ui-workbench.md)
-- [integration federation](clusters/integration-federation.md)
-- [governance planning](clusters/governance-planning.md)
+- [Device, driver and package inspection](clusters/device-driver-inspection.md)
+- [Security, safety and evidence](clusters/security-evidence.md)
+- [Architecture and system contracts](clusters/architecture-systems.md)
+- [Workbench UI and visual system](clusters/ui-workbench.md)
+- [Integrations and project federation](clusters/integration-federation.md)
+- [Governance, planning and reference material](clusters/governance-planning.md)
 
-## Shared engineering rules
+## Shared standards
 
 - [Unified documentation standard](UNIFIED_DOCUMENTATION_STANDARD.md)
+- [Documentation control](DOCUMENTATION_CONTROL.md)
 - [Engineering evolution framework](ENGINEERING_EVOLUTION_FRAMEWORK.md)
 - [Repository evolution directives](REPOSITORY_EVOLUTION_DIRECTIVES.md)
+- [Contributing](../CONTRIBUTING.md)
 
-## Evidence and maturity
+## Evidence rule
 
-Describe behavior from source, build configuration, schemas, tests and CI evidence. Mark proposals and roadmap items as planned. Do not invent benchmarks, security certifications, platform support, API surfaces or release status.
-
-**The index is navigation, not proof of implementation.**
+Read-only inspection is not installation or remediation. Hardware-ID matches are candidates, metadata checks are not certifications, SHA-256 is not a signature, and a static repository scanner is not endpoint protection.
