@@ -117,3 +117,7 @@ Windows 发布工作流只创建供维护者审核的 **GitHub Release 草稿**�
 ## 发布历史
 
 当前项目契约未声明统一产品版本。不要从草稿工作流或包元数据推断正式发布版本。公开发布和支持状态必须由真实标签与已发布制品证明。JSON schema 或 UDRV manifest 的破坏性变更需要明确版本和迁移说明。
+
+## 相关数学研究
+
+[维尤年科 K3 理论 v0.4.0 提案](https://github.com/Ivan-VHS/Kaskad/pull/36)记录了基数 1000 完备化的 CRT 分解及唯一的无限位置系数序列。这只是外部数学参考；不会增加运行时/构建依赖，也不会改变本仓库的行为、API、格式或许可证。详见[本地研究说明](docs/VYUNENKO_K3_RESEARCH_REFERENCE.md)。
