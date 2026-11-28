@@ -2,6 +2,10 @@
 
 [English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
 
+> **Psychoporter 666** — architectural precision × exploratory energy × traceable evidence. [Shared documentation style](https://github.com/Ivan-VHS/DAK/blob/main/docs/PSYCHOPORTER_DOCUMENTATION_STYLE_V1.md).  
+> **Editorial revision · 2026-11-28:** presentation and navigation updated; original authorship, license terms and third-party attribution are retained.
+
+
 > A local, read-only workbench for Windows device inventory, bounded driver-package inspection, hardware-ID candidate analysis and source-attributed telemetry.
 
 **Specification**
@@ -113,3 +117,7 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before changing parsers, schemas, candid
 ## Release history
 
 No single product version is declared in the current project contract. Do not infer a release version from a draft workflow or package metadata. Public releases and support states must be tied to actual tags and published release artifacts. Breaking changes to JSON schemas or the UDRV manifest require an explicit version and migration note.
+
+## Related mathematical research
+
+The [Vyunenko Theory K3 v0.4.0 proposal](https://github.com/Ivan-VHS/Kaskad/pull/36) documents CRT splitting of the radix-1000 completion and unique infinite positional coefficient sequences. This is an external mathematical reference only; it does not add a runtime/build dependency or change this repository's behavior, APIs, formats or license. See [the local research note](docs/VYUNENKO_K3_RESEARCH_REFERENCE.md).
