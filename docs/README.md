@@ -40,3 +40,7 @@ Start with the [root README](../README.md) for platform scope, supported workflo
 ## Evidence rule
 
 Read-only inspection is not installation or remediation. Hardware-ID matches are candidates, metadata checks are not certifications, SHA-256 is not a signature, and a static repository scanner is not endpoint protection.
+
+## Related mathematical research
+
+- [Vyunenko Theory K3 v0.4.0 — external research reference](VYUNENKO_K3_RESEARCH_REFERENCE.md) — CRT completion and infinite base-1000 expansions; documentation-only, no runtime dependency.
