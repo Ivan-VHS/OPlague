@@ -117,3 +117,7 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before changing parsers, schemas, candid
 ## Release history
 
 No single product version is declared in the current project contract. Do not infer a release version from a draft workflow or package metadata. Public releases and support states must be tied to actual tags and published release artifacts. Breaking changes to JSON schemas or the UDRV manifest require an explicit version and migration note.
+
+## Related mathematical research
+
+The [Vyunenko Theory K3 v0.4.0 proposal](https://github.com/Ivan-VHS/Kaskad/pull/36) documents CRT splitting of the radix-1000 completion and unique infinite positional coefficient sequences. This is an external mathematical reference only; it does not add a runtime/build dependency or change this repository's behavior, APIs, formats or license. See [the local research note](docs/VYUNENKO_K3_RESEARCH_REFERENCE.md).
