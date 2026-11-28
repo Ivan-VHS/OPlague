@@ -1,5 +1,9 @@
 # OPlague documentation
 
+> **Editorial revision · 2026-11-28:** Documentation navigation and editorial presentation refreshed; existing authorship, licenses and upstream notices remain unchanged.
+> **Shared editorial profile:** [Psychoporter 666 Documentation Style v1.1](https://github.com/Ivan-VHS/DAK/blob/main/docs/PSYCHOPORTER_DOCUMENTATION_STYLE_V1.md) — presentation is shared; OPlague's inspection contracts and security boundaries remain specific to this repository.
+
+
 **Documentation baseline:** 2026-11-26 · **Project status:** development / Windows-first read-only workbench.
 
 Start with the [root README](../README.md) for platform scope, supported workflows and security boundaries. The [Information Architecture](INFORMATION_ARCHITECTURE.md) page catalogs the maintained documentation library.
