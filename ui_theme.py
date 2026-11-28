@@ -15,14 +15,14 @@ from typing import Iterator
 
 THEME_ENV = "OPLAGUE_UI_THEME"
 PALETTES: dict[str, dict[str, str]] = {
-    "duck": {
+    "dak": {
         "bg": "#050505", "surface": "#101010", "elevated": "#181818",
         "fg": "#FFFFFF", "secondary": "#E5E5E5", "muted": "#A6A6A6",
         "heading": "#FFFFFF", "blue": "#FFD700", "blue_hover": "#FFE45C", "on_blue": "#080808",
         "red": "#C43A45", "red_hover": "#D64C57", "on_red": "#FFFFFF",
         "border": "#3A3A3A", "focus": "#FFE45C", "selection": "#3A3100",
         "selection_fg": "#FFFFFF", "disabled": "#A6A6A6", "log": "#050505",
-        "log_text": "#FFFFFF", "mode": "duck",
+        "log_text": "#FFFFFF", "mode": "dak",
         "success": "#2EAD68", "warning": "#FFD700", "error": "#FF6B72", "info": "#6CA8FF",
         "brand": "#FFD700", "brand_hover": "#FFE45C", "on_brand": "#080808",
         "brand_secondary": "#FFD700", "on_brand_secondary": "#080808",
@@ -91,13 +91,13 @@ def _settings_path() -> Path:
 
 
 def load_preferred_theme() -> str:
-    """Return the fixed Duck palette; legacy preferences are normalized on apply."""
-    return "duck"
+    """Return the fixed DAK palette; legacy preferences are normalized on apply."""
+    return "dak"
 
 def _save_preferred_theme(mode: str) -> None:
-    """Persist the fixed Duck palette with same-directory atomic replacement."""
-    if str(mode or "").casefold() not in {"system", "light", "dark", "amber", "duck"}:
-        raise ValueError("Theme must be one of the legacy modes or 'duck'")
+    """Persist the fixed DAK palette with same-directory atomic replacement."""
+    if str(mode or "").casefold() not in {"system", "light", "dark", "amber", "dak"}:
+        raise ValueError("Theme must be one of the legacy modes or 'dak'")
 
     temporary: Path | None = None
     try:
@@ -112,7 +112,7 @@ def _save_preferred_theme(mode: str) -> None:
             delete=False,
         ) as stream:
             temporary = Path(stream.name)
-            json.dump({"version": 1, "mode": "duck"}, stream, ensure_ascii=False, indent=2)
+            json.dump({"version": 1, "mode": "dak"}, stream, ensure_ascii=False, indent=2)
             stream.write(chr(10))
             stream.flush()
             os.fsync(stream.fileno())
@@ -152,13 +152,13 @@ def _system_dark() -> bool:
     return gtk_theme.endswith(":dark") or "-dark" in gtk_theme
 
 
-def palette_for(mode: str = "duck", *, system_dark: bool | None = None) -> dict[str, str]:
-    """Return the same Duck palette for current and legacy theme identifiers."""
-    requested = str(mode or "duck").casefold()
-    if requested not in {"duck", "system", "light", "dark", "amber"}:
-        raise ValueError("Theme must be one of 'duck', 'system', 'light', 'dark' or 'amber'")
+def palette_for(mode: str = "dak", *, system_dark: bool | None = None) -> dict[str, str]:
+    """Return the same DAK palette for current and legacy theme identifiers."""
+    requested = str(mode or "dak").casefold()
+    if requested not in {"dak", "system", "light", "dark", "amber"}:
+        raise ValueError("Theme must be one of 'dak', 'system', 'light', 'dark' or 'amber'")
 
-    result = dict(PALETTES["duck"])
+    result = dict(PALETTES["dak"])
     result.update({
         "page": result["bg"],
         "surface_alt": result["elevated"],
@@ -172,7 +172,7 @@ def palette_for(mode: str = "duck", *, system_dark: bool | None = None) -> dict[
     })
     issues = palette_contrast_issues(result)
     if issues:
-        raise ValueError("Duck palette fails UI/UX 40026: " + "; ".join(issues))
+        raise ValueError("DAK palette fails UI/UX 40026: " + "; ".join(issues))
     return result
 
 def _walk(widget: tk.Misc) -> Iterator[tk.Misc]:
@@ -181,10 +181,10 @@ def _walk(widget: tk.Misc) -> Iterator[tk.Misc]:
         yield from _walk(child)
 
 
-def apply_ui_theme(root: tk.Misc, mode: str = "duck") -> dict[str, str]:
+def apply_ui_theme(root: tk.Misc, mode: str = "dak") -> dict[str, str]:
     """Apply a complete theme atomically to ttk and classic Tk data widgets."""
     colors = palette_for(mode)
-    root._oplague_theme_mode = "duck"  # type: ignore[attr-defined]
+    root._oplague_theme_mode = "dak"  # type: ignore[attr-defined]
     style = ttk.Style(root)
     try:
         installed = {family.casefold(): family for family in tkfont.families(root)}
@@ -328,7 +328,7 @@ def apply_ui_theme(root: tk.Misc, mode: str = "duck") -> dict[str, str]:
             continue
 
     root._oplague_native_backdrop = apply_native_backdrop(root)  # type: ignore[attr-defined]
-    _save_preferred_theme("duck")
+    _save_preferred_theme("dak")
     return colors
 
 

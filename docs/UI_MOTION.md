@@ -40,9 +40,9 @@ The Tk spring solver uses semi-implicit Euler integration, two substeps and a ma
 
 ## Anatidae / Pond Motion integration
 
-OPlague reuses the existing bounded Tk spring controller for the duck-inspired paddle response. The shared tokens are `PADDLE_EASING = cubic-bezier(0.22, 1.18, 0.36, 1)` and `WATER_EASING = cubic-bezier(0.37, 0, 0.63, 1)`; the second is reserved for optional showcase artwork. Expressive Motion remains a stronger spring preset with a duration multiplier capped at 380 ms. Reduce Motion and Eco take precedence and cap retained motion at 80 ms.
+OPlague reuses the existing bounded Tk spring controller for the dak-inspired paddle response. The shared tokens are `PADDLE_EASING = cubic-bezier(0.22, 1.18, 0.36, 1)` and `WATER_EASING = cubic-bezier(0.37, 0, 0.63, 1)`; the second is reserved for optional showcase artwork. Expressive Motion remains a stronger spring preset with a duration multiplier capped at 380 ms. Reduce Motion and Eco take precedence and cap retained motion at 80 ms.
 
-Duck, feather, ripple and parallax effects are optional landing/showcase motifs only. They do not appear behind the inventory, hash, INF, archive, device graph or compatibility evidence surfaces. Animation is presentation-only on the Tk UI thread; it never delays package inspection or changes driver state.
+DAK, feather, ripple and parallax effects are optional landing/showcase motifs only. They do not appear behind the inventory, hash, INF, archive, device graph or compatibility evidence surfaces. Animation is presentation-only on the Tk UI thread; it never delays package inspection or changes driver state.
 
 See the [shared Anatidae motion constitution](ANATIDAE_MOTION_CONSTITUTION.md).
 
