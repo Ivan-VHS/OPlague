@@ -143,6 +143,18 @@
         "crates/pytyliki-diagnostics-abi/src/lib.rs",
         "docs/PYTYLIKI_DIAGNOSTICS_ABI.md"
       ]
+    },
+    {
+      "id": "education.early-math-pack-validation",
+      "status": "implemented",
+      "summary": "Read-only standard-library validation and a strict JSON Schema for bounded age-banded early-math activity packs. Rejects unknown/personal-data fields, timers, scoring, network dependencies, external links, embedded executable markup, duplicate keys and oversized inputs; does not execute or render content.",
+      "evidence": [
+        "schemas/early-math-activity-pack.v1.schema.json",
+        "tools/validate_early_math_pack.py",
+        "tests/test_early_math_pack.py",
+        "examples/early_math_pack.v1.json",
+        "docs/EARLY_MATH_PACK_SECURITY.md"
+      ]
     }
   ],
   "interfaces": [

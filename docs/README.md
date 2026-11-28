@@ -6,6 +6,8 @@ Start with the [root README](../README.md) for platform scope, supported workflo
 
 ## Core references
 
+- [Early math pack security contract](EARLY_MATH_PACK_SECURITY.md) — read-only limits for declarative activity packs.
+
 - [Feature matrix](FEATURES.md) — implemented inspection and reporting capabilities.
 - [Architecture](ARCHITECTURE.md) — bounded evidence flow and trust boundaries.
 - [UDRV format v1](UDRV_FORMAT_V1.md) — package manifest and resource constraints.

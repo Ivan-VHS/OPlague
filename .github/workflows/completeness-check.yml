@@ -251,6 +251,11 @@ jobs:
             python tools/validate_plugin_federation.py
           fi
 
+          if [[ -f tools/validate_early_math_pack.py ]]; then
+            python tools/validate_early_math_pack.py examples/early_math_pack.v1.json
+            python -m unittest discover -s tests -p "test_early_math_pack.py" -v
+          fi
+
           # Exercise only the OPlague CLI contract that exists in this source tree.
           # These commands are local and read-only; they do not inspect or modify devices.
           if [[ -f oplague/__main__.py ]]; then
