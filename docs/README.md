@@ -6,6 +6,8 @@ Start with the [root README](../README.md) for platform scope, supported workflo
 
 ## Core references
 
+- [Early Mathematics Content Assurance v1](EARLY_MATHEMATICS_CONTENT_ASSURANCE_V1.md) — proposed bounded, read-only inspection profile for declarative educational content packs.
+
 - [Feature matrix](FEATURES.md) — implemented inspection and reporting capabilities.
 - [Architecture](ARCHITECTURE.md) — bounded evidence flow and trust boundaries.
 - [UDRV format v1](UDRV_FORMAT_V1.md) — package manifest and resource constraints.
