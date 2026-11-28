@@ -1,55 +1,115 @@
-# OPlague — робоча станція пристроїв, драйверів та ігрової продуктивності
+# OPlague — робоча станція доказів щодо пристроїв і драйверів
 
 [English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
 
-[![Windows build](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/desktop-build.yml?branch=main&label=Windows%20build)](https://github.com/Ivan-VHS/OPlague/actions/workflows/desktop-build.yml) [![Перевірка документації](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/OPlague/docs.yml?branch=main&label=Docs%20checks)](https://github.com/Ivan-VHS/OPlague/actions/workflows/docs.yml) [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/OPlague)](LICENSE)
+> Локальна read-only робоча станція для інвентаризації пристроїв Windows, обмеженої перевірки пакетів драйверів, пошуку кандидатів за hardware ID та телеметрії з позначенням джерела.
 
-<p align="center"><img src="assets/readme/dashboard.svg" alt="Огляд OPlague" width="100%"></p>
-<p align="center"><a href="assets/screenshots/oplague-workbench.png"><img src="assets/screenshots/oplague-workbench.png" alt="Робоча станція OPlague у Windows" width="100%"></a></p>
+**Специфікація**
 
-OPlague — локальна desktop-станція для перевірки пристроїв і драйверів, аналізу пакетів, доказів сумісності та ігрової продуктивності.
+| Поле | Поточний запис |
+|---|---|
+| Репозиторій | [Ivan-VHS/OPlague](https://github.com/Ivan-VHS/OPlague) |
+| Стан проєкту | Розробка; Windows-first середовище інспекції |
+| Версія продукту | Єдину версію не оголошено в контракті проєкту |
+| Основний стек | Python 3.10+; JSON Schema; обмежені native-інтеграції |
+| Runtime | Windows, Linux і macOS для підтримуваних offline-сценаріїв |
+| Live-інвентаризація пристроїв | Лише Windows |
+| Desktop | Windows |
+| Ліцензія | [Apache-2.0](LICENSE) |
+| Кодекс поведінки | Окремий `CODE_OF_CONDUCT.md` не опубліковано |
+| Перевірка документації | 2026-11-26 |
 
-**Базова межа:** перевірка працює лише на читання. Виявлення пристроїв і аналіз вибраних файлів не встановлюють, не вмикають, не вимикають і не змінюють драйвери. Кандидати сумісності й телеметрія є даними для перевірки, а не сертифікацією.
+<p align="center"><img src="assets/oplague-workbench-preview.svg" alt="Архітектура робочої станції OPlague" width="100%"></p>
+<p align="center"><a href="assets/screenshots/oplague-workbench.png"><img src="assets/screenshots/oplague-workbench.png" alt="Знімок робочої станції OPlague" width="100%"></a></p>
 
-## Можливості
+## Зміст
+- [Призначення та межі проєкту](#призначення-та-межі-проєкту)
+- [Архітектура та потік даних](#архітектура-та-потік-даних)
+- [Вимоги та швидкий старт](#вимоги-та-швидкий-старт)
+- [Інтерфейси й докази](#інтерфейси-й-докази)
+- [Безпека та обмеження](#безпека-та-обмеження)
+- [Релізи та документація](#релізи-та-документація)
 
-- Інвентаризація Windows Plug-and-Play та обмежений аналіз INF/ZIP-пакетів.
-- Перевірка PE й Authenticode, нормалізовані hardware ID, хеші та SPDX-інвентаризація.
-- Докази сумісності пристроїв, перевірка пакетів UDRV і структуровані звіти.
-- Локальна ігрова телеметрія, аналіз frametime та зворотні користувацькі профілі продуктивності.
+## Призначення та межі проєкту
 
-Докладніше: [Можливості](docs/FEATURES.md) · [Архітектура](docs/ARCHITECTURE.md) · [Authenticode](docs/AUTHENTICODE.md) · [Архітектура драйверів](docs/DRIVER_TARGET_ARCHITECTURE.md) · [UDRV](docs/UDRV_FORMAT_V1.md) · [Ігрова станція](docs/GAMING_PERFORMANCE_WORKBENCH.md) · [GPU telemetry bridge v1](docs/GPU_TELEMETRY_BRIDGE_V1.md).
+OPlague — локальне середовище доказового аналізу: read-only інвентаризація Windows Plug-and-Play, обмежена перевірка метаданих INF/ZIP/UDRV, точне нормалізоване зіставлення hardware ID для пошуку кандидатів, локальні метрики й експорт GPU-телеметрії. Offline-аналіз файлів і звітів доступний поза Windows, якщо конкретний сценарій не потребує live Plug-and-Play.
 
-## Запуск і тести
+Продукт не встановлює, не видаляє, не вмикає, не вивантажує та не змінює драйвери. Він не виконує payload пакетів, не сертифікує сумісність пристроїв і не перетворює збіг метаданих на висновок про безпеку.
 
-Для поточних desktop-інструментів і перевірок потрібен Python 3.10–3.12.
+## Архітектура та потік даних
 
-```sh
+~~~mermaid
+flowchart TB
+  U["Обраний користувачем пристрій або файл"] --> I["Обмежений інспектор"]
+  I --> N["Нормалізація ID, шляхів, розмірів і хешів"]
+  N --> E["Запис доказів і граф кандидатів"]
+  E --> R["Локальний звіт / версіонований JSON snapshot"]
+  P["Read-only запит Windows PnP"] --> E
+  G["Джерело NVIDIA telemetry (лише читання)"] --> T["Знімок GPU-телеметрії"]
+  T --> R
+  R -.-> X["Без встановлення, завантаження, розпакування чи сертифікації"]
+~~~
+
+Основний потік: локальний ввід → обмежений парсер або фіксований read-only системний запит → нормалізовані докази → звіт. Метадані недовірених архівів обмежуються до аналізу. Payload пакетів драйверів не розпаковується та не виконується.
+
+## Вимоги та швидкий старт
+
+Для поточних інструментів потрібен Python 3.10+; Windows потрібна для live-інвентаризації Plug-and-Play. Offline-перевірка файлів і звітів доступна в підтримуваних середовищах Python.
+
+~~~sh
+python -m venv .venv
 python oplague_app.py
+~~~
+
+Запустіть тести й перевірте вибраний локальний пакет:
+
+~~~sh
 python -m unittest discover -s tests -v
-python -m oplague --verify
-python -m oplague --catalog
-```
-
-Перевірка пакета:
-
-```sh
 python tools/udrv_inspector.py path/to/package.udrv --json
-```
+~~~
 
-Збирання окремого Windows executable через PyInstaller:
+Команда UDRV перевіряє manifest, оголошений список файлів, розмір, хеш і обмеження шляхів/ресурсів. Вона не встановлює, не завантажує, не розпаковує та не виконує payload.
 
-```sh
-python -m pip install --upgrade pyinstaller
-python -m PyInstaller --noconfirm --clean --onefile --windowed --name OPlague oplague_app.py
-```
+## Інтерфейси й докази
 
-## Інтеграція та докази
+| Інтерфейс | Контракт | Межа |
+|---|---|---|
+| Device snapshot | `oplage.device-snapshot.v1` | Версіонований JSON; псевдонімний відбиток пристрою |
+| GPU telemetry | `oplage.gpu-telemetry.v1` | Метадані read-only джерела; відсутні значення лишаються unknown |
+| UDRV | Manifest UDRV v1 | Лише обмежена перевірка |
+| Batch report | `oplage.inspection-bundle.v1` | Упорядкований локальний підсумок і детермінований digest |
+| Pytyliki | `pytyliki.c-abi.v1` | Необов’язковий native-виклик через явно довірену бібліотеку |
+| Reaper | Версіоноване JSON-порівняння | Offline-порівняння без зміни пристрою |
 
-- [Індекс документації](docs/README.md) · [Інтеграція runtime Reaper](docs/REAPER_RUNTIME_INTEGRATION.md)
-- [Інтеграція DuckOS та Mora](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/GAMING_PERFORMANCE_INTEGRATION.md)
-- [Спільні стандарти екосистеми](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/SHARED_STANDARDS.md)
+Точний збіг нормалізованого hardware ID створює лише ребро кандидата. Він не ранжує, не сертифікує, не встановлює та не підтверджує безпеку драйвера. NVIDIA-телеметрія містить відомості про джерело; наявність GPU або провайдера не припускається автоматично.
 
-Поточну поведінку визначають вихідний код, схеми й тести. Станція не прошиває пристрої, не встановлює драйвери й не сертифікує сумісність автоматично.
+## Безпека та обмеження
 
-[Внесок у проєкт](CONTRIBUTING.md) · [Безпека](SECURITY.md) · [Apache-2.0](LICENSE)
+> **Межа лише читання:** документований шлях інспекції не встановлює, не завантажує, не розпаковує та не виконує пакети або payload драйверів.
+
+Вважайте INF, ZIP, UDRV та імпортовані звіти недовіреними даними. Парсери обмежують кількість записів, шляхи, розміри й ступінь стиснення; SHA-256 виявляє зміну вмісту, але не є цифровим підписом і не автентифікує видавця. Authenticode-метадані збираються лише для вибраних підтримуваних файлів і не доводять сумісність пристрою чи безпечність експлуатації.
+
+Live Plug-and-Play доступний лише у Windows. Offline-аналіз звітів і пакетів відокремлений від live-інвентаризації. Rust 2021 diagnostics ABI consumer — обмежений компонент інтеграції, а не повна міграція робочої станції на Rust/Slint. Контракт проєкту не оголошує єдину версію продукту.
+
+Сканер репозиторію Beelzebul — локальний/static-інструмент перевірки вихідного коду; це не endpoint-антивірус, не сканування пам’яті процесів і не карантин. Точна поведінка та розкриття вразливостей описані в [SECURITY.md](SECURITY.md).
+
+## Релізи та документація
+
+Почніть з [індексу документації](docs/README.md) та [інформаційної архітектури](docs/INFORMATION_ARCHITECTURE.md).
+
+- [Матриця функцій](docs/FEATURES.md)
+- [Архітектура](docs/ARCHITECTURE.md)
+- [Формат UDRV v1](docs/UDRV_FORMAT_V1.md)
+- [Граф сумісності пристроїв](docs/DEVICE_COMPATIBILITY_GRAPH.md)
+- [Міст GPU telemetry v1](docs/GPU_TELEMETRY_BRIDGE_V1.md)
+- [Федеративна інтеграція](docs/FEDERATED_INTEGRATION.md)
+- [Поширення Windows-релізу](docs/RELEASE.md)
+- [Політика безпеки](SECURITY.md)
+
+Workflow Windows-релізу створює **чернетку** GitHub Release для перевірки супроводжувачем. SHA-256 sidecar виявляє зміну байтів відносно хешу, але не є цифровим підписом і не автентифікує видавця. Публікація релізу є окремою дією супроводжувача.
+
+Перед зміною парсерів, схем, зіставлення кандидатів або telemetry прочитайте [CONTRIBUTING.md](CONTRIBUTING.md). Репозиторій поширюється за [Apache-2.0](LICENSE); зберігайте upstream-повідомлення й атрибуцію.
+
+## Історія релізів
+
+Поточний контракт проєкту не оголошує єдину версію продукту. Не слід виводити версію релізу з чернеткового workflow або метаданих пакета. Публічні релізи й статуси підтримки мають підтверджуватися реальними тегами та опублікованими артефактами. Breaking changes JSON-схем або manifest UDRV потребують явної версії та примітки щодо міграції.

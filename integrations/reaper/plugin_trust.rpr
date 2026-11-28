@@ -1,0 +1,88 @@
+# Reaper-side plugin trust policy for OPlague inventory extensions.
+# This policy approves read-only permission requests only; it does not create a sandbox.
+# Plugin loading, isolation and process enforcement remain host/kernel responsibilities.
+# Author: Ivan-VHS
+
+craft valid_plugin_descriptor(plugin) {
+    when kind(plugin) != "list" or size(plugin) != 4 {
+        yield false
+    }
+    when kind(plugin[0]) != "text" or plugin[0] == "" {
+        yield false
+    }
+    when kind(plugin[1]) != "boolean" or kind(plugin[2]) != "boolean" {
+        yield false
+    }
+    when kind(plugin[3]) != "list" or size(plugin[3]) > 32 {
+        yield false
+    }
+
+    vary seen := []
+    each permission in plugin[3] {
+        when kind(permission) != "text" or permission == "" {
+            yield false
+        }
+        when contains(seen, permission) {
+            yield false
+        }
+        change seen := push(seen, permission)
+    }
+    yield true
+}
+
+craft plugin_disposition(plugin) {
+    when not valid_plugin_descriptor(plugin) {
+        yield "INVALID_DESCRIPTOR"
+    }
+    when not plugin[1] or not plugin[2] {
+        yield "QUARANTINE"
+    }
+
+    each permission in plugin[3] {
+        when not contains(["inventory.read", "device.read", "report.emit"], permission) {
+            yield "BLOCKED_PERMISSION"
+        }
+    }
+    yield "APPROVED_READ_ONLY_POLICY"
+}
+
+craft allows_permission(plugin, permission) {
+    when plugin_disposition(plugin) != "APPROVED_READ_ONLY_POLICY" {
+        yield false
+    }
+    when kind(permission) != "text" {
+        yield false
+    }
+    each granted in plugin[3] {
+        when granted == permission {
+            yield true
+        }
+    }
+    yield false
+}
+
+make trusted_plugin := ["inventory-summary", true, true, ["inventory.read", "report.emit"]]
+make unsigned_plugin := ["unknown-plugin", false, true, ["inventory.read"]]
+make writer_plugin := ["driver-helper", true, true, ["device.read", "firmware.write"]]
+make unknown_permission := ["extra-plugin", true, true, ["network.connect"]]
+make malformed_plugin := ["", true, true, ["inventory.read"]]
+make malformed_plugin_type := ["typed-plugin", "true", true, ["inventory.read"]]
+make malformed_permission := ["bad-permission", true, true, ["inventory.read", 17]]
+make duplicate_permission := ["duplicate-plugin", true, true, ["inventory.read", "inventory.read"]]
+make malformed_container := "not-a-plugin"
+
+assert(plugin_disposition(trusted_plugin) == "APPROVED_READ_ONLY_POLICY", "trusted read-only plugin policy must pass")
+assert(plugin_disposition(unsigned_plugin) == "QUARANTINE", "unsigned plugin must be quarantined")
+assert(plugin_disposition(writer_plugin) == "BLOCKED_PERMISSION", "firmware write must be blocked")
+assert(plugin_disposition(unknown_permission) == "BLOCKED_PERMISSION", "unknown permission must be denied")
+assert(plugin_disposition(malformed_plugin) == "INVALID_DESCRIPTOR", "empty plugin identity must be rejected")
+assert(plugin_disposition(malformed_plugin_type) == "INVALID_DESCRIPTOR", "plugin trust field type must be checked")
+assert(plugin_disposition(malformed_permission) == "INVALID_DESCRIPTOR", "permission type must be checked")
+assert(plugin_disposition(duplicate_permission) == "INVALID_DESCRIPTOR", "duplicate permissions must be rejected")
+assert(plugin_disposition(malformed_container) == "INVALID_DESCRIPTOR", "plugin container type must be checked")
+assert(allows_permission(trusted_plugin, "inventory.read"), "read permission must be granted to trusted plugin")
+assert(not allows_permission(trusted_plugin, "firmware.write"), "write permission must never be granted")
+assert(not allows_permission(trusted_plugin, "network.connect"), "network permission must never be granted")
+assert(not allows_permission(writer_plugin, "device.read"), "blocked plugin must receive no capabilities")
+
+emit "OPLAGUE_REAPER_PLUGIN_TRUST:PASS"

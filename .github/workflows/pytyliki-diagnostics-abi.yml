@@ -1,0 +1,65 @@
+name: Pytyliki diagnostics C ABI integration
+
+on:
+  pull_request:
+    paths:
+      - "crates/pytyliki-diagnostics-abi/**"
+      - "docs/PYTYLIKI_DIAGNOSTICS_ABI.md"
+      - "project-contract.json"
+      - ".github/workflows/pytyliki-diagnostics-abi.yml"
+  push:
+    branches: [main]
+    paths:
+      - "crates/pytyliki-diagnostics-abi/**"
+      - "docs/PYTYLIKI_DIAGNOSTICS_ABI.md"
+      - "project-contract.json"
+      - ".github/workflows/pytyliki-diagnostics-abi.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pytyliki-diagnostics-abi-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust-c-abi:
+    name: Rust layout and real shared-library contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout OPlague
+        uses: actions/checkout@v7
+
+      - name: Checkout the exact Pytyliki ABI proposal
+        uses: actions/checkout@v7
+        with:
+          repository: Ivan-VHS/Pytyliki
+          ref: 0ff3b951cb6398a43d1bd199c9200d95b4c7bb18
+          path: _deps/Pytyliki
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Build Pytyliki C11 shared library and ABI tests
+        run: |
+          set -euo pipefail
+          cmake -S _deps/Pytyliki -B _deps/Pytyliki/build \
+            -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+          cmake --build _deps/Pytyliki/build --parallel \
+            --target pytyliki_ffi pytyliki-interop-tests pytyliki-diagnostics-abi-tests
+          ctest --test-dir _deps/Pytyliki/build \
+            -R '^(diagnostics-abi-v1-tests|interop-abi-tests)$' \
+            --output-on-failure
+
+      - name: Check Rust formatting
+        run: cargo fmt --manifest-path crates/pytyliki-diagnostics-abi/Cargo.toml -- --check
+
+      - name: Test Rust layout against the real C shared library
+        env:
+          PYTYLIKI_LIB_DIR: ${{ github.workspace }}/_deps/Pytyliki/build
+          LD_LIBRARY_PATH: ${{ github.workspace }}/_deps/Pytyliki/build
+        run: cargo test --manifest-path crates/pytyliki-diagnostics-abi/Cargo.toml -- --test-threads=1
